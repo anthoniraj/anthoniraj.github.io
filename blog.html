@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<!-- Global site tag (gtag.js) - Google Analytics -->
+		<script async src="https://www.googletagmanager.com/gtag/js?id=UA-113941896-1"></script>
+		<script>
+			window.dataLayer = window.dataLayer || [];
+			function gtag(){dataLayer.push(arguments);}
+			gtag('js', new Date());
+		
+			gtag('config', 'UA-113941896-1');
+		</script>
+		<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+
+		<meta charset="utf-8">
+		<meta name="viewport" content="width=device-width, initial-scale=0.95, user-scalable=no">
+		<meta name="msapplication-TileColor" content="#2b5797">
+		<meta name="theme-color" content="#ffffff">
+
+		<!-- Add icon library -->
+		<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+		<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+		<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+		<link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+		<link rel="manifest" href="/site.webmanifest">
+		<link rel="mask-icon" href="/safari-pinned-tab.svg" color="#5bbad5">
+		<link rel="stylesheet" href="/font-awesome-4.7.0/css/font-awesome.min.css">
+		<link rel="stylesheet" type="text/css" href="http://fonts.googleapis.com/css?family=Roboto">
+
+		<style>
+			html {
+				background-color: black;
+				font-family: 'Roboto',serif, 'Roboto', cursive, 'Roboto', sans-serif;
+			}
+
+			body {
+				background-color: black;
+				background-repeat:repeat;
+				margin: 0%;
+				color: white;
+				font-family: 'Roboto',serif, 'Roboto', cursive, 'Roboto', sans-serif;
+				opacity: 1;
+				transition: 7s opacity;
+			}
+
+			body.fade-out {
+				opacity: 0;
+				transition: none;
+			}
+
+
+			/* Style the video: 100% width and height to cover the entire window */
+			#myVideo {
+				position: fixed;
+				right: 0;
+				bottom: 0;
+				min-width: 100%; 
+				min-height: 100%;
+			}
+
+
+			/* Add a hover effect if you want */
+			.fa:hover {
+				opacity: 0.7;
+			}
+
+			.navbar-nav > li > .dropdown-menu {     background-color: white;  color:#1da2d8; font-family: 'Roboto',serif, 'Roboto', cursive, 'Roboto', sans-serif;}
+
+			navbar {
+			font-family: 'Roboto',serif, 'Roboto', cursive, 'Roboto', sans-serif;
+			background-color: white;
+			background: black;
+			border-color: black;
+			}
+
+			.navbar li { color:white } 
+
+			.navbar-toggle {
+			position: relative;
+			float: right;
+			padding: 9px 10px;
+			margin-top: 8px;
+			margin-right: 15px;
+			margin-bottom: 8px;
+			background-image: none;
+			border: 1px solid transparent;
+			border-radius: 4px;
+			}
+			.navbar-toggle .icon-bar {
+			display: block;
+			width: 22px;
+			height: 2px;
+			border-radius: 1px;
+			background-color: #1da2d8 /* change this to any color you want! */;
+			}
+			body > .container{ padding-top: 60px;}
+		</style>
+
+				  
+		<!-- Latest compiled and minified CSS -->
+		<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
+
+		<!-- Optional theme -->
+		<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap-theme.min.css" integrity="sha384-rHyoN1iRsVXV4nD0JutlnGaslCJuC7uwjduW9SVrLvRYooPp2bWYgmgJQIXwl/Sp" crossorigin="anonymous">
+
+		<!-- Latest compiled and minified JavaScript -->
+		<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
+				  
+		<style>
+		.navbar-default{ box-shadow: none;
+		}
+		</style>
+	<title>Web Development Solutions</title>
+</head>
+
+<body style="font-family: 'Roboto',serif, 'Roboto', cursive, 'Roboto', sans-serif;">	
+	<!-- The video disabled for blog page-->
+	<video autoplay muted loop id="//myVideo" poster="/images/thumbNail.png">
+		<source src="https://player.vimeo.com/external/236075858.hd.mp4?s=539faad12f040eb5afd8de3160db1220f1a5bac0&amp;profile_id=175&amp;oauth2_token_id=57447761" type="video/mp4">
+	</video>
+
+	  <nav class="navbar" role="navigation" style="background-color: transparent;">
+			<div class="navbar-header">
+				<button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#myNavbar">
+					<span class="icon-bar"></span>
+					<span class="icon-bar"></span>
+					<span class="icon-bar"></span>
+				</button>    
+				<a class="navbar-brand navbar-link" style="color: #1da2d8; font-size:150%" href="http://cafetechne.com">Web Development Solutions</a> 
+			</div>
+			<!-- Nav Collapse -->
+			<div class="navbar-collapse collapse" id="collapse-1">
+				<!-- Nav Left -->
+				<ul class="nav navbar-nav navbar-right ">
+					<!-- Products -->
+					<li class="dropdown">
+						<a href="#" class="dropdown-toggle" data-toggle="dropdown" style="color: #1da2d8;" role="button" aria-haspopup="true" aria-expanded="false">
+							<span class="fa fa-tags"></span><span class="link"> Products</span> <span class="fa fa-caret-down"></span>
+						</a>
+						<ul class="dropdown-menu">
+							<li><a href="https://docs.google.com/forms/d/e/1FAIpQLSddKzSINMs3rxCRqaGUOj_6dLB8TmnBQoWlJDRCJQgL8z5o2w/viewform?usp=sf_link" target="_blank" style="color: #0e516c;"><span style="color: #1da2d8;" class="fa fa-tag"></span>   Web Development Packages</a></li>
+							<li><a href="https://docs.google.com/forms/d/e/1FAIpQLScQ4Vyo9L4-9465zmdK99p1li9fIcSqknylxQPrD_-OE3GPdQ/viewform?usp=sf_link" target="_blank" style="color: #0e516c;"><span style="color: #1da2d8;" class="fa fa-tag"></span>   Smart Phone App Development Package</a></li>
+							<li><a href="https://docs.google.com/forms/d/e/1FAIpQLSeIAmDamU7P50-QsBUIeYoSiv9hB7LDWgVA1QcuFl-CTEUbwg/viewform?usp=sf_link" target="_blank" style="color: #0e516c;"><span style="color: #1da2d8;" class="fa fa-tag"></span>   Custom Linux/Windows Program Development Package</a></li>
+						</ul>
+					</li>
+					<!-- Services -->
+					<li class="dropdown">
+						<a href="#" class="dropdown-toggle" data-toggle="dropdown" style="color: #1da2d8;" role="button" aria-haspopup="true" aria-expanded="false">
+							<span class="fa fa-gears"></span><span style="color: #1da2d8;" class="link"> Services</span> <span class="fa fa-caret-down"></span>
+						</a>
+						<ul class="dropdown-menu">
+							<li><a href="https://docs.google.com/forms/d/e/1FAIpQLSdIrgg-Cac-I7bESXuXeqL4BPtlF_YLEve_RzlnVvU5-mGTHg/viewform?usp=sf_link" target="_blank" style="color: #0e516c;"><span style="color: #1da2d8;" class="fa fa-gear"/></span>   Cyber Security Assessments</a></li>
+							<li><a href="https://docs.google.com/forms/d/e/1FAIpQLSdhxrylu65LgdWOCDKJL8KuXQZV8G4WsLtdraxmFgx6MP9RAQ/viewform?usp=sf_link" target="_blank" style="color: #0e516c;"><span style="color: #1da2d8;" class="fa fa-gear"/></span>   Social Media Services</a></li>
+							<li><a href="https://docs.google.com/forms/d/e/1FAIpQLSf9RlphmhyyGf1ZhW6UVaNgosiNkSpyfkxJUnXgXORN1p1CPA/viewform?usp=sf_link" target="_blank" style="color: #0e516c;"><span style="color: #1da2d8;" class="fa fa-gear"/></span>   Ghost Blogging</a></li>
+						</ul>
+					</li>
+					<!-- Contact -->
+					<li><a href="https://docs.google.com/forms/d/e/1FAIpQLSdnVfuqi1dwDU-2d156URQYcgWk83jOo02gTGP4tvj389_riQ/viewform?usp=sf_link" target="_blank"><span style="color: #1da2d8;" class="fa fa-phone"></span><span style="color: #1da2d8;" class="link"> Contact</span></a>
+					</li>
+					</ul>
+				</div>
+			</div>
+		</nav>
+
+	<div class="row"> 
+		<div class="col-xs-1"> </div>
+		<aside class="col-xs-10 text-center" style="margin-top: 12%; color:#1da2d8; font-family: 'Roboto', serif, 'Roboto', sans-serif;" align="center">
+			<h2><p><b>Web</b><br><b>Development</b><br> with unparalleled </br>commitment to <b>Service</b>.</p></h2>
+		</aside>
+	<div class="col-xs-1"> </div>
+	<section class="row"> </section>
+
+	<nav class="navbar navbar-fixed-bottom text-center" align="center">
+		<a class="btn btn-social-icon btn-github" align="center" href="https://github.com/cafetechne" target="_blank">
+			<span class="fa fa-github-square" style="font-size: 32px;" ></span>
+		</a>
+		<a class="btn align="center"" href="https://cafetechne.com" target="_blank">
+			<span class="fa fa-coffee" style="font-size: 32px;"></span>
+		</a>
+		<a class="btn btn-social-icon btn-codepen" align="center" href="https://codepen.io/webDevelopmentSolutions/" target="_blank">
+			<span class="fa fa-codepen" style="font-size: 32px;"></span>
+		</a>
+	</nav>
+ 
+	<script>document.body.className += ' fade-out';</script>
+	<script>
+	// Open close dropdown on click
+	$("li.dropdown").click(function(){
+		if($(this).hasClass("open")) {
+			$(this).find(".dropdown-menu").slideUp("fast");
+			$(this).removeClass("open");
+		}
+		else { 
+			$(this).find(".dropdown-menu").slideDown("fast");
+			$(this).toggleClass("open");
+		}
+	});
+	
+	// Close dropdown on mouseleave
+	$("li.dropdown").mouseleave(function(){
+		$(this).find(".dropdown-menu").slideUp("fast");
+		$(this).removeClass("open"); 
+	});
+
+	// Navbar toggle
+	$(".navbar-toggle").click(function(){
+		$(".navbar-collapse").toggleClass("collapse").slideToggle("fast");
+	});
+
+	// Font colors
+	$("#font-colors > .btn").click(function(){
+		if($(this).is("#white")) {
+			$(".navbar .fa, .link, a").css("color","white");
+			$(".icon-bar").css("background","transparent");
+		}
+		else if($(this).is("#black")) {
+			$(".navbar .fa, .link, a").css("color","black");
+			$(".icon-bar").css("background","transparent");
+		}
+	})
+	</script>
+	<script>
+		$(function() {
+			$('body').removeClass('fade-out');
+		});
+	</script>
+</body>
+</html>

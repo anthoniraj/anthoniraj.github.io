@@ -1,0 +1,406 @@
+@import url('https://fonts.googleapis.com/css?family=Crimson+Text|Forum|Fjalla+One');
+
+
+html,body{
+  overflow-x: hidden;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+}
+
+p {
+  font-family: 'Crimson Text', serif;
+}
+
+h4 {
+  padding: 10px;
+  margin: 5px;
+  font-size: 2rem;
+}
+
+h3 {
+
+  font-family: 'Crimson Text', serif;
+  padding-left: 0px;
+  padding-right: 0px;
+  padding-top: 5px;
+  padding-bottom: 5px;
+  margin: 5px;
+  text-align: center;
+  font-size: 4rem;
+}
+
+h2 {
+  text-align: center;
+  font-family: 'Crimson Text', serif;
+}
+
+h1 {
+  margin-top: 5px;
+  text-align: center;
+  font-family: 'Crimson Text', serif;
+}
+
+.navbar-brand {
+  font-family: 'Crimson Text', serif;
+  position: absolute;
+  width: 100%;
+  left: 0;
+  text-align: center;
+  margin: auto;
+}
+
+.navbar-link {
+  font-family: 'Crimson Text', serif;
+  font-size: 2.5vh;
+  color: #000000;
+
+}
+
+.navbar-toggle {
+  z-index: 3;
+}
+
+.centerMe {
+  text-align: center;
+}
+
+/* Phone 
+@media  only screen and (max-width:320px){}*/
+
+/* Tablet 
+@media  only screen and (min-width:321px) and (max-width:768px){}*/
+
+/* Desktop 
+@media  only screen and (min-width:769px){}*/
+
+.aboutMe {
+  font-size: 175%;
+  font-family: 'Forum', cursive;
+  color: black;
+  text-align: center;
+  margin-bottom: -12px;
+  font-weight: 300;
+  margin-top: 15px;
+}
+
+.aboutMeBody {
+  padding: 20px;
+  font-family: 'Crimson Text', serif;
+  text-justify: left;
+  color: black;
+  font-size: 150%;
+  font-weight: normal;
+}
+
+body {
+  font-family: 'Crimson Text', serif;
+  overflow-x: hidden;
+}
+
+a {
+  font-family: 'Crimson Text', serif;
+}
+
+btn-basic {
+  font-size: 125%;
+  color: black;
+  text-align: center;
+}
+#nameInNavBar{
+  font-size: 3rem;
+  color: black;
+  margin: 0;
+  padding: 0;
+  text-align: center;
+  font-family: 'Forum', cursive;
+  font-weight: bold;
+  line-height: .7;
+}
+
+.footer-menu{
+  color:  black;
+  font-size: 120%;
+  font-weight: bolder;
+}
+
+
+
+.navbar-header {
+  float: none;
+}
+.navbar-toggle {
+  display: block;
+}
+.navbar-collapse {
+  border-top: 1px solid transparent;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,0.1);
+}
+.navbar-collapse.collapse {
+  display: none!important;
+}
+.navbar-nav {
+  float: none!important;
+  margin: 7.5px -15px;
+}
+.navbar-nav>li {
+  float: none;
+}
+.navbar-nav>li>a {
+  padding-top: 10px;
+  padding-bottom: 10px;
+}
+.navbar-collapse.collapse.in {display: block !important; }
+
+body{
+  margin-bottom: 50px;
+  padding-bottom: 70px;
+}
+
+.navLink{
+  font-size:125%;
+  color: black;
+  text-align:center;
+  font-family: 'Forum', cursive;
+  font-weight: bold;
+}
+.navbar-default .navbar-nav > li > a{
+  font-size: 2rem;
+  color: black;
+  text-align:center;
+}
+div .container-fluid{
+  margin: 0px;  
+
+}
+a.btn{
+  margin: 5px 10px 0px 10px;
+}
+#mainBiographyContainer{
+  background-color: #f8f8f8;
+  margin-top: 0px;
+  padding: 10px;
+}
+.professionPicture{
+  padding:1em;
+}
+.topicHeading{
+  font-size:200%;
+  background-color: #f8f8f8;
+  text-align:center;
+  font-family: 'Fjalla One', Roboto, -apple-system, BlinkMacSystemFont, 'Segoe UI', Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+  font-weight: normal;
+  padding: 5px 0px 0px 10px;
+}
+.contentBody{
+  font-size:150%;
+  padding-top: 8px;
+  text-justify: left;
+}
+#myNavbar > ul > li{
+  font-weight: 200;
+}
+.pageBreak{
+  display: block;
+  margin: 15px;
+}
+.journalName{
+  font-family: 'Crimson Text', serif;
+  font-size: 18px;
+  font-weight: 300;
+  font-style: italic;
+}
+
+@media screen and (max-width: 480px) {
+  .navbar-brand {
+    font-size: 1em;
+  }
+
+  .aboutMeBody {
+     font-size: 120%;
+  }
+  .contentBody{
+  font-size:120%;
+  padding-top: 8px;
+  text-justify: left;
+}
+
+  .topicHeading{
+  font-size:150%;
+  background-color: #f8f8f8;
+  text-align:center;
+  font-family: 'Fjalla One', Roboto, -apple-system, BlinkMacSystemFont, 'Segoe UI', Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+  font-weight: normal;
+  padding: 5px 0px 0px 10px;
+}
+.footer-menu{
+  color:  black;
+  font-size: 60%;
+  font-weight: bolder;
+}
+
+}
+
+@media screen and (max-width: 4000px) {
+  .navbar-brand {
+    font-size: 200%;
+  }
+}
+
+@media only screen and (max-width: 765px) {
+  #nameInNavBar{
+    font-size: 2.2rem;
+    text-align: left;
+
+  }
+  body > main > nav > div.navbar-header > a{
+    margin-top: 5px;
+
+  }
+}
+
+@media only screen and (max-width: 410px) {
+    #nameInNavBar{
+    font-size: 1.9rem;
+    text-align: left;
+    margin-left: 10px;
+    margin-top: 5px;
+  }
+.aboutMeBody {
+     font-size: 120%;
+  }
+
+ .contentBody{
+  font-size:120%;
+  padding-top: 8px;
+  text-justify: left;
+}
+
+.topicHeading{
+  font-size:150%;
+  background-color: #f8f8f8;
+  text-align:center;
+  font-family: 'Fjalla One', Roboto, -apple-system, BlinkMacSystemFont, 'Segoe UI', Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+  font-weight: normal;
+  padding: 5px 0px 0px 10px;
+}
+.footer-menu{
+  color:  black;
+  font-size: 60%;
+  font-weight: bolder;
+}
+
+}
+
+@media only screen and (max-width: 374px) {
+  #nameInNavBar{
+    font-size: 1.8rem;
+    text-align: left;
+    margin-left: 0px;
+  }
+ .aboutMeBody {
+     font-size: 120%;
+  }
+  .contentBody{
+  font-size:120%;
+  padding-top: 8px;
+  text-justify: left;
+}
+.topicHeading{
+  font-size:150%;
+  background-color: #f8f8f8;
+  text-align:center;
+  font-family: 'Fjalla One', Roboto, -apple-system, BlinkMacSystemFont, 'Segoe UI', Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+  font-weight: normal;
+  padding: 5px 0px 0px 10px;
+}
+.footer-menu{
+  color:  black;
+  font-size: 60%;
+  font-weight: bolder;
+}
+
+}
+@media only screen and (max-width: 325px) {
+  #nameInNavBar{
+    font-size: 1.6rem;
+    text-align: left;
+    margin-left: 0px;
+  }
+
+  .aboutMeBody {
+     font-size: 120%;
+  }
+  .contentBody{
+  font-size:120%;
+  padding-top: 8px;
+  text-justify: left;
+}
+.topicHeading{
+  font-size:150%;
+  background-color: #f8f8f8;
+  text-align:center;
+  font-family: 'Fjalla One', Roboto, -apple-system, BlinkMacSystemFont, 'Segoe UI', Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+  font-weight: normal;
+  padding: 5px 0px 0px 10px;
+}
+.footer-menu{
+  color:  black;
+  font-size: 60%;
+  font-weight: bolder;
+}
+
+}
+
+
+.timeFrameSpentTeaching{
+  font-size: 2.3rem;
+  font-family: 'Fjalla One', Roboto, -apple-system, BlinkMacSystemFont, 'Segoe UI', Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+  font-weight: normal;
+  margin-top: 15px;
+}
+.awardText{
+  font-size:150%;
+  padding-top: 8px;
+  text-justify: left;
+}
+.courseTaught{
+  font-family: 'Fjalla One', Roboto, -apple-system, BlinkMacSystemFont, 'Segoe UI', Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+  font-size: 2.3rem;
+  font-weight: normal;
+}
+.instructorOfRecordHeader{
+  font-family: Roboto, -apple-system, BlinkMacSystemFont, 'Segoe UI', Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+  font-size: 3rem;
+  font-weight: 300;
+  margin-top: 5px;
+  margin-bottom: 5px;
+
+}
+.teachingAwardsHeader{
+  font-size:200%;
+  background-color: #f8f8f8;
+  text-align:center;
+  font-family: 'Fjalla One', Roboto, -apple-system, BlinkMacSystemFont, 'Segoe UI', Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+  font-weight: normal;
+  padding: 5px 0px 0px 10px;
+}
+#myNavbar > ul:nth-child(1) > li > a{
+  margin-left: 1ch;
+}
+
+#myNavbar > ul:nth-child(3) > li > a{
+  margin-left: 2ch;
+}
+#oddBallLink{
+  margin-left: 3ch;
+}
+
+.list-group.panel > .list-group-item {
+  border-bottom-right-radius: 4px;
+  border-bottom-left-radius: 4px
+}
+.list-group-submenu {
+  margin-left:20px;
+}
+
