@@ -120,6 +120,7 @@ app.on({ page: 'gnanakural', content: 'gnanakural.html' }, function (activity) {
             $('#gnanakural').text(index + 1);
             $('#gnanakural-line1').text(json.content[index][json.abbreviations['line1']]);
             $('#gnanakural-line2').text(json.content[index][json.abbreviations['line2']]);
+            $('#meaning').text(json.content[index][json.abbreviations['meaning']]);
             $('#gnanakural-chapter').text(json.chapters[json.content[index][json.abbreviations['chapter']]]);
             $('#gnanakural-group').text(json.groups[json.content[index][json.abbreviations['group']]]);
         };
