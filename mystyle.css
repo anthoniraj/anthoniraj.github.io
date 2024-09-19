@@ -85,12 +85,12 @@ h1 {
 }
 
 .aboutMeBody {
-  padding: 20px;
-  font-family: 'Crimson Text', serif;
-  text-justify: left;
-  color: black;
-  font-size: 150%;
-  font-weight: normal;
+    padding: 5px;
+    font-family: 'Crimson Text', serif;
+    color: black;
+    font-size: 150%;
+    font-weight: normal;
+    text-align: justify;
 }
 
 body {
