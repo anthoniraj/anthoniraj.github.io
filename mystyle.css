@@ -85,7 +85,9 @@ h1 {
 }
 
 .aboutMeBody {
-    padding: 5px;
+    padding-bottom: 5px;
+    padding-left: 20px;
+    padding-right: 20px;
     font-family: 'Crimson Text', serif;
     color: black;
     font-size: 150%;
@@ -403,4 +405,3 @@ a.btn{
 .list-group-submenu {
   margin-left:20px;
 }
-
