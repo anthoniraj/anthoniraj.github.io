@@ -1,0 +1,258 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Geo-Tagged Photo Viewer</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f8f9fa;
+            margin: 0;
+            padding: 0;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 20px auto;
+            padding: 0 20px;
+        }
+
+        .text-center {
+            text-align: center;
+        }
+
+        .my-4 {
+            margin: 20px 0;
+        }
+
+        .upload-container {
+            background-color: #fff;
+            border: 2px dashed #ccc;
+            border-radius: 10px;
+            padding: 20px;
+            text-align: center;
+            margin: 20px 0;
+            position: relative;
+        }
+
+        .upload-container input[type="file"] {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            top: 0;
+            left: 0;
+            opacity: 0;
+            cursor: pointer;
+        }
+
+        .upload-container p {
+            margin: 0;
+            font-size: 0.9em;
+            color: #666;
+        }
+
+        #image-preview {
+            max-width: 100%;
+            max-height: 60vh;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        #map-iframe {
+            width: 100%;
+            height: 300px;
+            border: 1px solid #ddd;
+            border-radius: 10px;
+            margin-top: 20px;
+        }
+
+        .no-geotag {
+            padding: 15px;
+            background-color: #fff3cd;
+            border: 1px solid #ffeeba;
+            border-radius: 8px;
+            color: #856404;
+            margin-top: 20px;
+            text-align: center;
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        .location-info {
+            margin-top: 20px;
+            text-align: center;
+            font-size: 1.2em;
+            background-color: #e9ecef;
+            padding: 10px;
+            border-radius: 10px;
+        }
+
+        /* Removed .loading-popup to hide loading functionality */
+
+        /* Responsive adjustments with reduced header/title sizes */
+        @media (max-width: 768px) {
+            h1.display-5 {
+                font-size: 1.5em;
+            }
+            .lead {
+                font-size: 1em;
+            }
+            #image-preview {
+                max-height: 50vh;
+            }
+            #map-iframe {
+                height: 250px;
+            }
+            .location-info {
+                font-size: 1em;
+            }
+        }
+
+        @media (max-width: 576px) {
+            h1.display-5 {
+                font-size: 1.3em;
+            }
+            .lead {
+                font-size: 0.9em;
+            }
+            #map-iframe {
+                height: 200px;
+            }
+            .location-info {
+                font-size: 0.9em;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="text-center my-4">
+            <h1 class="display-5">Geo-Tagged Photo Viewer</h1>
+            <p class="lead">Upload a photo to view its location on the map</p>
+        </div>
+
+        <div class="upload-container">
+            <input type="file" id="file-input" accept="image/*">
+            <p>Drag and drop or click to upload a photo</p>
+        </div>
+
+        <div id="preview-area" class="hidden">
+            <div class="text-center">
+                <img id="image-preview" alt="Image preview">
+            </div>
+            <div id="location-info" class="location-info hidden"></div>
+            <div id="map-container" class="mt-4">
+                <iframe id="map-iframe" frameborder="0" allowfullscreen></iframe>
+            </div>
+        </div>
+    </div>
+
+    <!-- EXIF.js for reading geotags -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/exif-js/2.3.0/exif.js"></script>
+    <script>
+        const fileInput = document.getElementById('file-input');
+        const previewArea = document.getElementById('preview-area');
+        const imagePreview = document.getElementById('image-preview');
+        const mapIframe = document.getElementById('map-iframe');
+        const locationInfo = document.getElementById('location-info');
+        // Removed const loadingPopup to eliminate loading popup references
+
+        fileInput.addEventListener('change', handleFileSelect);
+
+        function handleFileSelect(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+
+            // Removed loading-popup calls
+
+            // Preview image
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                imagePreview.src = e.target.result;
+                previewArea.classList.remove('hidden');
+            };
+            reader.readAsDataURL(file);
+
+            // Process EXIF data
+            EXIF.getData(file, function() {
+                const gps = {
+                    lat: EXIF.getTag(this, 'GPSLatitude'),
+                    latRef: EXIF.getTag(this, 'GPSLatitudeRef'),
+                    lng: EXIF.getTag(this, 'GPSLongitude'),
+                    lngRef: EXIF.getTag(this, 'GPSLongitudeRef')
+                };
+
+                if (gps.lat && gps.lng) {
+                    const decimalCoords = convertDMSToDecimal(gps);
+                    showMap(decimalCoords.lat, decimalCoords.lng);
+                    showLocationInfo(decimalCoords.lat, decimalCoords.lng);
+                    fetchLocationDetails(decimalCoords.lat, decimalCoords.lng);
+                } else {
+                    showNoGeotagMessage();
+                }
+            });
+        }
+
+        function convertDMSToDecimal(gps) {
+            const convertDMS = (degrees, minutes, seconds, direction) => {
+                let decimal = degrees + (minutes / 60) + (seconds / 3600);
+                if (direction === 'S' || direction === 'W') decimal = -decimal;
+                return decimal;
+            };
+
+            return {
+                lat: convertDMS(...gps.lat, gps.latRef),
+                lng: convertDMS(...gps.lng, gps.lngRef)
+            };
+        }
+
+        function showMap(lat, lng) {
+            const bbox = `${lng - 0.01},${lat - 0.01},${lng + 0.01},${lat + 0.01}`;
+            mapIframe.src = `https://www.openstreetmap.org/export/embed.html?bbox=${bbox}&marker=${lat},${lng}`;
+        }
+
+        function showLocationInfo(lat, lng) {
+            locationInfo.textContent = `Latitude: ${lat.toFixed(6)}, Longitude: ${lng.toFixed(6)}`;
+            locationInfo.classList.remove('hidden');
+        }
+
+        function fetchLocationDetails(lat, lng) {
+            const url = `https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=${lat}&lon=${lng}`;
+            fetch(url)
+                .then(response => response.json())
+                .then(data => {
+                    const address = data.address;
+                    const locationDetails = [
+                        address.road,
+                        address.city,
+                        address.state,
+                        address.country
+                    ].filter(Boolean).join(', ');
+                    locationInfo.textContent += `\nLocation: ${locationDetails}`;
+                })
+                .catch(error => console.error('Error fetching location details:', error));
+        }
+
+        function showNoGeotagMessage() {
+            mapIframe.src = '';
+            const message = document.createElement('div');
+            message.className = 'no-geotag';
+            message.textContent = 'No geotag information available';
+            document.getElementById('map-container').appendChild(message);
+        }
+
+        // Drag and drop handling
+        document.addEventListener('dragover', (e) => e.preventDefault());
+        document.addEventListener('drop', (e) => {
+            e.preventDefault();
+            if (e.dataTransfer.files) {
+                fileInput.files = e.dataTransfer.files;
+                handleFileSelect(e);
+            }
+        });
+    </script>
+</body>
+</html>
