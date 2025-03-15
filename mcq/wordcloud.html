@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Live Word Cloud from Google Forms</title>
+    <style>
+        #wordcloud-container {
+            width: 90%;
+            max-width: 1000px;
+            height: 600px;
+            background-color: #f8f9fa;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            border-radius: 10px;
+            margin: 20px auto;
+            position: relative;
+            overflow: hidden;
+        }
+        .word {
+            font-family: 'Arial', sans-serif;
+            font-weight: bold;
+            position: absolute;
+            cursor: pointer;
+            transition: all 0.3s ease-in-out;
+            white-space: nowrap;
+            padding: 5px 10px;
+            text-shadow: 1px 1px 2px rgba(0,0,0,0.1);
+            border-radius: 5px;
+        }
+        .word:hover {
+            z-index: 1000;
+            transform: scale(1.2) !important;
+        }
+    </style>
+</head>
+<body>
+    <h2 style="text-align: center; font-family: Arial, sans-serif;">Live Word Cloud from Google Form Responses</h2>
+    <div id="wordcloud-container"></div>
+
+    <script>
+        const csvURL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vRix82EtkdwmdNa9HpQZ7vl4BLb9S4AP2pRBJv0l7R0Q2aA7eH1yUnPSd7UagYvtoQnY38WdcLMYEOz/pub?gid=134986547&single=true&output=csv";
+        const ROTATION_ANGLES = [0, 30, -30, 45, -45, 60, -60];
+        const COLOR_PALETTE = [
+            '#2E86C1', '#138D75', '#CB4335', '#7D3C98', '#D4AC0D',
+            '#E67E22', '#27AE60', '#884EA0', '#B03A2E', '#1F618D'
+        ];
+        const BG_COLORS = [
+            '#D6EAF8', '#D5F5E3', '#FADBD8', '#E8DAEF', '#FCF3CF',
+            '#FDEBD0', '#D4EFDF', '#D5DBDB', '#F9E79F', '#A9CCE3'
+        ];
+
+        async function fetchCSV() {
+            try {
+                const response = await fetch(csvURL);
+                const data = await response.text();
+                return parseCSV(data);
+            } catch (error) {
+                console.error("Error fetching CSV:", error);
+                return [];
+            }
+        }
+
+        function parseCSV(csv) {
+            const rows = csv.split("\n").slice(1);
+            const wordFreq = {};
+
+            rows.forEach(row => {
+                const columns = row.match(/(?:(?:"([^"]*)")|([^,]+))/g);
+                if (columns && columns.length > 1) {
+                    const responseText = columns[1].replace(/"/g, '');
+                    const words = responseText.split(",").map(word => word.trim());
+                    words.forEach(word => {
+                        if (word.length > 2) {
+                            wordFreq[word] = (wordFreq[word] || 0) + 1;
+                        }
+                    });
+                }
+            });
+            return wordFreq;
+        }
+
+        function generateWordCloud(wordFreq) {
+            const container = document.getElementById("wordcloud-container");
+            container.innerHTML = "";
+            
+            const words = Object.entries(wordFreq).sort((a, b) => b[1] - a[1]);
+            const maxCount = Math.max(...words.map(([_, count]) => count));
+            const containerRect = container.getBoundingClientRect();
+            const placedWords = [];
+            const SPACING_BUFFER = 10;
+
+            words.forEach(([word, count]) => {
+                const span = document.createElement("span");
+                span.className = "word";
+                span.textContent = word;
+                
+                const size = 15 + (count / maxCount) * 50;
+                span.style.fontSize = `${size}px`;
+                span.style.color = COLOR_PALETTE[Math.floor(Math.random() * COLOR_PALETTE.length)];
+                span.style.backgroundColor = BG_COLORS[Math.floor(Math.random() * BG_COLORS.length)];
+                span.style.transform = `rotate(${ROTATION_ANGLES[Math.floor(Math.random() * ROTATION_ANGLES.length)]}deg)`;
+                
+                span.style.visibility = 'hidden';
+                container.appendChild(span);
+                const rect = span.getBoundingClientRect();
+                container.removeChild(span);
+                span.style.visibility = 'visible';
+
+                let positionFound = false;
+                let attempts = 0;
+                
+                while (!positionFound && attempts < 500) {
+                    const x = Math.random() * (containerRect.width - rect.width - SPACING_BUFFER);
+                    const y = Math.random() * (containerRect.height - rect.height - SPACING_BUFFER);
+                    
+                    const collision = placedWords.some(existing => {
+                        return x < existing.x + existing.width + SPACING_BUFFER &&
+                               x + rect.width + SPACING_BUFFER > existing.x &&
+                               y < existing.y + existing.height + SPACING_BUFFER &&
+                               y + rect.height + SPACING_BUFFER > existing.y;
+                    });
+
+                    if (!collision) {
+                        span.style.left = `${x}px`;
+                        span.style.top = `${y}px`;
+                        placedWords.push({ x, y, width: rect.width, height: rect.height });
+                        positionFound = true;
+                    }
+                    attempts++;
+                }
+
+                if (positionFound) {
+                    container.appendChild(span);
+                }
+            });
+        }
+
+        async function updateWordCloud() {
+            const wordFreq = await fetchCSV();
+            generateWordCloud(wordFreq);
+        }
+
+        updateWordCloud();
+        setInterval(updateWordCloud, 3000);
+    </script>
+</body>
+</html>
