@@ -1,0 +1,747 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Prof. (Dr.) Anthoniraj Amalanathan | VIT</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&family=Lora:wght@500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" referrerpolicy="no-referrer">
+
+    <style>
+        :root {
+            --primary: #0B1F3A;
+            --accent: #2563EB;
+            --bg: #F8FAFC;
+            --surface: #ffffff;
+            --text: #0F172A;
+            --muted: #475569;
+            --border: rgba(15, 23, 42, 0.10);
+            --shadow: 0 18px 45px -28px rgba(11, 31, 58, 0.35);
+            --radius: 16px;
+            --radius-lg: 24px;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html {
+            scroll-behavior: smooth;
+            scroll-padding-top: 88px;
+        }
+
+        body {
+            font-family: Inter, system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            line-height: 1.7;
+            -webkit-text-size-adjust: 100%;
+            text-size-adjust: 100%;
+        }
+
+        img {
+            max-width: 100%;
+            height: auto;
+        }
+
+        a {
+            color: var(--accent);
+            text-decoration: none;
+        }
+
+        a:hover {
+            text-decoration: underline;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 1120px;
+            margin: 0 auto;
+            padding: 0 1.25rem;
+        }
+
+        /* ===== NAVBAR ===== */
+
+        nav.navbar {
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            background: rgba(11, 31, 58, 0.92);
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.10);
+        }
+
+        .nav-inner {
+            min-height: 72px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 1rem;
+            flex-wrap: wrap;
+        }
+
+        .brand {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.65rem;
+            color: #fff;
+            font-weight: 700;
+            letter-spacing: -0.01em;
+            text-decoration: none;
+            padding: 0.65rem 0;
+            white-space: nowrap;
+        }
+
+        .brand-title {
+            font-family: Lora, serif;
+            font-size: 1.05rem;
+            line-height: 1.1;
+        }
+
+        .brand-sub {
+            font-size: 0.86rem;
+            color: rgba(255, 255, 255, 0.72);
+            font-weight: 500;
+            display: block;
+            margin-top: 2px;
+        }
+
+        .nav-toggle {
+            display: none;
+            align-items: center;
+            justify-content: center;
+            width: 44px;
+            height: 40px;
+            border-radius: 12px;
+            border: 1px solid rgba(255, 255, 255, 0.18);
+            background: rgba(255, 255, 255, 0.06);
+            color: #fff;
+            cursor: pointer;
+        }
+
+        .nav-links {
+            display: flex;
+            align-items: center;
+            gap: 0.25rem;
+            flex-wrap: wrap;
+        }
+
+        .nav-links a {
+            color: rgba(255, 255, 255, 0.90);
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 0.95rem;
+            padding: 0.55rem 0.9rem;
+            border-radius: 999px;
+            border: 1px solid transparent;
+            transition: background 0.18s ease, border-color 0.18s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.55rem;
+        }
+
+        .nav-links a:hover {
+            background: rgba(255, 255, 255, 0.08);
+            border-color: rgba(255, 255, 255, 0.14);
+            text-decoration: none;
+        }
+
+        /* ===== HERO ===== */
+
+        .hero {
+            background: linear-gradient(135deg, #0B1F3A, #1E40AF);
+            color: #fff;
+            padding: 4.5rem 0 3.25rem;
+        }
+
+        .hero-grid {
+            display: grid;
+            grid-template-columns: 1.4fr 0.9fr;
+            gap: 2rem;
+            align-items: center;
+        }
+
+        .eyebrow {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.55rem;
+            padding: 0.35rem 0.8rem;
+            border-radius: 999px;
+            background: rgba(255, 255, 255, 0.10);
+            border: 1px solid rgba(255, 255, 255, 0.18);
+            color: rgba(255, 255, 255, 0.92);
+            font-weight: 600;
+            font-size: 0.92rem;
+            width: fit-content;
+            margin-bottom: 1.1rem;
+        }
+
+        .hero h1 {
+            font-family: Lora, serif;
+            font-size: clamp(2.05rem, 4.3vw, 3.1rem);
+            letter-spacing: -0.02em;
+            line-height: 1.1;
+            margin-bottom: 0.75rem;
+        }
+
+        .hero .role {
+            font-size: clamp(1.05rem, 2.1vw, 1.2rem);
+            color: rgba(255, 255, 255, 0.90);
+            margin-bottom: 0.85rem;
+        }
+
+        .hero .focus {
+            color: rgba(255, 255, 255, 0.85);
+            margin-bottom: 1.35rem;
+        }
+
+        .hero-actions {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.75rem;
+        }
+
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.6rem;
+            padding: 0.85rem 1.1rem;
+            border-radius: 14px;
+            background: var(--accent);
+            color: white;
+            text-decoration: none;
+            font-weight: 700;
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            box-shadow: 0 16px 35px -26px rgba(37, 99, 235, 0.85);
+            transition: transform 0.18s ease, filter 0.18s ease;
+        }
+
+        .btn:hover {
+            text-decoration: none;
+            filter: brightness(1.05);
+            transform: translateY(-1px);
+        }
+
+        .btn-outline {
+            background: rgba(255, 255, 255, 0.06);
+            border: 1px solid rgba(255, 255, 255, 0.22);
+            box-shadow: none;
+        }
+
+        .hero-card {
+            background: rgba(255, 255, 255, 0.10);
+            border: 1px solid rgba(255, 255, 255, 0.20);
+            border-radius: var(--radius-lg);
+            padding: 1.3rem;
+            backdrop-filter: blur(12px);
+            text-align: center;
+        }
+
+        .avatar {
+            width: 184px;
+            height: 184px;
+            border-radius: 999px;
+            object-fit: cover;
+            border: 5px solid rgba(255, 255, 255, 0.28);
+            box-shadow: 0 26px 55px -36px rgba(0, 0, 0, 0.65);
+        }
+
+        .hero-card p {
+            margin-top: 0.9rem;
+            color: rgba(255, 255, 255, 0.88);
+        }
+
+        /* ===== SECTIONS ===== */
+
+        section {
+            padding: 4.75rem 0;
+        }
+
+        .section-title {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.65rem;
+            margin-bottom: 2rem;
+            font-size: clamp(1.55rem, 2.8vw, 2.2rem);
+            color: var(--primary);
+            letter-spacing: -0.02em;
+            font-family: Lora, serif;
+        }
+
+        .section-title i {
+            color: var(--accent);
+        }
+
+        /* ===== GRID + CARDS ===== */
+
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+            gap: 1.2rem;
+        }
+
+        .card {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            padding: 1.35rem;
+            border-radius: var(--radius);
+            box-shadow: var(--shadow);
+            transition: transform 0.22s ease, box-shadow 0.22s ease;
+        }
+
+        .card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 22px 55px -36px rgba(11, 31, 58, 0.55);
+        }
+
+        .card-header {
+            display: flex;
+            align-items: center;
+            gap: 0.8rem;
+            margin-bottom: 0.9rem;
+        }
+
+        .card-icon {
+            width: 42px;
+            height: 42px;
+            border-radius: 14px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            background: rgba(37, 99, 235, 0.12);
+            color: var(--accent);
+            flex: 0 0 auto;
+        }
+
+        .card h3 {
+            margin: 0;
+            color: var(--primary);
+            font-size: 1.15rem;
+            letter-spacing: -0.01em;
+        }
+
+        .card p {
+            color: var(--muted);
+        }
+
+        .card ul {
+            margin-left: 1.1rem;
+            color: var(--muted);
+        }
+
+        .card li {
+            margin: 0.35rem 0;
+        }
+
+        /* ===== TIMELINE ===== */
+
+        .timeline {
+            display: grid;
+            gap: 0.75rem;
+        }
+
+        .timeline-item {
+            display: flex;
+            gap: 0.75rem;
+            align-items: flex-start;
+            padding: 0.95rem 1rem;
+            border-radius: 14px;
+            background: #F1F5F9;
+            border: 1px solid rgba(15, 23, 42, 0.08);
+        }
+
+        .timeline-item i {
+            color: var(--accent);
+            margin-top: 2px;
+        }
+
+        /* ===== CONTACT ===== */
+
+        .contact {
+            display: grid;
+            gap: 0.85rem;
+            text-align: center;
+        }
+
+        .contact-row {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.6rem;
+            flex-wrap: wrap;
+            color: var(--muted);
+        }
+
+        .social {
+            display: flex;
+            justify-content: center;
+            flex-wrap: wrap;
+            gap: 0.7rem;
+            margin-top: 0.2rem;
+        }
+
+        .social a {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.55rem;
+            padding: 0.6rem 0.9rem;
+            border-radius: 999px;
+            border: 1px solid var(--border);
+            background: #fff;
+            text-decoration: none;
+            font-weight: 700;
+        }
+
+        .social a:hover {
+            text-decoration: none;
+        }
+
+        /* ===== FOOTER ===== */
+
+        footer {
+            background: var(--primary);
+            color: rgba(255, 255, 255, 0.92);
+            text-align: center;
+            padding: 28px 18px;
+        }
+
+        /* ===== RESPONSIVE ===== */
+
+        @media (max-width: 900px) {
+            .hero {
+                padding: 4rem 0 2.75rem;
+            }
+
+            .hero-grid {
+                grid-template-columns: 1fr;
+                text-align: center;
+            }
+
+            .eyebrow {
+                margin-left: auto;
+                margin-right: auto;
+            }
+
+            .hero-actions {
+                justify-content: center;
+            }
+        }
+
+        @media (max-width: 860px) {
+            .nav-toggle {
+                display: inline-flex;
+            }
+
+            .nav-links {
+                display: none;
+                width: 100%;
+                flex-direction: column;
+                align-items: flex-start;
+                padding: 0.75rem 0 1rem;
+            }
+
+            .nav-links.show {
+                display: flex;
+            }
+
+            .nav-links a {
+                width: 100%;
+            }
+        }
+
+        @media (max-width: 520px) {
+            section {
+                padding: 3.9rem 0;
+            }
+
+            .btn {
+                width: 100%;
+            }
+
+            .avatar {
+                width: 160px;
+                height: 160px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- NAVBAR -->
+
+    <nav class="navbar" aria-label="Primary">
+        <div class="container nav-inner">
+            <a class="brand" href="#home">
+                <i class="fa-solid fa-graduation-cap" aria-hidden="true"></i>
+                <span>
+                    <span class="brand-title">Prof. (Dr.) Anthoniraj Amalanathan</span>
+                    <span class="brand-sub">VIT · School of CSE</span>
+                </span>
+            </a>
+
+            <button class="nav-toggle" id="navToggle" type="button" aria-label="Toggle menu" aria-controls="navLinks" aria-expanded="false">
+                <i class="fa-solid fa-bars" aria-hidden="true"></i>
+            </button>
+
+            <div class="nav-links" id="navLinks">
+                <a href="#home"><i class="fa-solid fa-house" aria-hidden="true"></i>Home</a>
+                <a href="#about"><i class="fa-solid fa-user" aria-hidden="true"></i>About</a>
+                <a href="#research"><i class="fa-solid fa-flask" aria-hidden="true"></i>Research</a>
+                <a href="#teaching"><i class="fa-solid fa-chalkboard-user" aria-hidden="true"></i>Teaching</a>
+                <a href="#skills"><i class="fa-solid fa-gears" aria-hidden="true"></i>Skills</a>
+                <a href="#leadership"><i class="fa-solid fa-briefcase" aria-hidden="true"></i>Leadership</a>
+                <a href="#contact"><i class="fa-solid fa-envelope" aria-hidden="true"></i>Contact</a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- HERO -->
+
+    <section id="home" class="hero">
+        <div class="container hero-grid">
+            <div>
+                <div class="eyebrow"><i class="fa-solid fa-building-columns" aria-hidden="true"></i>Vellore Institute of Technology (VIT), India</div>
+                <h1>Prof. (Dr.) Anthoniraj Amalanathan</h1>
+                <p class="role">Professor — School of CSE · Director — Centre for Technical Support (CTS)</p>
+                <p class="focus">Artificial Intelligence • Data Science • Cyber Security • Web Technologies</p>
+                <div class="hero-actions">
+                    <a class="btn" href="#contact"><i class="fa-solid fa-paper-plane" aria-hidden="true"></i>Contact</a>
+                    <a class="btn btn-outline" href="#"><i class="fa-solid fa-file-arrow-down" aria-hidden="true"></i>Download CV</a>
+                </div>
+            </div>
+
+            <div class="hero-card">
+                <img class="avatar" src="../images/ant.jpg" alt="Prof. (Dr.) Anthoniraj Amalanathan">
+                <p><i class="fa-solid fa-location-dot" aria-hidden="true"></i> Vellore, Tamil Nadu</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- ABOUT -->
+
+    <section id="about">
+        <div class="container">
+            <h2 class="section-title"><i class="fa-solid fa-user" aria-hidden="true"></i>About</h2>
+            <div class="card">
+                <p>
+                    Professor at Vellore Institute of Technology (VIT) with over 18 years of teaching and research
+                    experience.
+                    Director of the Centre for Technical Support (CTS), leading campus-wide infrastructure, software
+                    systems,
+                    and strategic technology initiatives.
+                </p>
+
+                <p>
+                    Research interests include Data Science, Deep Learning, Cyber Security, Language Modeling, and Web 3.0.
+                    Guided multiple PhD scholars and contributed to institutional digital platforms including VTOP.
+                </p>
+
+                <p>
+                    Actively conducts faculty development programs, workshops, and training sessions on AI, Machine
+                    Learning,
+                    Full-Stack Development, Research Tools, and Emerging Technologies.
+                </p>
+            </div>
+        </div>
+    </section>
+
+    <!-- RESEARCH -->
+
+    <section id="research">
+        <div class="container">
+            <h2 class="section-title"><i class="fa-solid fa-flask" aria-hidden="true"></i>Research</h2>
+            <div class="grid">
+                <div class="card">
+                    <div class="card-header">
+                        <span class="card-icon"><i class="fa-solid fa-diagram-project" aria-hidden="true"></i></span>
+                        <h3>Research Areas</h3>
+                    </div>
+                    <ul>
+                        <li>Data Science & AI</li>
+                        <li>Deep Learning</li>
+                        <li>Cyber Security</li>
+                        <li>Language Modeling</li>
+                        <li>Semantic Web & Web 3.0</li>
+                        <li>E-Learning Systems</li>
+                    </ul>
+                </div>
+
+                <div class="card">
+                    <div class="card-header">
+                        <span class="card-icon"><i class="fa-solid fa-user-graduate" aria-hidden="true"></i></span>
+                        <h3>PhD Supervision</h3>
+                    </div>
+                    <ul>
+                        <li>Recommendation Systems — Completed</li>
+                        <li>Medical Imaging & ML — Completed</li>
+                        <li>Deep Learning & Security — Ongoing</li>
+                    </ul>
+                </div>
+
+                <div class="card">
+                    <div class="card-header">
+                        <span class="card-icon"><i class="fa-solid fa-scroll" aria-hidden="true"></i></span>
+                        <h3>Publications</h3>
+                    </div>
+                    <p>
+                        Multiple international journals and IEEE conferences in AI, data science, recommendation systems,
+                        and medical imaging.
+                    </p>
+                    <a href="https://scholar.google.com" target="_blank" rel="noopener">View Google Scholar →</a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- TEACHING -->
+
+    <section id="teaching">
+        <div class="container">
+            <h2 class="section-title"><i class="fa-solid fa-chalkboard-user" aria-hidden="true"></i>Teaching</h2>
+            <div class="grid">
+                <div class="card">
+                    <div class="card-header">
+                        <span class="card-icon"><i class="fa-solid fa-clock" aria-hidden="true"></i></span>
+                        <h3>Experience</h3>
+                    </div>
+                    <ul>
+                        <li>18+ Years Teaching</li>
+                        <li>B.Tech & M.Tech Programs</li>
+                        <li>Industry-Oriented Curriculum</li>
+                    </ul>
+                </div>
+
+                <div class="card">
+                    <div class="card-header">
+                        <span class="card-icon"><i class="fa-solid fa-book" aria-hidden="true"></i></span>
+                        <h3>Courses</h3>
+                    </div>
+                    <ul>
+                        <li>Python Programming</li>
+                        <li>Java Programming</li>
+                        <li>Data Structures</li>
+                        <li>Database Systems</li>
+                        <li>Web Programming</li>
+                        <li>Linux Administration</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- SKILLS -->
+
+    <section id="skills">
+        <div class="container">
+            <h2 class="section-title"><i class="fa-solid fa-gears" aria-hidden="true"></i>Technical Skills</h2>
+            <div class="grid">
+                <div class="card">
+                    <div class="card-header">
+                        <span class="card-icon"><i class="fa-solid fa-code" aria-hidden="true"></i></span>
+                        <h3>Development</h3>
+                    </div>
+                    <p>Full Stack, React, Django, Spring, Mobile Apps</p>
+                </div>
+
+                <div class="card">
+                    <div class="card-header">
+                        <span class="card-icon"><i class="fa-solid fa-server" aria-hidden="true"></i></span>
+                        <h3>Systems</h3>
+                    </div>
+                    <p>Linux Administration, Databases, Moodle LMS, Cloud</p>
+                </div>
+
+                <div class="card">
+                    <div class="card-header">
+                        <span class="card-icon"><i class="fa-solid fa-link" aria-hidden="true"></i></span>
+                        <h3>Web 3.0</h3>
+                    </div>
+                    <p>RDF, OWL, SPARQL, Semantic Web, Apache Jena</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- LEADERSHIP -->
+
+    <section id="leadership">
+        <div class="container">
+            <h2 class="section-title"><i class="fa-solid fa-briefcase" aria-hidden="true"></i>Leadership & Administration</h2>
+            <div class="card timeline">
+                <div class="timeline-item"><i class="fa-solid fa-building" aria-hidden="true"></i>Director — Centre for Technical Support (CTS)</div>
+                <div class="timeline-item"><i class="fa-solid fa-network-wired" aria-hidden="true"></i>Strategic Infrastructure Leadership</div>
+                <div class="timeline-item"><i class="fa-solid fa-people-group" aria-hidden="true"></i>University Committees & Policy Roles</div>
+                <div class="timeline-item"><i class="fa-solid fa-shield" aria-hidden="true"></i>Observer — National Examinations (NEET)</div>
+            </div>
+        </div>
+    </section>
+
+    <!-- CONTACT -->
+
+    <section id="contact">
+        <div class="container">
+            <h2 class="section-title"><i class="fa-solid fa-envelope" aria-hidden="true"></i>Contact</h2>
+            <div class="card contact">
+                <div class="contact-row"><i class="fa-solid fa-envelope" aria-hidden="true"></i><span>Email: <a href="mailto:anthoniraj@vit.ac.in">anthoniraj@vit.ac.in</a></span></div>
+                <div class="contact-row"><i class="fa-solid fa-location-dot" aria-hidden="true"></i><span>Vellore Institute of Technology, Vellore, India</span></div>
+                <div class="social">
+                    <a href="https://github.com/anthoniraj" target="_blank" rel="noopener"><i class="fa-brands fa-github" aria-hidden="true"></i>GitHub</a>
+                    <a href="#"><i class="fa-brands fa-linkedin" aria-hidden="true"></i>LinkedIn</a>
+                    <a href="#"><i class="fa-brands fa-google" aria-hidden="true"></i>Scholar</a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <footer>
+        <p>© 2026 Prof. (Dr.) Anthoniraj Amalanathan — VIT</p>
+    </footer>
+
+    <script>
+        const navToggle = document.getElementById('navToggle');
+        const navLinks = document.getElementById('navLinks');
+
+        if (navToggle && navLinks) {
+            navToggle.addEventListener('click', () => {
+                const isOpen = navLinks.classList.toggle('show');
+                navToggle.setAttribute('aria-expanded', String(isOpen));
+            });
+
+            navLinks.querySelectorAll('a[href^="#"]').forEach(link => {
+                link.addEventListener('click', () => {
+                    if (navLinks.classList.contains('show')) {
+                        navLinks.classList.remove('show');
+                        navToggle.setAttribute('aria-expanded', 'false');
+                    }
+                });
+            });
+        }
+
+        /* Smooth Scroll (skip plain '#') */
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            const href = anchor.getAttribute('href');
+            if (!href || href === '#') return;
+
+            anchor.addEventListener('click', function (e) {
+                const target = document.querySelector(href);
+                if (!target) return;
+
+                e.preventDefault();
+                target.scrollIntoView({ behavior: 'smooth' });
+            });
+        });
+    </script>
+
+</body>
+
+</html>

@@ -1,0 +1,615 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.5, user-scalable=yes">
+  <title>Prof. Anthoniraj Amalanathan, PhD · VIT</title>
+  <!-- Inter font (excellent on all screens) -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300..700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    /* dark theme variables */
+    :root {
+      --bg-dark: #0b1120;        /* deep dark navy background */
+      --surface-dark: #1a2332;    /* cards / surface */
+      --surface-lighter: #253040; 
+      --text-primary: #f0f4fa;    /* nearly white */
+      --text-secondary: #b0c0d0;  /* softer light */
+      --accent-glare: #4b9cff;    /* bright but soft blue */
+      --accent-dim: #2b5f9e;
+      --border-subtle: #2f3a4b;
+      --shadow-dark: 0 20px 30px -12px rgba(0, 0, 0, 0.8);
+      --radius-card: 24px;         /* consistent rounding */
+    }
+
+    body {
+      font-family: "Inter", sans-serif;
+      background-color: var(--bg-dark);
+      color: var(--text-primary);
+      line-height: 1.5;
+      scroll-behavior: smooth;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    html {
+      scroll-padding-top: 80px;
+    }
+
+    /* typography fluid */
+    h1 { font-size: clamp(2.2rem, 8vw, 3.8rem); font-weight: 700; letter-spacing: -0.02em; }
+    h2 { font-size: clamp(1.8rem, 6vw, 2.6rem); font-weight: 600; }
+    h3 { font-size: clamp(1.4rem, 5vw, 1.9rem); font-weight: 600; }
+    p, li, .text-body { font-size: clamp(1rem, 4vw, 1.1rem); color: var(--text-secondary); }
+
+    /* navbar */
+    .navbar {
+      position: sticky;
+      top: 0;
+      background: rgba(11, 18, 32, 0.9);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border-bottom: 1px solid var(--border-subtle);
+      padding: 0.7rem 1.5rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      z-index: 99;
+    }
+    .nav-brand {
+      font-size: 1.5rem;
+      font-weight: 600;
+      color: var(--text-primary);
+      line-height: 1.2;
+    }
+    .nav-brand small {
+      font-size: 0.9rem;
+      color: var(--accent-glare);
+      display: block;
+      font-weight: 400;
+    }
+    .nav-menu {
+      display: flex;
+      gap: 0.4rem;
+      align-items: center;
+      flex-wrap: wrap;
+    }
+    .nav-menu a {
+      text-decoration: none;
+      color: var(--text-secondary);
+      font-weight: 500;
+      font-size: 0.95rem;
+      padding: 0.5rem 0.9rem;
+      border-radius: 40px;
+      transition: all 0.2s;
+      border: 1px solid transparent;
+    }
+    .nav-menu a:hover {
+      background: var(--surface-lighter);
+      border-color: var(--accent-glare);
+      color: white;
+    }
+    .nav-toggle {
+      display: none;
+      background: none;
+      border: 1px solid var(--border-subtle);
+      font-size: 1.8rem;
+      padding: 0.1rem 1rem;
+      border-radius: 40px;
+      color: var(--text-primary);
+      cursor: pointer;
+    }
+
+    /* container - full width on small, but with padding */
+    .container {
+      width: 100%;
+      max-width: 1400px;
+      margin: 0 auto;
+      padding: 0 1.2rem;
+    }
+    @media (min-width: 768px) {
+      .container { padding: 0 2rem; }
+    }
+    @media (min-width: 1200px) {
+      .container { padding: 0 2.5rem; }
+    }
+
+    section {
+      margin: 4.5rem 0;
+    }
+
+    .section-title {
+      font-size: clamp(2rem, 7vw, 2.8rem);
+      font-weight: 600;
+      color: var(--text-primary);
+      border-left: 6px solid var(--accent-glare);
+      padding-left: 1.2rem;
+      margin-bottom: 2.5rem;
+      line-height: 1.2;
+    }
+
+    /* grid – full width on small screens becomes 1 column */
+    .grid-2, .grid-3, .grid-4 {
+      display: grid;
+      gap: 1.5rem;
+    }
+    .grid-2 { grid-template-columns: 1fr; }
+    .grid-3 { grid-template-columns: 1fr; }
+    .grid-4 { grid-template-columns: 1fr; }
+
+    @media (min-width: 640px) {
+      .grid-2 { grid-template-columns: repeat(2, 1fr); }
+      .grid-3 { grid-template-columns: repeat(2, 1fr); } /* 2 then 3 at larger */
+      .grid-4 { grid-template-columns: repeat(2, 1fr); }
+    }
+    @media (min-width: 1024px) {
+      .grid-3 { grid-template-columns: repeat(3, 1fr); }
+      .grid-4 { grid-template-columns: repeat(4, 1fr); }
+    }
+
+    .card {
+      background: var(--surface-dark);
+      border-radius: var(--radius-card);
+      padding: 1.8rem 1.5rem;
+      box-shadow: var(--shadow-dark);
+      border: 1px solid var(--border-subtle);
+      transition: all 0.25s ease;
+      width: 100%;
+    }
+    .card:hover {
+      border-color: var(--accent-glare);
+      transform: translateY(-6px);
+      box-shadow: 0 30px 40px -15px #000000cc;
+    }
+
+    .card h3 {
+      color: var(--accent-glare);
+      margin-bottom: 1.2rem;
+      border-bottom: 2px solid var(--border-subtle);
+      padding-bottom: 0.5rem;
+      font-size: clamp(1.3rem, 5vw, 1.8rem);
+    }
+
+    .list-academic {
+      list-style: none;
+    }
+    .list-academic li {
+      margin-bottom: 0.7rem;
+      padding-left: 1.8rem;
+      position: relative;
+      color: var(--text-secondary);
+      font-size: clamp(0.95rem, 4vw, 1.05rem);
+    }
+    .list-academic li::before {
+      content: "▹";
+      color: var(--accent-glare);
+      position: absolute;
+      left: 0;
+      font-size: 1.2rem;
+    }
+
+    .badge {
+      background: var(--surface-lighter);
+      color: var(--accent-glare);
+      padding: 0.3rem 1.2rem;
+      border-radius: 40px;
+      font-size: 0.9rem;
+      font-weight: 500;
+      display: inline-block;
+      margin-right: 0.5rem;
+      margin-bottom: 0.6rem;
+      border: 1px solid var(--border-subtle);
+    }
+
+    .btn {
+      display: inline-block;
+      background: var(--accent-glare);
+      color: #0b1120;
+      font-weight: 600;
+      padding: 0.8rem 2.2rem;
+      border-radius: 60px;
+      text-decoration: none;
+      font-size: 1rem;
+      border: none;
+      transition: 0.2s;
+      margin-right: 0.8rem;
+      margin-bottom: 0.8rem;
+      box-shadow: 0 8px 18px rgba(0, 120, 255, 0.2);
+    }
+    .btn-outline {
+      background: transparent;
+      border: 2px solid var(--accent-glare);
+      color: var(--accent-glare);
+      box-shadow: none;
+    }
+    .btn-outline:hover {
+      background: var(--accent-glare);
+      color: #0b1120;
+      transform: scale(1.02);
+    }
+    .btn:hover {
+      background: #7ab7ff;
+      transform: translateY(-3px);
+    }
+
+    /* hero */
+    .hero {
+      display: flex;
+      align-items: center;
+      gap: 2rem;
+      background: var(--surface-dark);
+      border-radius: 40px;
+      padding: 2rem 1.8rem;
+      margin-top: 1.5rem;
+      border: 1px solid var(--border-subtle);
+      box-shadow: var(--shadow-dark);
+      flex-wrap: wrap;
+    }
+    .hero-content {
+      flex: 2;
+      min-width: 280px;
+    }
+    .hero-avatar {
+      flex: 1;
+      display: flex;
+      justify-content: center;
+    }
+    .avatar-circle {
+      width: clamp(140px, 25vw, 200px);
+      height: clamp(140px, 25vw, 200px);
+      background: linear-gradient(145deg, #1e3a5f, #0b1c2f);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--accent-glare);
+      font-size: clamp(3rem, 10vw, 5rem);
+      font-weight: 600;
+      box-shadow: 0 0 0 4px var(--accent-glare), 0 20px 30px black;
+      border: 2px solid white;
+    }
+    .hero h1 {
+      color: var(--text-primary);
+    }
+    .hero h2 {
+      color: var(--accent-glare);
+      font-size: clamp(1.2rem, 5vw, 1.6rem);
+    }
+    .hero-institution {
+      color: var(--text-secondary);
+      font-size: clamp(1rem, 4vw, 1.2rem);
+    }
+    .hero-tags {
+      margin: 1.5rem 0 2rem;
+    }
+
+    .stats {
+      display: flex;
+      gap: 1rem;
+      margin: 2rem 0;
+      flex-wrap: wrap;
+    }
+    .stat-item {
+      background: var(--surface-lighter);
+      border-radius: 40px;
+      padding: 0.8rem 1.5rem;
+      border: 1px solid var(--border-subtle);
+      text-align: center;
+      flex: 1 1 auto;
+    }
+    .stat-number {
+      font-size: clamp(1.5rem, 6vw, 2rem);
+      font-weight: 700;
+      color: var(--accent-glare);
+    }
+    .stat-label {
+      font-size: 0.85rem;
+      color: var(--text-secondary);
+      text-transform: uppercase;
+    }
+
+    .publication-item {
+      border-bottom: 1px solid var(--border-subtle);
+      padding: 1rem 0;
+      font-size: clamp(0.9rem, 4vw, 1rem);
+    }
+    .pub-authors { font-weight: 600; color: var(--accent-glare); }
+    .pub-venue { color: #90a5c0; font-style: italic; }
+
+    footer {
+      background: #050a15;
+      color: var(--text-secondary);
+      padding: 2.5rem 1.2rem;
+      border-radius: 40px 40px 0 0;
+      margin-top: 4rem;
+      border-top: 1px solid var(--border-subtle);
+    }
+    .footer-links a {
+      color: var(--text-secondary);
+      text-decoration: none;
+      margin: 0 0.8rem 0.5rem 0;
+      font-size: 0.95rem;
+    }
+    .footer-links a:hover { color: var(--accent-glare); }
+
+    /* mobile specific overrides */
+    @media (max-width: 480px) {
+      .navbar { padding: 0.6rem 1rem; }
+      .btn { display: block; width: 100%; margin-right: 0; text-align: center; }
+      .hero { padding: 1.8rem 1rem; }
+      .avatar-circle { width: 140px; height: 140px; font-size: 3.5rem; }
+      .stat-item { padding: 0.5rem 1rem; }
+    }
+
+    /* mobile menu */
+    @media (max-width: 768px) {
+      .nav-menu {
+        display: none;
+        width: 100%;
+        flex-direction: column;
+        align-items: flex-start;
+        padding: 1.2rem 0 0.5rem;
+        gap: 0.8rem;
+      }
+      .nav-menu.show { display: flex; }
+      .nav-toggle { display: block; }
+    }
+
+    /* fade animation */
+    .fade-section {
+      opacity: 0;
+      transform: translateY(30px);
+      transition: opacity 0.7s ease, transform 0.7s ease;
+    }
+    .fade-section.visible {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  </style>
+</head>
+<body>
+  <nav class="navbar">
+    <div class="nav-brand">
+      Anthoniraj Amalanathan <small>PhD · Professor, VIT</small>
+    </div>
+    <button class="nav-toggle" id="navToggle" aria-label="menu">☰</button>
+    <div class="nav-menu" id="navMenu">
+      <a href="#home">Home</a>
+      <a href="#about">About</a>
+      <a href="#research">Research</a>
+      <a href="#teaching">Teaching</a>
+      <a href="#skills">Skills</a>
+      <a href="#leadership">Leadership</a>
+      <a href="#achievements">Achievements</a>
+      <a href="#contact">Contact</a>
+    </div>
+  </nav>
+
+  <main class="container">
+    <!-- HERO / HOME -->
+    <section id="home" class="hero fade-section">
+      <div class="hero-content">
+        <h1>Anthoniraj Amalanathan</h1>
+        <h2>Professor, School of Computer Science & Engineering</h2>
+        <div class="hero-institution">Vellore Institute of Technology (VIT), India</div>
+        <div class="hero-tags">
+          <span class="badge">Artificial Intelligence</span>
+          <span class="badge">Data Science</span>
+          <span class="badge">Cyber Security</span>
+          <span class="badge">Cloud Computing</span>
+          <span class="badge">Web Technologies</span>
+          <span class="badge">Full‑Stack Development</span>
+        </div>
+        <div>
+          <a href="#contact" class="btn">Contact</a>
+          <a href="#" class="btn btn-outline"><i class="fas fa-download" style="margin-right: 8px;"></i>Download CV</a>
+          <a href="https://github.com/anthoniraj" target="_blank" class="btn btn-outline"><i class="fab fa-github"></i> GitHub</a>
+        </div>
+      </div>
+      <div class="hero-avatar">
+        <div class="avatar-circle">AA</div>
+      </div>
+    </section>
+
+    <!-- ABOUT / BIOGRAPHY -->
+    <section id="about" class="fade-section">
+      <h2 class="section-title">About</h2>
+      <div class="card" style="padding: 2rem 1.8rem;">
+        <p style="font-size: clamp(1rem, 4.5vw, 1.25rem); margin-bottom: 1.8rem;">Anthoniraj Amalanathan is a Professor at Vellore Institute of Technology (VIT) in the School of Computer Science and Engineering, and Director of the <strong style="color:var(--accent-glare);">Centre for Technical Support (CTS)</strong>. With over 18 years of teaching experience, he has instructed courses in Python, Java, C, C++, and Data Science.</p>
+        <p style="margin-bottom: 1.8rem;">His research spans Data Science, Deep Learning, Cyber Security, Language Modeling, and Web 3.0. He has guided multiple PhD scholars and possesses deep technical expertise in AI, full‑stack development, and system administration. Prof. Anthoniraj earlier managed teams at the Software Development Cell (SDC) to build VIT’s in‑house portal <strong style="color:var(--accent-glare);">VTOP</strong>.</p>
+        <p>He regularly trains faculty and students on AI/ML, web/mobile development, research tools, and Data Science. He serves on numerous university committees and contributes to institutional policy and academic governance.</p>
+        <div class="stats">
+          <div class="stat-item"><span class="stat-number">18+</span> <span class="stat-label">Years</span></div>
+          <div class="stat-item"><span class="stat-number">20+</span> <span class="stat-label">Publications</span></div>
+          <div class="stat-item"><span class="stat-number">3</span> <span class="stat-label">PhD scholars</span></div>
+          <div class="stat-item"><span class="stat-number">30+</span> <span class="stat-label">Workshops</span></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- RESEARCH -->
+    <section id="research" class="fade-section">
+      <h2 class="section-title">Research</h2>
+      <div class="grid-3">
+        <div class="card">
+          <h3><i class="fas fa-flask" style="margin-right: 10px;"></i> Areas</h3>
+          <ul class="list-academic">
+            <li>Data Science</li>
+            <li>Deep Learning & Recommendation Systems</li>
+            <li>Cognitive Science & AI Chatbots</li>
+            <li>Cyber Security</li>
+            <li>Language Modeling</li>
+            <li>Web 3.0 & Semantic Web</li>
+            <li>E‑Learning Systems</li>
+          </ul>
+        </div>
+        <div class="card">
+          <h3><i class="fas fa-graduation-cap"></i> PhD Guidance</h3>
+          <ul class="list-academic" style="list-style-type:decimal; padding-left:1.4rem; color:var(--text-secondary);">
+            <li><strong>Dr. S S V R Kumar Addagarla</strong> – Recommendation Systems (2021)</li>
+            <li><strong>Dr. Kiran Kumar M</strong> – Machine Learning & Medical Imaging (2024)</li>
+            <li><strong>Mr. Aravindhan Manivannan</strong> – Deep Learning & Cyber Security (compre completed)</li>
+          </ul>
+        </div>
+        <div class="card">
+          <h3><i class="fas fa-quote-right"></i> Recent Publications</h3>
+          <div class="publication-item"><span class="pub-authors">Kumar, M.K., Amalanathan, A.</span> "Advancements in Optimization Algorithms..." <span class="pub-venue">ICOTL 2023</span></div>
+          <div class="publication-item"><span class="pub-authors">Kumar, M.K., Amalanathan, A.</span> "Automated Lung Nodule Detection..." <span class="pub-venue">Comp. Assist. Methods 2022</span></div>
+          <div class="publication-item"><span class="pub-authors">Addagarla, S.K., Amalanathan, A.</span> "Single Stage Deep Transfer Learning..." <span class="pub-venue">IJECS 2021</span></div>
+          <div class="publication-item"><span class="pub-authors">Addagarla, S.K., Amalanathan, A.</span> "e-SimNet: visual similar product..." <span class="pub-venue">IJEECS 2021</span></div>
+          <div style="margin-top:1.5rem;"><a href="https://scholar.google.com/citations?user=8jphK5EAAAAJ&hl=en" target="_blank" class="btn-outline btn" style="padding:0.5rem 1.5rem;"><i class="fas fa-google"></i> Google Scholar</a></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- TEACHING -->
+    <section id="teaching" class="fade-section">
+      <h2 class="section-title">Teaching</h2>
+      <div class="grid-2">
+        <div class="card">
+          <h3><i class="fas fa-chalkboard-teacher"></i> Experience</h3>
+          <ul class="list-academic">
+            <li>18+ years teaching B.Tech & M.Tech</li>
+            <li>Expert: Python, Java, C, C++, PHP, Shell</li>
+            <li>Data Science using Python & R</li>
+            <li>Postgres, MariaDB, Cassandra, MongoDB</li>
+          </ul>
+        </div>
+        <div class="card">
+          <h3><i class="fas fa-book-open"></i> Courses Handled</h3>
+          <div style="display: flex; flex-wrap: wrap; gap: 0.3rem;">
+            <span class="badge">Penetration Testing</span><span class="badge">Programming for Data Science</span>
+            <span class="badge">Core Java</span><span class="badge">Python</span><span class="badge">UI Design</span>
+            <span class="badge">Web Programming</span><span class="badge">Web Services</span><span class="badge">Semantic Web</span>
+            <span class="badge">Software Defined Networks</span><span class="badge">Problem Solving</span>
+            <span class="badge">Open Source Programming</span><span class="badge">Data Structures</span>
+            <span class="badge">DBMS</span><span class="badge">OOP</span><span class="badge">Linux Admin</span>
+            <span class="badge">Network & System admin</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- TECHNICAL SKILLS -->
+    <section id="skills" class="fade-section">
+      <h2 class="section-title">Technical Skills & Training</h2>
+      <div class="grid-3">
+        <div class="card"><h3>⚙️ Core</h3><ul class="list-academic"><li>Code in any language</li><li>Full‑Stack Dev</li><li>Moodle LMS Admin</li><li>Linux System Admin</li><li>Open Source</li></ul></div>
+        <div class="card"><h3>🌐 Frontend</h3><ul class="list-academic"><li>ReactJS / ReactNative</li><li>Bootstrap / jQuery</li><li>WordPress & Drupal</li></ul></div>
+        <div class="card"><h3>🗄️ Backend</h3><ul class="list-academic"><li>PHP, Python, Perl, Node.js</li><li>Postgres, MongoDB, Cassandra</li><li>Security, API design</li></ul></div>
+        <div class="card"><h3>🧩 Frameworks</h3><ul class="list-academic"><li>Spring MVC, Hibernate</li><li>Django, Flask, FastAPI</li></ul></div>
+        <div class="card"><h3>🔗 Web 3.0</h3><ul class="list-academic"><li>XML, RDF, Turtle, OWL</li><li>SPARQL, Apache Jena Fuseki</li></ul></div>
+        <div class="card"><h3>📘 Training Programs</h3><ul class="list-academic" style="max-height:260px; overflow-y:auto;"><li>Programming for Data Science</li><li>Python‑Django</li><li>React/MongoDB</li><li>Spring Framework</li><li>Mendeley & BibTex</li><li>Research Tools</li><li>LaTeX for scholars</li><li>Flutter</li><li>Big Data Analytics</li><li>MongoDB, Postgres, Cassandra</li><li>Semantic Web / Web 3.0</li><li>Moodle admin / Code Runner</li><li>ReactJS</li></ul></div>
+      </div>
+    </section>
+
+    <!-- LEADERSHIP / ADMINISTRATION -->
+    <section id="leadership" class="fade-section">
+      <h2 class="section-title">Leadership & Administration</h2>
+      <div class="grid-2">
+        <div class="card">
+          <h3><i class="fas fa-building"></i> Director, CTS</h3>
+          <ul class="list-academic">
+            <li>Managing technical teams for campus infrastructure, hardware & network</li>
+            <li>Strategic planning, crisis resolution, policy decisions</li>
+            <li>Financial & budget planning, resource optimisation</li>
+          </ul>
+        </div>
+        <div class="card">
+          <h3><i class="fas fa-users"></i> Additional Roles</h3>
+          <ul class="list-academic">
+            <li>Convenor – Software Malpractice Committee</li>
+            <li>Member – University Library Committee</li>
+            <li>Member – Board of Studies (SCOPE)</li>
+            <li>Member – Hardware & Software Purchase Committee</li>
+            <li>Member – Online Proctored Examination Committee</li>
+            <li>Observer – NEET (UG) 2020, 2022, 2023</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <!-- ACHIEVEMENTS -->
+    <section id="achievements" class="fade-section">
+      <h2 class="section-title">Achievements</h2>
+      <div class="grid-3">
+        <div class="card"><i class="fas fa-scroll" style="font-size:2.3rem; color:var(--accent-glare);"></i><h3 style="margin-top:0.8rem;">20+ Publications</h3><p>International journals & conferences (IEEE, Springer, MDPI).</p></div>
+        <div class="card"><i class="fas fa-user-graduate" style="font-size:2.3rem;"></i><h3 style="margin-top:0.8rem;">PhD Supervision</h3><p>2 completed, 1 ongoing – recommendation systems, medical imaging, cyber security.</p></div>
+        <div class="card"><i class="fas fa-code-branch" style="font-size:2.3rem;"></i><h3 style="margin-top:0.8rem;">VTOP Lead</h3><p>Led Software Development Cell teams to build VIT’s academic portal.</p></div>
+        <div class="card"><i class="fas fa-chalkboard" style="font-size:2.3rem;"></i><h3 style="margin-top:0.8rem;">30+ Workshops</h3><p>Nationwide training on AI, Python, Django, Moodle, Latex, Big Data.</p></div>
+        <div class="card"><i class="fas fa-shield-alt" style="font-size:2.3rem;"></i><h3 style="margin-top:0.8rem;">NEET Observer</h3><p>Appointed as observer for national medical entrance exam (2020,2022,2023).</p></div>
+        <div class="card"><i class="fas fa-microchip" style="font-size:2.3rem;"></i><h3 style="margin-top:0.8rem;">Web 3.0 Expertise</h3><p>Semantic Web, RDF, OWL, SPARQL – pioneer in academic adoption.</p></div>
+      </div>
+    </section>
+
+    <!-- CONTACT -->
+    <section id="contact" class="fade-section">
+      <h2 class="section-title">Contact</h2>
+      <div class="grid-2">
+        <div class="card">
+          <h3><i class="fas fa-envelope"></i> Reach out</h3>
+          <p><i class="fas fa-envelope" style="width:25px;"></i> anthoniraj@vit.ac.in</p>
+          <p><i class="fas fa-map-marker-alt"></i> SCOPE, VIT, Vellore – 632014, Tamil Nadu, India</p>
+          <p><i class="fas fa-globe"></i> <a href="https://github.com/anthoniraj" target="_blank" style="color:var(--accent-glare);">github.com/anthoniraj</a> · <a href="https://scholar.google.com/citations?user=8jphK5EAAAAJ&hl=en" target="_blank" style="color:var(--accent-glare);">Google Scholar</a></p>
+          <p><i class="fas fa-external-link-alt"></i> <a href="https://form.jotform.com/230438093049456" target="_blank" style="color:var(--accent-glare);">JotForm contact</a> (secure form)</p>
+        </div>
+        <div class="card" style="background: #1e2a3a;">
+          <h3>📬 Quick message</h3>
+          <p style="margin-bottom: 1.5rem;">Use the secure Jotform link below for direct inquiries.</p>
+          <a href="https://form.jotform.com/230438093049456" target="_blank" class="btn"><i class="fas fa-paper-plane"></i> Go to contact form</a>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    <div class="container" style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap:1rem;">
+      <div>© 2025 Prof. Anthoniraj Amalanathan. All rights reserved.</div>
+      <div class="footer-links">
+        <a href="#home">Home</a> <a href="#research">Research</a> <a href="#teaching">Teaching</a> <a href="#skills">Skills</a> <a href="#contact">Contact</a>
+      </div>
+    </div>
+  </footer>
+
+  <!-- mobile toggle + scroll fade -->
+  <script>
+    const toggle = document.getElementById('navToggle');
+    const menu = document.getElementById('navMenu');
+    toggle.addEventListener('click', () => {
+      menu.classList.toggle('show');
+    });
+
+    const faders = document.querySelectorAll('.fade-section');
+    const appearOptions = { threshold: 0.15, rootMargin: '0px 0px -40px 0px' };
+    const appearOnScroll = new IntersectionObserver((entries, observer) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          entry.target.classList.add('visible');
+          observer.unobserve(entry.target);
+        }
+      });
+    }, appearOptions);
+    faders.forEach(fader => appearOnScroll.observe(fader));
+
+    document.querySelectorAll('#navMenu a').forEach(link => {
+      link.addEventListener('click', () => {
+        if (menu.classList.contains('show')) menu.classList.remove('show');
+      });
+    });
+
+    window.addEventListener('load', () => {
+      faders.forEach(f => {
+        if (f.getBoundingClientRect().top < window.innerHeight*0.8) f.classList.add('visible');
+      });
+    });
+  </script>
+</body>
+</html>
