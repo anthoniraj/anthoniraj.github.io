@@ -470,6 +470,22 @@
       border-bottom: none;
     }
 
+    /* Mobile single column layout */
+    @media (max-width: 768px) {
+      .schedule-item {
+        display: flex;
+        flex-direction: column;
+        align-items: flex-start;
+        padding: 12px 16px;
+      }
+      .time-column, .class-details {
+        width: 100%;
+      }
+      .time-range {
+        text-align: left;
+      }
+    }
+
     .schedule-item:hover {
       background: rgba(255, 255, 255, 0.02);
     }
@@ -1552,10 +1568,9 @@ LAB	L71	L72	L73	L74	L75	L76	Lunch	L77	L78	L79	L80	L81	L82	-
 SUN	THEORY	V10	Y11	Y12	X11	X12	-	Lunch	Y21	Z21	X21	W21	W22	-	V11
 LAB	L83	L84	L85	L86	L87	L88	Lunch	L89	L90	L91	L92	L93	L94	-`;
 
-    // Load sample data into text area automatically on load
+    // Initialize theme on page load
     window.addEventListener('DOMContentLoaded', () => {
       initTheme();
-      loadSampleData();
     });
 
     function loadSampleData() {
