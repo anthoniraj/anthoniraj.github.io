@@ -1,0 +1,2242 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Portal Timetable Visualizer & Tabular PDF Generator</title>
+  <meta name="description" content="Parse raw portal timetable text into clean daily agendas, weekly grids, and neat single-page tabular PDFs.">
+  
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  
+  <!-- html2pdf Bundle CDN for PDF generation -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+
+  <style>
+    :root {
+      --bg-primary: #0f172a;
+      --bg-surface: #1e293b;
+      --bg-card: #334155;
+      --bg-card-hover: #475569;
+      --text-main: #f8fafc;
+      --text-muted: #94a3b8;
+      --accent-primary: #6366f1;
+      --accent-secondary: #a855f7;
+      --accent-gradient: linear-gradient(135deg, #6366f1 0%, #a855f7 100%);
+      --border-color: rgba(255, 255, 255, 0.1);
+      --glass-bg: rgba(30, 41, 59, 0.7);
+      --glass-border: rgba(255, 255, 255, 0.08);
+
+      --theory-color: #3b82f6;
+      --lab-color: #10b981;
+      --online-color: #f59e0b;
+      --project-color: #ec4899;
+
+      --radius-sm: 8px;
+      --radius-md: 12px;
+      --radius-lg: 20px;
+      --shadow-lg: 0 20px 25px -5px rgba(0, 0, 0, 0.4), 0 8px 10px -6px rgba(0, 0, 0, 0.3);
+    }
+
+    /* Light Theme Overrides */
+    [data-theme="light"] {
+      --bg-primary: #f1f5f9;
+      --bg-surface: #ffffff;
+      --bg-card: #e2e8f0;
+      --bg-card-hover: #cbd5e1;
+      --text-main: #0f172a;
+      --text-muted: #64748b;
+      --border-color: #cbd5e1;
+      --glass-bg: rgba(255, 255, 255, 0.85);
+      --glass-border: rgba(0, 0, 0, 0.08);
+      --accent-primary: #4f46e5;
+      --accent-secondary: #9333ea;
+      --accent-gradient: linear-gradient(135deg, #4f46e5 0%, #9333ea 100%);
+      --shadow-lg: 0 10px 25px -5px rgba(0, 0, 0, 0.05), 0 8px 10px -6px rgba(0, 0, 0, 0.04);
+    }
+
+    [data-theme="light"] .brand-text h1 {
+      background: linear-gradient(135deg, #0f172a 0%, #334155 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    [data-theme="light"] .day-card-header {
+      background: linear-gradient(90deg, #f8fafc 0%, #f1f5f9 100%);
+      color: #0f172a;
+    }
+
+    [data-theme="light"] .time-range {
+      color: #0f172a;
+    }
+
+    [data-theme="light"] .course-name {
+      color: #1e293b;
+    }
+
+    [data-theme="light"] .course-code-title h3 {
+      color: #0f172a;
+    }
+
+    [data-theme="light"] .venue-badge {
+      background: #f1f5f9;
+      color: #334155;
+      border-color: #cbd5e1;
+    }
+
+    [data-theme="light"] .lunch-title {
+      color: #1e293b;
+    }
+
+    [data-theme="light"] textarea {
+      background: #ffffff;
+      color: #0f172a;
+    }
+
+    [data-theme="light"] .matrix-table td.day-header {
+      background: #f1f5f9;
+      color: #0f172a;
+    }
+
+    [data-theme="light"] .matrix-table th {
+      background: #f1f5f9;
+      color: #475569;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: 'Inter', sans-serif;
+      background-color: var(--bg-primary);
+      color: var(--text-main);
+      line-height: 1.5;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      padding-bottom: 60px;
+      transition: background-color 0.3s ease, color 0.3s ease;
+    }
+
+    /* Header & Navigation */
+    header {
+      background: var(--glass-bg);
+      backdrop-filter: blur(16px);
+      border-bottom: 1px solid var(--glass-border);
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      padding: 16px 32px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 16px;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .brand-icon {
+      width: 42px;
+      height: 42px;
+      background: var(--accent-gradient);
+      border-radius: var(--radius-md);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 4px 14px rgba(99, 102, 241, 0.4);
+    }
+
+    .brand-icon svg {
+      width: 24px;
+      height: 24px;
+      fill: #fff;
+    }
+
+    .brand-text h1 {
+      font-family: 'Outfit', sans-serif;
+      font-size: 1.4rem;
+      font-weight: 700;
+      letter-spacing: -0.02em;
+      background: linear-gradient(135deg, #fff 0%, #cbd5e1 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .brand-text p {
+      font-size: 0.8rem;
+      color: var(--text-muted);
+    }
+
+    .header-actions {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 10px 18px;
+      font-family: inherit;
+      font-size: 0.875rem;
+      font-weight: 600;
+      border-radius: var(--radius-sm);
+      border: 1px solid transparent;
+      cursor: pointer;
+      transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+      text-decoration: none;
+      white-space: nowrap;
+    }
+
+    .btn-primary {
+      background: var(--accent-gradient);
+      color: #fff;
+      box-shadow: 0 4px 14px rgba(99, 102, 241, 0.35);
+    }
+
+    .btn-primary:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(99, 102, 241, 0.5);
+    }
+
+    .btn-secondary {
+      background: rgba(255, 255, 255, 0.08);
+      color: var(--text-main);
+      border-color: var(--glass-border);
+    }
+
+    .btn-secondary:hover {
+      background: rgba(255, 255, 255, 0.15);
+      border-color: rgba(255, 255, 255, 0.2);
+    }
+
+    .btn-outline {
+      background: transparent;
+      color: var(--text-muted);
+      border-color: var(--border-color);
+    }
+
+    .btn-outline:hover {
+      color: var(--text-main);
+      background: rgba(255, 255, 255, 0.05);
+    }
+
+    /* Main Container */
+    main {
+      max-width: 1300px;
+      width: 100%;
+      margin: 0 auto;
+      padding: 32px 24px;
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      gap: 28px;
+    }
+
+    /* Input Section Card */
+    .input-card {
+      background: var(--bg-surface);
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-lg);
+      padding: 24px;
+      box-shadow: var(--shadow-lg);
+      transition: all 0.3s ease;
+    }
+
+    .input-card-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 16px;
+    }
+
+    .input-card-title {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-family: 'Outfit', sans-serif;
+      font-size: 1.15rem;
+      font-weight: 600;
+    }
+
+    .textarea-wrapper {
+      position: relative;
+    }
+
+    textarea {
+      width: 100%;
+      height: 180px;
+      background: var(--bg-primary);
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-md);
+      color: var(--text-main);
+      font-family: 'Fira Code', 'Courier New', monospace;
+      font-size: 0.85rem;
+      padding: 16px;
+      resize: vertical;
+      outline: none;
+      transition: border-color 0.2s ease;
+    }
+
+    textarea:focus {
+      border-color: var(--accent-primary);
+      box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.2);
+    }
+
+    .input-controls {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-top: 16px;
+      flex-wrap: wrap;
+      gap: 12px;
+    }
+
+    .sample-btn {
+      font-size: 0.8rem;
+      color: #818cf8;
+      background: rgba(99, 102, 241, 0.1);
+      padding: 6px 12px;
+      border-radius: var(--radius-sm);
+      border: 1px solid rgba(99, 102, 241, 0.2);
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .sample-btn:hover {
+      background: rgba(99, 102, 241, 0.2);
+    }
+
+    /* Stats & Toolbar */
+    .toolbar-container {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 16px;
+      background: var(--bg-surface);
+      border: 1px solid var(--border-color);
+      padding: 16px 24px;
+      border-radius: var(--radius-lg);
+    }
+
+    .view-switcher {
+      display: flex;
+      background: var(--bg-primary);
+      padding: 4px;
+      border-radius: var(--radius-md);
+      border: 1px solid var(--border-color);
+    }
+
+    .view-tab {
+      padding: 8px 16px;
+      font-size: 0.85rem;
+      font-weight: 600;
+      color: var(--text-muted);
+      border: none;
+      background: transparent;
+      border-radius: var(--radius-sm);
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .view-tab.active {
+      background: var(--accent-primary);
+      color: #fff;
+      box-shadow: 0 2px 8px rgba(99, 102, 241, 0.4);
+    }
+
+    .filter-group {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .select-input {
+      background: var(--bg-primary);
+      border: 1px solid var(--border-color);
+      color: var(--text-main);
+      padding: 8px 14px;
+      border-radius: var(--radius-sm);
+      font-size: 0.85rem;
+      outline: none;
+      cursor: pointer;
+    }
+
+    .stats-pills {
+      display: flex;
+      gap: 12px;
+    }
+
+    .pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 6px 14px;
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid var(--border-color);
+      border-radius: 20px;
+      font-size: 0.8rem;
+      font-weight: 600;
+      color: var(--text-main);
+    }
+
+    .pill-highlight {
+      background: rgba(168, 85, 247, 0.15);
+      border-color: rgba(168, 85, 247, 0.3);
+      color: #a855f7;
+    }
+
+    /* Print / Printable Schedule Container */
+    #printableArea {
+      display: flex;
+      flex-direction: column;
+      gap: 28px;
+    }
+
+    /* DAY AGENDA VIEW */
+    .day-agenda-section {
+      display: flex;
+      flex-direction: column;
+      gap: 24px;
+    }
+
+    .day-card {
+      background: var(--bg-surface);
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-lg);
+      overflow: hidden;
+      box-shadow: var(--shadow-lg);
+    }
+
+    .day-card-header {
+      background: linear-gradient(90deg, rgba(30, 41, 59, 1) 0%, rgba(51, 65, 85, 1) 100%);
+      padding: 16px 24px;
+      border-bottom: 1px solid var(--border-color);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .day-name {
+      font-family: 'Outfit', sans-serif;
+      font-size: 1.25rem;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .day-badge {
+      font-size: 0.75rem;
+      background: rgba(255, 255, 255, 0.1);
+      padding: 4px 10px;
+      border-radius: 12px;
+      color: var(--text-muted);
+      font-weight: 500;
+    }
+
+    .schedule-list {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .schedule-item {
+      display: grid;
+      grid-template-columns: 180px 1fr;
+      padding: 18px 24px;
+      border-bottom: 1px solid var(--border-color);
+      transition: background 0.15s ease;
+      position: relative;
+    }
+
+    .schedule-item:last-child {
+      border-bottom: none;
+    }
+
+    .schedule-item:hover {
+      background: rgba(255, 255, 255, 0.02);
+    }
+
+    .time-column {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .time-range {
+      font-family: 'Outfit', sans-serif;
+      font-size: 0.9rem;
+      font-weight: 700;
+      color: var(--text-main);
+      white-space: nowrap;
+    }
+
+    .slot-pill {
+      display: inline-block;
+      align-self: flex-start;
+      font-size: 0.75rem;
+      font-weight: 600;
+      padding: 2px 8px;
+      border-radius: 6px;
+      background: rgba(99, 102, 241, 0.15);
+      color: #818cf8;
+      border: 1px solid rgba(99, 102, 241, 0.25);
+    }
+
+    .class-details {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .class-header-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+
+    .course-title-block {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .course-code {
+      font-family: 'Outfit', sans-serif;
+      font-size: 1.05rem;
+      font-weight: 700;
+      color: var(--accent-primary);
+    }
+
+    .course-name {
+      font-size: 1rem;
+      font-weight: 600;
+      color: var(--text-main);
+    }
+
+    .type-tag {
+      font-size: 0.75rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      padding: 4px 10px;
+      border-radius: 6px;
+    }
+
+    .type-theory {
+      background: rgba(59, 130, 246, 0.15);
+      color: #60a5fa;
+      border: 1px solid rgba(59, 130, 246, 0.3);
+    }
+
+    .type-lab {
+      background: rgba(16, 185, 129, 0.15);
+      color: #34d399;
+      border: 1px solid rgba(16, 185, 129, 0.3);
+    }
+
+    .type-online {
+      background: rgba(245, 158, 11, 0.15);
+      color: #fbbf24;
+      border: 1px solid rgba(245, 158, 11, 0.3);
+    }
+
+    .type-project {
+      background: rgba(236, 72, 153, 0.15);
+      color: #f472b6;
+      border: 1px solid rgba(236, 72, 153, 0.3);
+    }
+
+    .meta-row {
+      display: flex;
+      align-items: center;
+      gap: 20px;
+      flex-wrap: wrap;
+      font-size: 0.85rem;
+      color: var(--text-muted);
+    }
+
+    .meta-item {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .meta-item svg {
+      width: 16px;
+      height: 16px;
+      fill: currentColor;
+      opacity: 0.7;
+    }
+
+    .venue-badge {
+      background: rgba(255, 255, 255, 0.06);
+      padding: 3px 10px;
+      border-radius: 6px;
+      color: var(--text-main);
+      font-weight: 600;
+      border: 1px solid var(--border-color);
+    }
+
+    /* Break Special Card */
+    .lunch-break-item {
+      background: rgba(245, 158, 11, 0.04);
+      border-left: 4px solid #64748b;
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      padding: 14px 24px;
+    }
+
+    .lunch-icon {
+      font-size: 1.4rem;
+    }
+
+    .lunch-title {
+      font-family: 'Outfit', sans-serif;
+      font-weight: 600;
+      font-size: 0.95rem;
+      color: var(--text-main);
+    }
+
+    .lunch-time {
+      font-size: 0.85rem;
+      color: var(--text-muted);
+    }
+
+    /* WEEKLY GRID MATRIX VIEW */
+    .grid-view-container {
+      background: var(--bg-surface);
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-lg);
+      padding: 20px;
+      overflow-x: auto;
+      box-shadow: var(--shadow-lg);
+    }
+
+    .matrix-table {
+      width: 100%;
+      border-collapse: separate;
+      border-spacing: 6px;
+      min-width: 1000px;
+    }
+
+    .matrix-table th {
+      background: var(--bg-card);
+      color: var(--text-muted);
+      font-size: 0.75rem;
+      font-weight: 600;
+      padding: 10px;
+      border-radius: var(--radius-sm);
+      text-align: center;
+      white-space: nowrap;
+    }
+
+    .matrix-table td {
+      background: rgba(255, 255, 255, 0.02);
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-sm);
+      padding: 10px;
+      vertical-align: top;
+      height: 70px;
+      width: 110px;
+      transition: all 0.2s;
+    }
+
+    .matrix-table td.day-header {
+      background: var(--bg-card);
+      color: var(--text-main);
+      font-family: 'Outfit', sans-serif;
+      font-weight: 700;
+      font-size: 0.9rem;
+      text-align: center;
+      vertical-align: middle;
+      width: 80px;
+    }
+
+    .matrix-cell-content {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      height: 100%;
+      justify-content: space-between;
+    }
+
+    .matrix-cell-code {
+      font-weight: 700;
+      font-size: 0.8rem;
+    }
+
+    .matrix-cell-venue {
+      font-size: 0.7rem;
+      opacity: 0.8;
+    }
+
+    .matrix-cell-slot {
+      font-size: 0.65rem;
+      opacity: 0.6;
+    }
+
+    /* COURSE CATALOGUE VIEW */
+    .courses-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+      gap: 20px;
+    }
+
+    .course-card {
+      background: var(--bg-surface);
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-lg);
+      padding: 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+      box-shadow: var(--shadow-lg);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .course-card-accent {
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 4px;
+    }
+
+    .course-card-header {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 12px;
+    }
+
+    .course-code-title h3 {
+      font-family: 'Outfit', sans-serif;
+      font-size: 1.1rem;
+      font-weight: 700;
+      color: var(--text-main);
+    }
+
+    .course-code-title p {
+      font-size: 0.85rem;
+      color: var(--text-muted);
+      margin-top: 2px;
+    }
+
+    .course-ltpjc {
+      display: flex;
+      gap: 6px;
+      font-size: 0.75rem;
+      color: var(--text-muted);
+    }
+
+    .ltpjc-item {
+      background: var(--bg-primary);
+      padding: 2px 6px;
+      border-radius: 4px;
+      border: 1px solid var(--border-color);
+    }
+
+    /* Empty state */
+    .empty-state {
+      text-align: center;
+      padding: 60px 20px;
+      background: var(--bg-surface);
+      border: 1px dashed var(--border-color);
+      border-radius: var(--radius-lg);
+      color: var(--text-muted);
+    }
+
+    .empty-state svg {
+      width: 48px;
+      height: 48px;
+      margin-bottom: 16px;
+      opacity: 0.4;
+    }
+
+    .empty-state h3 {
+      font-family: 'Outfit', sans-serif;
+      font-size: 1.2rem;
+      color: var(--text-main);
+      margin-bottom: 8px;
+    }
+
+    /* Footer */
+    footer {
+      text-align: center;
+      padding: 24px;
+      color: var(--text-muted);
+      font-size: 0.85rem;
+      margin-top: auto;
+    }
+
+    /* Notification Toast */
+    .toast {
+      position: fixed;
+      bottom: 24px;
+      right: 24px;
+      background: var(--bg-card);
+      color: #fff;
+      padding: 12px 20px;
+      border-radius: var(--radius-md);
+      border: 1px solid var(--accent-primary);
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      z-index: 1000;
+      transform: translateY(100px);
+      opacity: 0;
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    .toast.show {
+      transform: translateY(0);
+      opacity: 1;
+    }
+
+    /* GUARANTEED SINGLE PAGE A4 PDF STYLES */
+    .pdf-tabular-document {
+      font-family: 'Inter', sans-serif !important;
+      color: #0f172a !important;
+      background: #ffffff !important;
+      padding: 6px 10px !important;
+      width: 100% !important;
+      box-sizing: border-box !important;
+    }
+
+    .pdf-header {
+      display: flex !important;
+      justify-content: space-between !important;
+      align-items: center !important;
+      border-bottom: 1.5px solid #0f172a !important;
+      padding-bottom: 4px !important;
+      margin-bottom: 6px !important;
+    }
+
+    .pdf-title {
+      font-family: 'Outfit', sans-serif !important;
+      font-size: 1.05rem !important;
+      font-weight: 700 !important;
+      color: #0f172a !important;
+      line-height: 1.1 !important;
+    }
+
+    .pdf-summary-box {
+      font-size: 0.72rem !important;
+      color: #1e293b !important;
+      background: #f1f5f9 !important;
+      padding: 3px 10px !important;
+      border: 1px solid #cbd5e1 !important;
+      border-radius: 4px !important;
+    }
+
+    .pdf-section {
+      margin-bottom: 4px !important;
+    }
+
+    .pdf-table {
+      width: 100% !important;
+      border-collapse: collapse !important;
+      font-size: 0.70rem !important;
+      line-height: 1.25 !important;
+    }
+
+    .pdf-table th {
+      background: #f1f5f9 !important;
+      color: #0f172a !important;
+      font-weight: 700 !important;
+      text-align: left !important;
+      padding: 4px 6px !important;
+      border: 1px solid #cbd5e1 !important;
+      font-size: 0.70rem !important;
+    }
+
+    .pdf-table td {
+      padding: 3.5px 6px !important;
+      border: 1px solid #cbd5e1 !important;
+      color: #1e293b !important;
+      vertical-align: middle !important;
+    }
+
+    .pdf-day-col {
+      font-weight: 700 !important;
+      background: #f8fafc !important;
+      vertical-align: top !important;
+      text-align: center !important;
+      padding-top: 5px !important;
+      color: #0f172a !important;
+      font-size: 0.72rem !important;
+    }
+
+    .pdf-time-cell {
+      font-weight: 600 !important;
+      white-space: nowrap !important;
+      color: #0f172a !important;
+      font-size: 0.70rem !important;
+    }
+
+    .pdf-table tr:nth-child(even) td:not(.pdf-day-col) {
+      background: #f8fafc !important;
+    }
+
+    .pdf-break-cell {
+      background: #f1f5f9 !important;
+      color: #475569 !important;
+      font-style: italic !important;
+      font-weight: 600 !important;
+      padding: 3.5px 6px !important;
+    }
+
+    @media print {
+      body {
+        background: #ffffff !important;
+        color: #1e293b !important;
+      }
+      header, .input-card, .toolbar-container, footer, .toast, .no-print {
+        display: none !important;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Header Section -->
+  <header>
+    <div class="brand">
+      <div class="brand-icon">
+        <svg viewBox="0 0 24 24">
+          <path d="M19 4h-1V3c0-.55-.45-1-1-1s-1 .45-1 1v1H8V3c0-.55-.45-1-1-1s-1 .45-1 1v1H5c-1.11 0-1.99.9-1.99 2L3 20c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 16H5V10h14v10zm0-12H5V6h14v2zm-7 5h5v5h-5z"/>
+        </svg>
+      </div>
+      <div class="brand-text">
+        <h1>Portal Timetable Visualizer</h1>
+        <p>Smart Parser & Daily Schedule Generator</p>
+      </div>
+    </div>
+
+    <div class="header-actions">
+      <button class="btn btn-outline no-print" id="themeToggleBtn" onclick="toggleTheme()">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+          <path d="M12 7c-2.76 0-5 2.24-5 5s2.24 5 5 5 5-2.24 5-5-2.24-5-5-5zM2 13h2c.55 0 1-.45 1-1s-.45-1-1-1H2c-.55 0-1 .45-1 1s.45 1 1 1zm18 0h2c.55 0 1-.45 1-1s-.45-1-1-1h-2c-.55 0-1 .45-1 1s.45 1 1 1zM11 2v2c0 .55.45 1 1 1s1-.45 1-1V2c0-.55-.45-1-1-1s-1 .45-1 1zm0 18v2c0 .55.45 1 1 1s1-.45 1-1v-2c0-.55-.45-1-1-1s-1 .45-1 1zM5.99 4.58c-.39-.39-1.03-.39-1.41 0s-.39 1.03 0 1.41l1.06 1.06c.39.39 1.03.39 1.41 0s.39-1.03 0-1.41L5.99 4.58zm12.37 12.37c-.39-.39-1.03-.39-1.41 0s-.39 1.03 0 1.41l1.06 1.06c.39.39 1.03.39 1.41 0s.39-1.03 0-1.41l-1.06-1.06zm1.06-10.96c.39-.39.39-1.03 0-1.41s-1.03-.39-1.41 0l-1.06 1.06c-.39.39-.39 1.03 0 1.41s1.03.39 1.41 0l1.06-1.06zM7.05 18.36c.39-.39.39-1.03 0-1.41s-1.03-.39-1.41 0l-1.06 1.06c-.39.39-.39 1.03 0 1.41s1.03.39 1.41 0l1.06-1.06z"/>
+        </svg>
+        <span id="themeBtnText">Light Mode</span>
+      </button>
+
+      <button class="btn btn-secondary no-print" onclick="loadSampleData()">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+          <path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-5 14H7v-2h7v2zm3-4H7v-2h10v2zm0-4H7V7h10v2z"/>
+        </svg>
+        Load Sample Portal Data
+      </button>
+      <button class="btn btn-primary no-print" onclick="generatePDF()">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+          <path d="M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z"/>
+        </svg>
+        Export Tabular PDF
+      </button>
+      <button class="btn btn-outline no-print" onclick="printSchedule()">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+          <path d="M19 8H5c-1.66 0-3 1.34-3 3v6h4v4h12v-4h4v-6c0-1.66-1.34-3-3-3zm-4 11H9v-5h6v5zm4-7c-.55 0-1-.45-1-1s.45-1 1-1 1 .45 1 1-.45 1-1 1zm-2-9H7v4h10V3z"/>
+        </svg>
+        Print
+      </button>
+    </div>
+  </header>
+
+  <!-- Main Workspace -->
+  <main>
+    <!-- Raw Text Input Card -->
+    <div class="input-card no-print">
+      <div class="input-card-header">
+        <div class="input-card-title">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="#818cf8">
+            <path d="M14 2H6c-1.1 0-1.99.9-1.99 2L4 20c0 1.1.89 2 1.99 2H18c1.1 0 2-.9 2-2V8l-6-6zm2 16H8v-2h8v2zm0-4H8v-2h8v2zm-3-5V3.5L18.5 9H13z"/>
+          </svg>
+          Paste Portal Copied Registration & Timetable Text
+        </div>
+        <button class="sample-btn" onclick="loadSampleData()">⚡ Try Pre-filled Sample Data</button>
+      </div>
+
+      <div class="textarea-wrapper">
+        <textarea id="rawPortalInput" placeholder="Paste your registration information table & time table grid copied directly from your portal here..."></textarea>
+      </div>
+
+      <div class="input-controls">
+        <span style="font-size: 0.8rem; color: var(--text-muted);">
+          Supported: Full portal text including Course Registration Table & Timetable Matrix (MON-SUN slots).
+        </span>
+        <div style="display: flex; gap: 10px;">
+          <button class="btn btn-outline" onclick="clearInput()">Clear</button>
+          <button class="btn btn-primary" onclick="processPortalData()">
+            Process & Visualize Timetable
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Controls & View Toolbar -->
+    <div class="toolbar-container no-print" id="toolbarContainer">
+      <div class="view-switcher">
+        <button class="view-tab active" data-view="agenda" onclick="switchView('agenda')">📅 Day-by-Day Agenda</button>
+        <button class="view-tab" data-view="grid" onclick="switchView('grid')">🗓️ Weekly Matrix</button>
+        <button class="view-tab" data-view="courses" onclick="switchView('courses')">📚 Registered Courses</button>
+      </div>
+
+      <div class="filter-group">
+        <select class="select-input" id="dayFilter" onchange="renderActiveView()">
+          <option value="ALL">All Days</option>
+          <option value="MON">Monday</option>
+          <option value="TUE">Tuesday</option>
+          <option value="WED">Wednesday</option>
+          <option value="THU">Thursday</option>
+          <option value="FRI">Friday</option>
+          <option value="SAT">Saturday</option>
+          <option value="SUN">Sunday</option>
+        </select>
+
+        <select class="select-input" id="typeFilter" onchange="renderActiveView()">
+          <option value="ALL">All Course Types</option>
+          <option value="THEORY">Theory Only</option>
+          <option value="LAB">Lab Only</option>
+        </select>
+      </div>
+
+      <div class="stats-pills">
+        <div class="pill" id="totalCoursesPill">0 Courses</div>
+        <div class="pill pill-highlight" id="totalCreditsPill">0.0 Credits</div>
+      </div>
+    </div>
+
+    <!-- On-screen Content Container -->
+    <div id="printableArea">
+      <!-- DAY-BY-DAY AGENDA VIEW -->
+      <div id="agendaView" class="day-agenda-section">
+        <!-- Rendered via JS -->
+      </div>
+
+      <!-- WEEKLY GRID MATRIX VIEW -->
+      <div id="gridView" class="grid-view-container" style="display: none;">
+        <!-- Rendered via JS -->
+      </div>
+
+      <!-- REGISTERED COURSES SUMMARY VIEW -->
+      <div id="coursesView" class="courses-grid" style="display: none;">
+        <!-- Rendered via JS -->
+      </div>
+    </div>
+  </main>
+
+  <!-- Notification Toast -->
+  <div class="toast" id="toast">
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="#34d399">
+      <path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/>
+    </svg>
+    <span id="toastMsg">Timetable processed successfully!</span>
+  </div>
+
+  <footer>
+    Portal Timetable Parser & Schedule Generator • Instant, Clean & Tabular PDF
+  </footer>
+
+  <script>
+    // Standard VIT Slot Time Mappings
+    const TIMETABLE_SLOTS = {
+      THEORY: [
+        { col: 0, time: "08:00 - 08:50" },
+        { col: 1, time: "09:00 - 09:50" },
+        { col: 2, time: "10:00 - 10:50" },
+        { col: 3, time: "11:00 - 11:50" },
+        { col: 4, time: "12:00 - 12:50" },
+        { col: 5, time: "12:50 - 14:00", isLunch: true },
+        { col: 6, time: "14:00 - 14:50" },
+        { col: 7, time: "15:00 - 15:50" },
+        { col: 8, time: "16:00 - 16:50" },
+        { col: 9, time: "17:00 - 17:50" },
+        { col: 10, time: "18:00 - 18:50" },
+        { col: 11, time: "19:01 - 19:50" }
+      ],
+      LAB: [
+        { col: 0, time: "08:00 - 08:50", slot: "L1" },
+        { col: 1, time: "08:51 - 09:40", slot: "L2" },
+        { col: 2, time: "09:51 - 10:40", slot: "L3" },
+        { col: 3, time: "10:41 - 11:30", slot: "L4" },
+        { col: 4, time: "11:40 - 12:30", slot: "L5" },
+        { col: 5, time: "12:31 - 13:20", slot: "L6" },
+        { col: 6, time: "13:20 - 14:00", isLunch: true },
+        { col: 7, time: "14:00 - 14:50", slot: "L31" },
+        { col: 8, time: "14:51 - 15:40", slot: "L32" },
+        { col: 9, time: "15:51 - 16:40", slot: "L33" },
+        { col: 10, time: "16:41 - 17:30", slot: "L34" },
+        { col: 11, time: "17:40 - 18:30", slot: "L35" },
+        { col: 12, time: "18:31 - 19:20", slot: "L36" }
+      ]
+    };
+
+    // Days list in order
+    const DAYS = [
+      { key: "MON", full: "Monday" },
+      { key: "TUE", full: "Tuesday" },
+      { key: "WED", full: "Wednesday" },
+      { key: "THU", full: "Thursday" },
+      { key: "FRI", full: "Friday" },
+      { key: "SAT", full: "Saturday" },
+      { key: "SUN", full: "Sunday" }
+    ];
+
+    // Helper: Convert 24-hour time strings (e.g. 09:51 - 11:30) to 12-hour AM/PM format
+    function formatTime12Hour(timeStr) {
+      if (!timeStr) return '';
+      return timeStr.replace(/\b(\d{1,2}):(\d{2})\b/g, (match, h, m) => {
+        let hour = parseInt(h, 10);
+        const ampm = hour >= 12 ? 'PM' : 'AM';
+        hour = hour % 12;
+        if (hour === 0) hour = 12;
+        const formattedHour = hour < 10 ? '0' + hour : hour;
+        return `${formattedHour}:${m} ${ampm}`;
+      });
+    }
+
+    // Helper: Convert Course Type to ET / EL / LO shorthands
+    function getShortType(typeStr) {
+      if (!typeStr) return '';
+      const t = typeStr.trim();
+      if (t.toLowerCase().includes('embedded theory') || t === 'ETH') return 'ET';
+      if (t.toLowerCase().includes('embedded lab') || t === 'ELA') return 'EL';
+      if (t.toLowerCase().includes('lab only') || t === 'LO') return 'LO';
+      if (t.toLowerCase().includes('online')) return 'OC';
+      if (t.toLowerCase().includes('project')) return 'PJ';
+      if (t.toLowerCase().includes('theory')) return 'ET';
+      if (t.toLowerCase().includes('lab')) return 'EL';
+      return t;
+    }
+
+    // Helper: Clean Employee ID from Faculty Name e.g. "14381 - RAJAGOPAL D - SAS" -> "RAJAGOPAL D - SAS"
+    function cleanFacultyName(facStr) {
+      if (!facStr || facStr === 'TBA' || facStr === 'NIL') return '-';
+      return facStr.replace(/^\d+\s*-\s*/, '').trim();
+    }
+
+    // Theme Switcher Logic
+    function initTheme() {
+      const savedTheme = localStorage.getItem('theme') || 'dark';
+      applyTheme(savedTheme);
+    }
+
+    function toggleTheme() {
+      const currentTheme = document.documentElement.getAttribute('data-theme') || 'dark';
+      const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+      applyTheme(newTheme);
+      localStorage.setItem('theme', newTheme);
+      showToast(`Switched to ${newTheme === 'dark' ? 'Dark' : 'Light'} Mode`);
+    }
+
+    function applyTheme(theme) {
+      if (theme === 'light') {
+        document.documentElement.setAttribute('data-theme', 'light');
+        document.getElementById('themeBtnText').innerText = 'Dark Mode';
+      } else {
+        document.documentElement.removeAttribute('data-theme');
+        document.getElementById('themeBtnText').innerText = 'Light Mode';
+      }
+    }
+
+    // Global parsed state
+    let parsedData = {
+      courses: [],
+      schedulesByDay: {},
+      totalCredits: 0
+    };
+
+    let activeView = 'agenda';
+
+    // Pre-filled sample data from user prompt
+    const SAMPLE_PORTAL_TEXT = `Registration Information:
+Sl.No	Class Group	Course	L T P J C	Category	Course Option	Class Nbr	Slot	Venue	Faculty Name	Registered / Updated Date & Time	Attendance Date - Type	Status - RefNo
+1
+
+General Freshers
+
+BACHY101 - Environmental Sciences
+
+( Online Course )
+
+0 0 0 0 2.0
+
+University Core Courses	
+Regular
+
+VL2026270107091
+
+NIL
+
+NIL
+
+20103 - NAMRATA DEKA - SAS
+
+18-Jul-2026 21:53
+
+19-Jul-2026
+- Manual
+
+Registered and Approved
+
+2
+
+General Freshers
+
+BACHY105 - Applied Chemistry
+
+( Embedded Theory )
+
+3 0 0 0 3.0
+
+University Core Courses	
+Regular
+
+VL2026270105107
+
+B2+TB2
+
+PRP110
+
+14381 - RAJAGOPAL D - SAS
+
+18-Jul-2026 21:53
+
+19-Jul-2026
+- Manual
+
+Registered and Approved
+
+3
+
+General Freshers
+
+BACHY105 - Applied Chemistry
+
+( Embedded Lab )
+
+0 0 2 0 1.0
+
+University Core Courses	
+Regular
+
+VL2026270105110
+
+L15+L16
+
+PRPG07
+
+14381 - RAJAGOPAL D - SAS
+
+18-Jul-2026 21:53
+
+19-Jul-2026
+- Manual
+
+Registered and Approved
+
+4
+
+General Freshers
+
+BACSE101 - Problem Solving using Python
+
+( Lab Only )
+
+0 0 4 0 2.0
+
+University Core Courses	
+Regular
+
+VL2026270106411
+
+L5+L6+L21+L22
+
+PRP117
+
+10941 - ANTHONIRAJ A - SCOPE
+
+18-Jul-2026 21:53
+
+19-Jul-2026
+- Manual
+
+Registered and Approved
+
+5
+
+General Freshers
+
+BACSE191 - Basic Multidisciplinary Project
+
+( Project )
+
+0 0 0 0 2.0
+
+University Core Courses	
+Regular
+
+VL2026270107711
+
+NIL
+
+NIL
+
+18-Jul-2026 21:53
+
+19-Jul-2026
+- Manual
+
+Registered and Approved
+
+6
+
+General Freshers
+
+BAEEE101 - Basic Engineering
+
+( Embedded Theory )
+
+3 0 0 0 3.0
+
+University Core Courses	
+Regular
+
+VL2026270105743
+
+G2+TG2
+
+PRP110
+
+21785 - PRAKASH KUMAR V - SELECT
+
+18-Jul-2026 21:53
+
+19-Jul-2026
+- Manual
+
+Registered and Approved
+
+7
+
+General Freshers
+
+BAEEE101 - Basic Engineering
+
+( Embedded Lab )
+
+0 0 2 0 1.0
+
+University Core Courses	
+Regular
+
+VL2026270105744
+
+L9+L10
+
+PRP351
+
+21785 - PRAKASH KUMAR V - SELECT
+
+18-Jul-2026 21:53
+
+19-Jul-2026
+- Manual
+
+Registered and Approved
+
+8
+
+General Freshers
+
+BAENG101 - Technical English Communication
+
+( Embedded Theory )
+
+3 0 0 0 3.0
+
+University Core Courses	
+Regular
+
+VL2026270107469
+
+F2+TF2
+
+PRP110
+
+14798 - SUNITHA V - SSL
+
+18-Jul-2026 21:53
+
+19-Jul-2026
+- Manual
+
+Registered and Approved
+
+9
+
+General Freshers
+
+BAENG101 - Technical English Communication
+
+( Embedded Lab )
+
+0 0 2 0 1.0
+
+University Core Courses	
+Regular
+
+VL2026270107470
+
+L25+L26
+
+PRP554
+
+14798 - SUNITHA V - SSL
+
+18-Jul-2026 21:53
+
+19-Jul-2026
+- Manual
+
+Registered and Approved
+
+10
+
+General Freshers
+
+BAMAT101 - Multivariable Calculus and Differential Equations
+
+( Embedded Theory )
+
+3 0 0 0 3.0
+
+University Core Courses	
+Regular
+
+VL2026270105507
+
+E2+TE2
+
+PRP110
+
+13302 - RAJA DAS - SAS
+
+18-Jul-2026 21:53
+
+19-Jul-2026
+- Manual
+
+Registered and Approved
+
+11
+
+General Freshers
+
+BAMAT101 - Multivariable Calculus and Differential Equations
+
+( Embedded Lab )
+
+0 0 2 0 1.0
+
+University Core Courses	
+Regular
+
+VL2026270106719
+
+L3+L4
+
+PRP119
+
+13302 - RAJA DAS - SAS
+
+18-Jul-2026 21:53
+
+19-Jul-2026
+- Manual
+
+Registered and Approved
+
+Total Number Of Credits: 22.0
+THEORY	Start	08:00	09:00	10:00	11:00	12:00	-	Lunch	14:00	15:00	16:00	17:00	18:00	18:51	19:01
+End	08:50	09:50	10:50	11:50	12:50	-	Lunch	14:50	15:50	16:50	17:50	18:50	19:00	19:50
+LAB	Start	08:00	08:51	09:51	10:41	11:40	12:31	Lunch	14:00	14:51	15:51	16:41	17:40	18:31	-
+End	08:50	09:40	10:40	11:30	12:30	13:20	Lunch	14:50	15:40	16:40	17:30	18:30	19:20	-
+MON	THEORY	A1	F1	D1	TB1	TG1	-	Lunch	A2	F2-BAENG101-ETH-PRP110-ALL03	D2	TB2-BACHY105-ETH-PRP110-ALL03	TG2-BAEEE101-ETH-PRP110-ALL03	-	V3
+LAB	L1	L2	L3-BAMAT101-ELA-PRP119-ALL03	L4-BAMAT101-ELA-PRP119-ALL03	L5-BACSE101-LO-PRP117-ALL03	L6-BACSE101-LO-PRP117-ALL03	Lunch	L31	L32	L33	L34	L35	L36	-
+TUE	THEORY	B1	G1	E1	TC1	TAA1	-	Lunch	B2-BACHY105-ETH-PRP110-ALL03	G2-BAEEE101-ETH-PRP110-ALL03	E2-BAMAT101-ETH-PRP110-ALL03	TC2	TAA2	-	V4
+LAB	L7	L8	L9-BAEEE101-ELA-PRP351-ALL03	L10-BAEEE101-ELA-PRP351-ALL03	L11	L12	Lunch	L37	L38	L39	L40	L41	L42	-
+WED	THEORY	C1	A1	F1	V1	V2	-	Lunch	C2	A2	F2-BAENG101-ETH-PRP110-ALL03	TD2	TBB2	-	V5
+LAB	L13	L14	L15-BACHY105-ELA-PRPG07-ALL03	L16-BACHY105-ELA-PRPG07-ALL03	L17	L18	Lunch	L43	L44	L45	L46	L47	L48	-
+THU	THEORY	D1	B1	G1	TE1	TCC1	-	Lunch	D2	B2-BACHY105-ETH-PRP110-ALL03	G2-BAEEE101-ETH-PRP110-ALL03	TE2-BAMAT101-ETH-PRP110-ALL03	TCC2	-	V6
+LAB	L19	L20	L21-BACSE101-LO-PRP117-ALL03	L22-BACSE101-LO-PRP117-ALL03	L23	L24	Lunch	L49	L50	L51	L52	L53	L54	-
+FRI	THEORY	E1	C1	TA1	TF1	TD1	-	Lunch	E2-BAMAT101-ETH-PRP110-ALL03	C2	TA2	TF2-BAENG101-ETH-PRP110-ALL03	TDD2	-	V7
+LAB	L25-BAENG101-ELA-PRP554-ALL03	L26-BAENG101-ELA-PRP554-ALL03	L27	L28	L29	L30	Lunch	L55	L56	L57	L58	L59	L60	-
+SAT	THEORY	V8	X11	X12	Y11	Y12	-	Lunch	X21	Z21	Y21	W21	W22	-	V9
+LAB	L71	L72	L73	L74	L75	L76	Lunch	L77	L78	L79	L80	L81	L82	-
+SUN	THEORY	V10	Y11	Y12	X11	X12	-	Lunch	Y21	Z21	X21	W21	W22	-	V11
+LAB	L83	L84	L85	L86	L87	L88	Lunch	L89	L90	L91	L92	L93	L94	-`;
+
+    // Load sample data into text area automatically on load
+    window.addEventListener('DOMContentLoaded', () => {
+      initTheme();
+      loadSampleData();
+    });
+
+    function loadSampleData() {
+      document.getElementById('rawPortalInput').value = SAMPLE_PORTAL_TEXT;
+      processPortalData();
+    }
+
+    function clearInput() {
+      document.getElementById('rawPortalInput').value = '';
+      parsedData = { courses: [], schedulesByDay: {}, totalCredits: 0 };
+      renderActiveView();
+      showToast('Cleared input text');
+    }
+
+    // MAIN PARSER ENGINE
+    function processPortalData() {
+      const rawText = document.getElementById('rawPortalInput').value;
+      if (!rawText || !rawText.trim()) {
+        showToast('Please paste portal text first!');
+        return;
+      }
+
+      // 1. Parse Registered Courses
+      const courses = parseRegistrationCourses(rawText);
+
+      // 2. Parse Grid Entries per Day
+      const { schedulesByDay, totalCredits } = parseGridSchedule(rawText, courses);
+
+      parsedData = {
+        courses,
+        schedulesByDay,
+        totalCredits: totalCredits || courses.reduce((acc, c) => acc + (parseFloat(c.credits) || 0), 0)
+      };
+
+      // Update Toolbar Stats
+      document.getElementById('totalCoursesPill').innerText = `${courses.length} Courses`;
+      document.getElementById('totalCreditsPill').innerText = `${parsedData.totalCredits.toFixed(1)} Credits`;
+
+      renderActiveView();
+      showToast(`Processed ${courses.length} registered courses successfully!`);
+    }
+
+    // Parse Registration Information Table
+    function parseRegistrationCourses(rawText) {
+      const courses = [];
+      const lines = rawText.split('\n').map(l => l.trim()).filter(l => l);
+
+      for (let i = 0; i < lines.length; i++) {
+        const line = lines[i];
+        const cMatch = line.match(/^([A-Z]{4,5}\d{3,4})\s*-\s*(.+)$/);
+        
+        if (cMatch) {
+          const code = cMatch[1];
+          const name = cMatch[2].trim();
+
+          // Search next 15 lines for details
+          let type = "Regular";
+          let ltpjc = "0 0 0 0 0";
+          let credits = 0;
+          let slot = "NIL";
+          let venue = "NIL";
+          let faculty = "NIL";
+          let classNbr = "";
+
+          for (let j = i + 1; j < Math.min(i + 15, lines.length); j++) {
+            const l = lines[j];
+
+            if (l.startsWith('(') && l.endsWith(')')) {
+              type = l.replace(/[\(\)]/g, '').trim();
+            } else if (l.match(/^\d\s+\d\s+\d\s+\d\s+[\d.]+$/)) {
+              ltpjc = l;
+              const parts = l.split(/\s+/);
+              credits = parseFloat(parts[4]) || 0;
+            } else if (l.startsWith('VL20')) {
+              classNbr = l;
+            } else if (l.match(/^([A-Z]\d.*|L\d.*)$/) && slot === "NIL" && !l.includes('-') && !l.includes('Registered')) {
+              slot = l;
+            } else if (l.match(/^(PRP[A-Z0-9]+|NIL)$/) && venue === "NIL" && l !== "NIL") {
+              venue = l;
+            } else if (l.match(/^\d{4,6}\s*-\s*.+$/)) {
+              faculty = l;
+            }
+          }
+
+          courses.push({
+            code,
+            name,
+            type,
+            ltpjc,
+            credits,
+            slot,
+            venue,
+            faculty,
+            classNbr
+          });
+        }
+      }
+
+      // Deduplicate courses by code + type
+      const uniqueCourses = [];
+      const seen = new Set();
+      for (const c of courses) {
+        const key = `${c.code}_${c.type}`;
+        if (!seen.has(key)) {
+          seen.add(key);
+          uniqueCourses.push(c);
+        }
+      }
+
+      return uniqueCourses;
+    }
+
+    // Parse Grid Timetable (MON, TUE, WED, THU, FRI, SAT, SUN)
+    function parseGridSchedule(rawText, courses) {
+      const schedulesByDay = {
+        MON: [], TUE: [], WED: [], THU: [], FRI: [], SAT: [], SUN: []
+      };
+
+      let totalCredits = 0;
+      const credMatch = rawText.match(/Total Number Of Credits:\s*([\d.]+)/i);
+      if (credMatch) {
+        totalCredits = parseFloat(credMatch[1]);
+      }
+
+      // Time maps
+      const theoryTimes = [
+        "08:00 - 08:50", "09:00 - 09:50", "10:00 - 10:50", "11:00 - 11:50", "12:00 - 12:50",
+        "-", "Lunch", "14:00 - 14:50", "15:00 - 15:50", "16:00 - 16:50", "17:00 - 17:50", "18:00 - 18:50", "-", "19:01 - 19:50"
+      ];
+
+      const labTimes = [
+        "08:00 - 08:50", "08:51 - 09:40", "09:51 - 10:40", "10:41 - 11:30", "11:40 - 12:30", "12:31 - 13:20",
+        "Lunch", "14:00 - 14:50", "14:51 - 15:40", "15:51 - 16:40", "16:41 - 17:30", "17:40 - 18:30", "18:31 - 19:20", "-"
+      ];
+
+      const lines = rawText.split('\n');
+      let currentDay = null;
+
+      for (let i = 0; i < lines.length; i++) {
+        const line = lines[i].trim();
+        if (!line) continue;
+
+        // Check if line specifies a Day
+        const dayPrefixMatch = line.match(/^(MON|TUE|WED|THU|FRI|SAT|SUN)\b/i);
+        if (dayPrefixMatch) {
+          currentDay = dayPrefixMatch[1].toUpperCase();
+        }
+
+        // Check mode (THEORY or LAB)
+        let mode = null;
+        let tokensStr = "";
+
+        if (line.includes("THEORY")) {
+          mode = "THEORY";
+          tokensStr = line.replace(/^(MON|TUE|WED|THU|FRI|SAT|SUN)?\s*THEORY\s*/i, '');
+        } else if (line.includes("LAB")) {
+          mode = "LAB";
+          tokensStr = line.replace(/^(MON|TUE|WED|THU|FRI|SAT|SUN)?\s*LAB\s*/i, '');
+        }
+
+        if (currentDay && mode && tokensStr) {
+          const rawTokens = tokensStr.trim().split(/\s+/);
+          const timesList = mode === 'THEORY' ? theoryTimes : labTimes;
+
+          rawTokens.forEach((token, idx) => {
+            if (!token || token === '-' || token === 'Lunch') return;
+
+            // Check if cell is active (contains course code, e.g. F2-BAENG101-ETH-PRP110-ALL03 or L3-BAMAT101-ELA-PRP119-ALL03)
+            const cellParts = token.split('-');
+            
+            if (cellParts.length >= 2) {
+              const slot = cellParts[0];
+              const code = cellParts[1];
+              const typeCode = cellParts[2] || '';
+              const venue = cellParts[3] || '';
+
+              // Find metadata course matching code
+              const matchedCourse = courses.find(c => c.code === code && (
+                (mode === 'LAB' && (c.type.includes('Lab') || typeCode.includes('LA') || typeCode === 'LO')) ||
+                (mode === 'THEORY' && (c.type.includes('Theory') || typeCode.includes('TH'))) ||
+                true
+              ));
+
+              const timeStr = timesList[idx] || "TBD";
+
+              schedulesByDay[currentDay].push({
+                slot,
+                code,
+                name: matchedCourse ? matchedCourse.name : code,
+                type: matchedCourse ? matchedCourse.type : (mode === 'THEORY' ? 'Theory' : 'Lab'),
+                venue: venue || (matchedCourse ? matchedCourse.venue : 'TBA'),
+                faculty: matchedCourse ? matchedCourse.faculty : 'TBA',
+                time: timeStr,
+                mode,
+                rawToken: token
+              });
+            }
+          });
+        }
+      }
+
+      // Consolidate consecutive lab slots for cleaner Day view (e.g., L3 + L4 -> 09:51 - 11:30)
+      DAYS.forEach(d => {
+        const dayKey = d.key;
+        const items = schedulesByDay[dayKey];
+        if (!items || items.length === 0) return;
+
+        // Sort items chronologically by start time
+        items.sort((a, b) => a.time.localeCompare(b.time));
+
+        const consolidated = [];
+        let cur = null;
+
+        items.forEach(item => {
+          if (!cur) {
+            cur = { ...item, slots: [item.slot] };
+          } else if (cur.code === item.code && cur.mode === item.mode && cur.venue === item.venue) {
+            // Merge time range
+            const startTime = cur.time.split(' - ')[0];
+            const endTime = item.time.split(' - ')[1] || item.time;
+            cur.time = `${startTime} - ${endTime}`;
+            cur.slots.push(item.slot);
+          } else {
+            consolidated.push(cur);
+            cur = { ...item, slots: [item.slot] };
+          }
+        });
+
+        if (cur) consolidated.push(cur);
+
+        schedulesByDay[dayKey] = consolidated;
+      });
+
+      return { schedulesByDay, totalCredits };
+    }
+
+    // VIEW SWITCHER
+    function switchView(viewName) {
+      activeView = viewName;
+
+      document.querySelectorAll('.view-tab').forEach(tab => {
+        tab.classList.toggle('active', tab.dataset.view === viewName);
+      });
+
+      document.getElementById('agendaView').style.display = viewName === 'agenda' ? 'flex' : 'none';
+      document.getElementById('gridView').style.display = viewName === 'grid' ? 'block' : 'none';
+      document.getElementById('coursesView').style.display = viewName === 'courses' ? 'grid' : 'none';
+
+      renderActiveView();
+    }
+
+    function renderActiveView() {
+      if (activeView === 'agenda') {
+        renderAgendaView();
+      } else if (activeView === 'grid') {
+        renderGridView();
+      } else if (activeView === 'courses') {
+        renderCoursesView();
+      }
+    }
+
+    // 1. RENDER DAY-BY-DAY AGENDA VIEW
+    function renderAgendaView() {
+      const container = document.getElementById('agendaView');
+      const selectedDay = document.getElementById('dayFilter').value;
+      const selectedType = document.getElementById('typeFilter').value;
+
+      let html = '';
+
+      const daysToRender = selectedDay === 'ALL' ? DAYS : DAYS.filter(d => d.key === selectedDay);
+
+      daysToRender.forEach(d => {
+        const dayKey = d.key;
+        let dayItems = parsedData.schedulesByDay[dayKey] || [];
+
+        // Apply type filter
+        if (selectedType === 'THEORY') {
+          dayItems = dayItems.filter(i => i.mode === 'THEORY' || i.type.includes('Theory'));
+        } else if (selectedType === 'LAB') {
+          dayItems = dayItems.filter(i => i.mode === 'LAB' || i.type.includes('Lab'));
+        }
+
+        if (dayItems.length === 0 && selectedDay !== 'ALL') {
+          html += `
+            <div class="empty-state">
+              <svg viewBox="0 0 24 24" fill="currentColor"><path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm0 16H5V8h14v11z"/></svg>
+              <h3>No Classes Scheduled for ${d.full}</h3>
+              <p>Enjoy your free day!</p>
+            </div>
+          `;
+          return;
+        }
+
+        if (dayItems.length === 0) return;
+
+        // Calculate dynamic break hours (between last morning class end and first afternoon class start)
+        let breakStart = "13:20";
+        let breakEnd = "14:00";
+
+        const morningItems = dayItems.filter(i => {
+          const start = i.time.split(' - ')[0];
+          return start < "13:00";
+        });
+
+        if (morningItems.length > 0) {
+          const lastMorning = morningItems[morningItems.length - 1];
+          const lastEnd = lastMorning.time.split(' - ')[1];
+          if (lastEnd) breakStart = lastEnd;
+        }
+
+        const afternoonItems = dayItems.filter(i => {
+          const start = i.time.split(' - ')[0];
+          return start >= "13:00";
+        });
+
+        if (afternoonItems.length > 0) {
+          const firstAfternoon = afternoonItems[0];
+          const firstStart = firstAfternoon.time.split(' - ')[0];
+          if (firstStart) breakEnd = firstStart;
+        }
+
+        html += `
+          <div class="day-card">
+            <div class="day-card-header">
+              <div class="day-name">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="var(--accent-primary)">
+                  <path d="M19 4h-1V3c0-.55-.45-1-1-1s-1 .45-1 1v1H8V3c0-.55-.45-1-1-1s-1 .45-1 1v1H5c-1.11 0-1.99.9-1.99 2L3 20c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 16H5V10h14v10z"/>
+                </svg>
+                ${d.full}
+              </div>
+              <div class="day-badge">${dayItems.length} Sessions</div>
+            </div>
+            <div class="schedule-list">
+        `;
+
+        let breakAdded = false;
+
+        dayItems.forEach((item, idx) => {
+          // Check if break should be inserted before afternoon classes
+          const startTime = item.time.split(' - ')[0];
+          if (!breakAdded && startTime >= "13:00") {
+            const formattedBreakRange = formatTime12Hour(`${breakStart} - ${breakEnd}`);
+            html += `
+              <div class="schedule-item lunch-break-item">
+                <span class="lunch-icon">☕</span>
+                <div>
+                  <div class="lunch-title">Break</div>
+                  <div class="lunch-time">${formattedBreakRange}</div>
+                </div>
+              </div>
+            `;
+            breakAdded = true;
+          }
+
+          const typeClass = item.mode === 'LAB' ? 'type-lab' : 'type-theory';
+          const slotDisplay = item.slots ? item.slots.join(' + ') : item.slot;
+          const formattedItemTime = formatTime12Hour(item.time);
+
+          html += `
+            <div class="schedule-item">
+              <div class="time-column">
+                <span class="time-range">${formattedItemTime}</span>
+                <span class="slot-pill">${slotDisplay}</span>
+              </div>
+              <div class="class-details">
+                <div class="class-header-row">
+                  <div class="course-title-block">
+                    <span class="course-code">${item.code}</span>
+                    <span class="course-name">${item.name}</span>
+                  </div>
+                  <span class="type-tag ${typeClass}">${item.type}</span>
+                </div>
+                <div class="meta-row">
+                  <div class="meta-item">
+                    <svg viewBox="0 0 24 24"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/></svg>
+                    Venue: <span class="venue-badge">${item.venue}</span>
+                  </div>
+                  ${item.faculty && item.faculty !== 'TBA' ? `
+                    <div class="meta-item">
+                      <svg viewBox="0 0 24 24"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg>
+                      Faculty: ${cleanFacultyName(item.faculty)}
+                    </div>
+                  ` : ''}
+                </div>
+              </div>
+            </div>
+          `;
+        });
+
+        // Add break if not added yet
+        if (!breakAdded) {
+          const formattedBreakRange = formatTime12Hour(`${breakStart} - ${breakEnd}`);
+          html += `
+            <div class="schedule-item lunch-break-item">
+              <span class="lunch-icon">☕</span>
+              <div>
+                <div class="lunch-title">Break</div>
+                <div class="lunch-time">${formattedBreakRange}</div>
+              </div>
+            </div>
+          `;
+        }
+
+        html += `
+            </div>
+          </div>
+        `;
+      });
+
+      if (!html) {
+        html = `
+          <div class="empty-state">
+            <svg viewBox="0 0 24 24" fill="currentColor"><path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm0 16H5V8h14v11z"/></svg>
+            <h3>No Schedule Processed</h3>
+            <p>Paste your copied portal text above and click "Process & Visualize Timetable"</p>
+          </div>
+        `;
+      }
+
+      container.innerHTML = html;
+    }
+
+    // 2. RENDER WEEKLY GRID MATRIX VIEW
+    function renderGridView() {
+      const container = document.getElementById('gridView');
+      const timeSlots = ["08:00 AM", "09:00 AM", "10:00 AM", "11:00 AM", "12:00 PM", "01:20 PM (Break)", "02:00 PM", "03:00 PM", "04:00 PM", "05:00 PM", "06:00 PM", "07:00 PM"];
+
+      let html = `
+        <table class="matrix-table">
+          <thead>
+            <tr>
+              <th>Day</th>
+              ${timeSlots.map(t => `<th>${t}</th>`).join('')}
+            </tr>
+          </thead>
+          <tbody>
+      `;
+
+      DAYS.forEach(d => {
+        const dayItems = parsedData.schedulesByDay[d.key] || [];
+
+        html += `
+          <tr>
+            <td class="day-header">${d.key}</td>
+        `;
+
+        timeSlots.forEach(tHeader => {
+          if (tHeader.includes('Break')) {
+            html += `<td style="background: rgba(245, 158, 11, 0.08); text-align: center; vertical-align: middle; font-size: 0.7rem; color: #fbbf24;">☕ Break</td>`;
+            return;
+          }
+
+          // Convert header time e.g. "08:00 AM" -> hour string "08" or "14"
+          let hourNum = parseInt(tHeader.split(':')[0], 10);
+          if (tHeader.includes('PM') && hourNum !== 12) hourNum += 12;
+          if (tHeader.includes('AM') && hourNum === 12) hourNum = 0;
+          const hourStr = hourNum < 10 ? '0' + hourNum : '' + hourNum;
+
+          // Find class starting around this hour
+          const matched = dayItems.find(item => item.time.startsWith(hourStr) || item.time.includes(` ${hourStr}:`));
+
+          if (matched) {
+            const bg = matched.mode === 'LAB' ? 'rgba(16, 185, 129, 0.15)' : 'rgba(59, 130, 246, 0.15)';
+            const border = matched.mode === 'LAB' ? '#10b981' : '#3b82f6';
+
+            html += `
+              <td style="background: ${bg}; border-left: 3px solid ${border};">
+                <div class="matrix-cell-content">
+                  <div class="matrix-cell-code" style="color: ${border}">${matched.code}</div>
+                  <div class="matrix-cell-venue">📍 ${matched.venue}</div>
+                  <div class="matrix-cell-slot">${matched.slots ? matched.slots.join('+') : matched.slot}</div>
+                </div>
+              </td>
+            `;
+          } else {
+            html += `<td></td>`;
+          }
+        });
+
+        html += `</tr>`;
+      });
+
+      html += `
+          </tbody>
+        </table>
+      `;
+
+      container.innerHTML = html;
+    }
+
+    // 3. RENDER REGISTERED COURSES CATALOGUE VIEW
+    function renderCoursesView() {
+      const container = document.getElementById('coursesView');
+      if (!parsedData.courses || parsedData.courses.length === 0) {
+        container.innerHTML = `
+          <div class="empty-state" style="grid-column: 1 / -1;">
+            <h3>No Registered Courses Found</h3>
+          </div>
+        `;
+        return;
+      }
+
+      let html = '';
+      parsedData.courses.forEach(c => {
+        const isLab = c.type.toLowerCase().includes('lab');
+        const accentColor = isLab ? 'var(--lab-color)' : 'var(--theory-color)';
+
+        html += `
+          <div class="course-card">
+            <div class="course-card-accent" style="background: ${accentColor}"></div>
+            <div class="course-card-header">
+              <div class="course-code-title">
+                <h3>${c.code}</h3>
+                <p>${c.name}</p>
+              </div>
+              <span class="type-tag ${isLab ? 'type-lab' : 'type-theory'}">${c.type}</span>
+            </div>
+
+            <div class="meta-row">
+              <div class="meta-item">
+                <svg viewBox="0 0 24 24"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/></svg>
+                Venue: <span class="venue-badge">${c.venue}</span>
+              </div>
+              <div class="meta-item">
+                <svg viewBox="0 0 24 24"><path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-5 14H7v-2h7v2zm3-4H7v-2h10v2zm0-4H7V7h10v2z"/></svg>
+                Slot: <span class="slot-pill">${c.slot}</span>
+              </div>
+            </div>
+
+            ${c.faculty && c.faculty !== 'NIL' ? `
+              <div style="font-size: 0.85rem; color: var(--text-muted);">
+                👨‍🏫 ${cleanFacultyName(c.faculty)}
+              </div>
+            ` : ''}
+
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-top: auto; pt: 8px; border-top: 1px solid var(--border-color);">
+              <div class="course-ltpjc">
+                <span class="ltpjc-item">LTPJC: ${c.ltpjc}</span>
+              </div>
+              <span style="font-size: 0.85rem; font-weight: 700; color: #a855f7;">${c.credits} Credits</span>
+            </div>
+          </div>
+        `;
+      });
+
+      container.innerHTML = html;
+    }
+
+    // BUILD SINGLE-PAGE TABULAR PDF HTML PAYLOAD (TIMETABLE ONLY, NO EMOJIS, SHORT TYPES, CLEAN FACULTY)
+    function buildTabularPDFHTML() {
+      const courses = parsedData.courses || [];
+      const totalCredits = parsedData.totalCredits || 0;
+
+      let html = `
+        <div class="pdf-tabular-document">
+          <div class="pdf-header">
+            <div>
+              <div class="pdf-title">Timetable Schedule</div>
+            </div>
+            <div class="pdf-summary-box">
+              <span>Courses: <strong>${courses.length}</strong></span> | 
+              <span>Credits: <strong>${totalCredits.toFixed(1)}</strong></span>
+            </div>
+          </div>
+
+          <div class="pdf-section">
+            <table class="pdf-table">
+              <thead>
+                <tr>
+                  <th style="width: 7%;">Day</th>
+                  <th style="width: 15%;">Time Slot</th>
+                  <th style="width: 10%;">Venue</th>
+                  <th style="width: 29%;">Course Code & Name</th>
+                  <th style="width: 6%;">Type</th>
+                  <th style="width: 8%;">Slot</th>
+                  <th style="width: 25%;">Faculty</th>
+                </tr>
+              </thead>
+              <tbody>
+      `;
+
+      DAYS.forEach(d => {
+        const dayItems = parsedData.schedulesByDay[d.key] || [];
+        if (dayItems.length === 0) return;
+
+        let breakStart = "13:20";
+        let breakEnd = "14:00";
+
+        const morningItems = dayItems.filter(i => i.time.split(' - ')[0] < "13:00");
+        if (morningItems.length > 0) {
+          const lastEnd = morningItems[morningItems.length - 1].time.split(' - ')[1];
+          if (lastEnd) breakStart = lastEnd;
+        }
+
+        const afternoonItems = dayItems.filter(i => i.time.split(' - ')[0] >= "13:00");
+        if (afternoonItems.length > 0) {
+          const firstStart = afternoonItems[0].time.split(' - ')[0];
+          if (firstStart) breakEnd = firstStart;
+        }
+
+        const daySessions = [];
+        let breakInserted = false;
+
+        dayItems.forEach(item => {
+          const startTime = item.time.split(' - ')[0];
+          if (!breakInserted && startTime >= "13:00") {
+            daySessions.push({
+              isBreak: true,
+              timeRange: formatTime12Hour(`${breakStart} - ${breakEnd}`)
+            });
+            breakInserted = true;
+          }
+          daySessions.push({
+            isBreak: false,
+            ...item
+          });
+        });
+
+        if (!breakInserted) {
+          daySessions.push({
+            isBreak: true,
+            timeRange: formatTime12Hour(`${breakStart} - ${breakEnd}`)
+          });
+        }
+
+        const totalRows = daySessions.length;
+
+        daySessions.forEach((sess, sIdx) => {
+          html += `<tr>`;
+
+          if (sIdx === 0) {
+            html += `<td rowspan="${totalRows}" class="pdf-day-col">${d.key}</td>`;
+          }
+
+          if (sess.isBreak) {
+            html += `
+              <td class="pdf-time-cell">${sess.timeRange}</td>
+              <td colspan="5" class="pdf-break-cell">Break</td>
+            `;
+          } else {
+            const slotDisplay = sess.slots ? sess.slots.join('+') : sess.slot;
+            const formattedTime = formatTime12Hour(sess.time);
+            const shortType = getShortType(sess.type);
+            const facultyClean = cleanFacultyName(sess.faculty);
+
+            html += `
+              <td class="pdf-time-cell">${formattedTime}</td>
+              <td><strong>${sess.venue}</strong></td>
+              <td><strong>${sess.code}</strong> - ${sess.name}</td>
+              <td style="font-weight: 700; text-align: center;">${shortType}</td>
+              <td style="font-family: monospace; font-weight: 600; text-align: center;">${slotDisplay}</td>
+              <td style="font-size: 0.72rem; color: #334155;">${facultyClean}</td>
+            `;
+          }
+
+          html += `</tr>`;
+        });
+      });
+
+      html += `
+              </tbody>
+            </table>
+          </div>
+        </div>
+      `;
+
+      return html;
+    }
+
+    // DEDICATED SINGLE-PAGE TABULAR EXPORT PDF GENERATOR
+    function generatePDF() {
+      if (!parsedData.courses || parsedData.courses.length === 0) {
+        showToast('Please process portal text first!');
+        return;
+      }
+
+      showToast('Generating single-page tabular PDF...');
+
+      const printableArea = document.getElementById('printableArea');
+      
+      // Save current state of printableArea
+      const savedContent = printableArea.innerHTML;
+      const savedDisplay = printableArea.style.display;
+
+      // Swap content with clean tabular PDF HTML
+      printableArea.innerHTML = buildTabularPDFHTML();
+      printableArea.style.display = 'block';
+
+      const opt = {
+        margin: [4, 6, 4, 6],
+        filename: 'VIT_Timetable_Schedule.pdf',
+        image: { type: 'jpeg', quality: 0.98 },
+        html2canvas: { scale: 2, useCORS: true, logging: false, scrollX: 0, scrollY: 0 },
+        jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
+      };
+
+      html2pdf().set(opt).from(printableArea).save().then(() => {
+        printableArea.innerHTML = savedContent;
+        printableArea.style.display = savedDisplay;
+        renderActiveView();
+        showToast('Single-Page PDF downloaded successfully!');
+      }).catch(err => {
+        console.error(err);
+        printableArea.innerHTML = savedContent;
+        printableArea.style.display = savedDisplay;
+        renderActiveView();
+        showToast('Falling back to system print...');
+        window.print();
+      });
+    }
+
+    function printSchedule() {
+      if (!parsedData.courses || parsedData.courses.length === 0) {
+        showToast('Please process portal text first!');
+        return;
+      }
+
+      const printableArea = document.getElementById('printableArea');
+      const savedContent = printableArea.innerHTML;
+
+      printableArea.innerHTML = buildTabularPDFHTML();
+      window.print();
+
+      setTimeout(() => {
+        printableArea.innerHTML = savedContent;
+        renderActiveView();
+      }, 500);
+    }
+
+    // TOAST NOTIFIER
+    function showToast(msg) {
+      const toast = document.getElementById('toast');
+      document.getElementById('toastMsg').innerText = msg;
+      toast.classList.add('show');
+      setTimeout(() => {
+        toast.classList.remove('show');
+      }, 3500);
+    }
+  </script>
+</body>
+</html>
