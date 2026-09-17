@@ -9,12 +9,11 @@
       try {
         var requestedTheme = new URLSearchParams(window.location.search).get('theme');
         var savedTheme = localStorage.getItem('site-theme');
-        var theme = requestedTheme === 'dark' || requestedTheme === 'light' ? requestedTheme : savedTheme;
-        if (theme === 'dark') {
-          document.documentElement.setAttribute('data-theme', 'dark');
-        }
+        var theme = requestedTheme === 'dark' || requestedTheme === 'light' ? requestedTheme : (savedTheme || 'dark');
+        document.documentElement.setAttribute('data-theme', theme);
       } catch (error) {
         console.warn('Theme preference could not be loaded.', error);
+        document.documentElement.setAttribute('data-theme', 'dark');
       }
     }());
   </script>
@@ -94,7 +93,7 @@
     }
 
     html {
-      scroll-padding-top: 85px;
+      scroll-padding-top: 72px;
     }
 
     /* navigation – minimalist with warm accents */
@@ -105,21 +104,25 @@
       backdrop-filter: blur(14px);
       -webkit-backdrop-filter: blur(14px);
       box-shadow: 0 4px 16px rgba(0, 0, 0, 0.02);
-      padding: 0.7rem 2.5rem;
+      padding: 0.5rem 2rem;
       display: flex;
       align-items: center;
       justify-content: space-between;
       flex-wrap: wrap;
+      gap: 0.75rem;
       z-index: 99;
       border-bottom: 1px solid var(--border-warm);
     }
 
     .nav-brand {
       font-family: "Lora", serif;
-      font-size: clamp(1.15rem, 2.5vw, 1.5rem);
+      font-size: clamp(1.05rem, 2.2vw, 1.35rem);
       font-weight: 600;
       color: var(--teal-deep);
       letter-spacing: -0.02em;
+      line-height: 1.2;
+      margin-right: 1rem;
+      white-space: nowrap;
     }
     .nav-brand small {
       font-size: clamp(0.85rem, 1.6vw, 0.95rem);
@@ -131,10 +134,11 @@
 
     .nav-menu {
       display: flex;
-      gap: 0.8rem;
+      gap: 0.35rem;
       align-items: center;
       flex-wrap: wrap;
       margin-left: auto;
+      row-gap: 0.45rem;
     }
     .nav-menu a,
     .nav-dropdown summary {
@@ -145,7 +149,10 @@
       display: flex;
       align-items: center;
       gap: 0.5rem;
-      padding: 0.5rem 1rem;
+      justify-content: center;
+      line-height: 1.2;
+      white-space: nowrap;
+      padding: 0.45rem 0.82rem;
       border-radius: 50px;
       transition: all 0.2s;
       border: 1px solid transparent;
@@ -163,6 +170,7 @@
       background: var(--surface-elevated);
       border-color: var(--taupe);
       color: var(--teal-deep);
+      box-shadow: var(--shadow-soft);
     }
 
     .nav-dropdown {
@@ -208,18 +216,18 @@
     .nav-controls {
       display: flex;
       align-items: center;
-      gap: 0.8rem;
+      gap: 0.55rem;
       margin-left: 1rem;
     }
 
     .theme-toggle {
-      width: 44px;
-      height: 44px;
+      width: 38px;
+      height: 38px;
       border-radius: 50%;
       border: 1px solid var(--border-warm);
       background: var(--paper);
       color: var(--teal-deep);
-      font-size: 1.15rem;
+      font-size: 1rem;
       cursor: pointer;
       box-shadow: var(--shadow-soft);
       transition: transform 0.2s ease, border-color 0.2s ease, background 0.2s ease;
@@ -234,8 +242,8 @@
       display: none;
       background: none;
       border: 1px solid var(--border-warm);
-      font-size: 1.7rem;
-      padding: 0.1rem 0.9rem;
+      font-size: 1.45rem;
+      padding: 0.05rem 0.75rem;
       border-radius: 40px;
       color: var(--teal-deep);
       cursor: pointer;
@@ -249,7 +257,18 @@
     }
 
     section {
-      margin: 5rem 0;
+      margin: 2.8rem 0 0;
+    }
+
+    #research,
+    #teaching,
+    #leadership,
+    #contact {
+      margin-top: 1.65rem;
+    }
+
+    #contact {
+      margin-bottom: 0;
     }
 
     .section-title {
@@ -283,9 +302,18 @@
     }
 
     .card--about {
-      padding: 2.8rem;
+      padding: 1.45rem 1.95rem 1rem;
       text-align: justify;
     }
+
+    .card--about .section-title {
+      margin-bottom: 1.6rem;
+    }
+
+    .card--about p:last-of-type {
+      margin-bottom: 0;
+    }
+
     .card:hover {
       transform: translateY(-6px);
       box-shadow: 0 25px 40px -14px rgba(30, 74, 95, 0.18);
@@ -496,9 +524,10 @@
     /* mobile */
     @media (max-width: 1024px) {
       .container { padding: 0 1.6rem; }
-      section { margin: 4rem 0; }
+      section { margin: 2.45rem 0 0; }
+      #research, #teaching, #leadership, #contact { margin-top: 1.4rem; }
       .card { padding: 1.75rem; }
-      .card--about { padding: 2.2rem; }
+      .card--about { padding: 1.35rem 1.7rem 0.95rem; }
 
       .stats { grid-template-columns: repeat(2, minmax(0, 1fr)); }
 
@@ -511,10 +540,11 @@
       .grid-2, .grid-3, .grid-4 { grid-template-columns: 1fr; }
       .hero { flex-direction: column-reverse; text-align: center; padding: 2rem 1.5rem; }
       .avatar-circle { width: 160px; height: 160px; font-size: 4rem; }
-      .navbar { padding: 0.8rem 1.5rem; }
-      .nav-menu { display: none; width: 100%; flex-direction: column; align-items: flex-start; padding: 1rem 0; margin-left: 0; order: 3; }
+      .navbar { padding: 0.5rem 1.1rem; }
+      .nav-menu { display: none; width: 100%; flex-direction: column; align-items: stretch; padding: 0.85rem 0 0.3rem; margin-left: 0; order: 3; gap: 0.45rem; }
       .nav-menu.show { display: flex; }
       .nav-menu a, .nav-dropdown { width: 100%; }
+      .nav-menu a, .nav-dropdown summary { justify-content: flex-start; padding: 0.7rem 0.95rem; }
       .nav-dropdown summary { width: 100%; }
       .dropdown-menu {
         position: static;
@@ -524,9 +554,10 @@
       .nav-controls { margin-left: auto; }
       .nav-toggle { display: block; }
       .stats { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-      section { margin: 3.2rem 0; }
+      section { margin: 2.05rem 0 0; }
+      #research, #teaching, #leadership, #contact { margin-top: 1.15rem; }
       .card { padding: 1.5rem; }
-      .card--about { padding: 1.8rem; }
+      .card--about { padding: 1.15rem 1.45rem 0.85rem; }
 
       /* reduce vertical gap: hero -> about */
       #home { margin-bottom: 1.2rem; }
@@ -535,9 +566,10 @@
     @media (max-width: 480px) {
       .container { padding: 0 1.2rem; }
       .btn { display: block; width: 100%; margin-right: 0; }
-      section { margin: 2.6rem 0; }
+      section { margin: 1.7rem 0 0; }
+      #research, #teaching, #leadership, #contact { margin-top: 0.95rem; }
       .card { padding: 1.25rem; }
-      .card--about { padding: 1.35rem; }
+      .card--about { padding: 0.95rem 1.1rem 0.7rem; }
       .lead { font-size: 1.05rem; }
       .badge { padding: 0.22rem 0.95rem; }
 
@@ -607,7 +639,7 @@
 <body>
   <nav class="navbar">
     <div class="nav-brand">
-      Anthoniraj Amalanathan <small>PhD · Professor, VIT</small>
+      Prof. Anthoniraj Amalanathan, PhD
     </div>
     <div class="nav-menu" id="navMenu">
       <a href="#home"><i class="fas fa-home" aria-hidden="true"></i>Home</a>
@@ -634,7 +666,7 @@
         <h2>Professor, School of Computer Science & Engineering</h2>
         <div class="hero-institution">Vellore Institute of Technology (VIT), India</div>
         <div class="stats">
-          <div class="stat-item"><span class="stat-number" data-target="20">0</span> <span class="stat-label">Years of Teaching</span></div>
+          <div class="stat-item"><span class="stat-number" data-target="20" data-suffix="+">0</span> <span class="stat-label">Years of Teaching</span></div>
           <div class="stat-item"><span class="stat-number" data-target="10" data-suffix="+">0</span> <span class="stat-label">Years in Administration</span></div>
           <!-- <div class="stat-item"><span class="stat-number" data-target="5">0</span> <span class="stat-label">Consultancy Projects</span></div>
           <div class="stat-item"><span class="stat-number" data-target="4">0</span> <span class="stat-label">PhD Scholars</span></div> -->
@@ -654,8 +686,8 @@
 
     <!-- ABOUT / BIOGRAPHY -->
     <section id="about" class="fade-section">
-      <h2 class="section-title">About</h2>
       <div class="card card--about">
+        <h2 class="section-title">About</h2>
         <p class="lead" style="margin-bottom: 1.8rem;">Anthoniraj Amalanathan is a Professor at Vellore Institute of Technology (VIT) in the School of Computer Science and Engineering, and <strong>Director of the Centre for Technical Support (CTS)</strong>. With <strong>20 years of teaching experience</strong>, he has instructed courses in Python, Java, C, C++, ReactJS, Software Defined Networking (SDN), Semantic Web, and Data Science.</p>
         <p style="margin-bottom: 1.8rem;">His research spans AI, Data Science, Deep Learning, Cyber Security, Cloud Computing, Language Modeling, and Web 3.0. He has guided several PhD scholars and possesses deep technical expertise in AI, full‑stack development, and system administration. Prof. Anthoniraj earlier managed teams at the Software Development Cell (SDC) to build VIT’s in‑house portal <strong>VTOP</strong>.</p>
         <p>He regularly trains faculty and students on AI/ML, web/mobile development, research tools, and Data Science. He serves on numerous university committees and contributes to institutional policy and academic governance.</p>
@@ -856,7 +888,7 @@
     const requestedTheme = new URLSearchParams(window.location.search).get('theme');
     const initialTheme = requestedTheme === 'dark' || requestedTheme === 'light'
       ? requestedTheme
-      : (localStorage.getItem('site-theme') === 'dark' ? 'dark' : 'light');
+      : (localStorage.getItem('site-theme') || 'dark');
 
     applyTheme(initialTheme);
 
