@@ -4,6 +4,20 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Prof. Anthoniraj Amalanathan, PhD · VIT</title>
+  <script>
+    (function() {
+      try {
+        var requestedTheme = new URLSearchParams(window.location.search).get('theme');
+        var savedTheme = localStorage.getItem('site-theme');
+        var theme = requestedTheme === 'dark' || requestedTheme === 'light' ? requestedTheme : savedTheme;
+        if (theme === 'dark') {
+          document.documentElement.setAttribute('data-theme', 'dark');
+        }
+      } catch (error) {
+        console.warn('Theme preference could not be loaded.', error);
+      }
+    }());
+  </script>
   <!-- Fonts: Lora for headings, Inter for body (elegant academic pair) -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -30,6 +44,37 @@
       --border-warm: #e8ddd3;       /* warm light border */
       --shadow-warm: 0 15px 30px -10px rgba(30, 74, 95, 0.08);
       --radius-card: 20px;          /* slightly softer than first design */
+      --nav-bg: rgba(254, 252, 247, 0.9);
+      --hero-grad-start: #faf6f0;
+      --hero-grad-end: #ffffff;
+      --footer-bg: #1e4a5f;
+      --footer-text: #e0d6cb;
+      --footer-link: #f0e7db;
+      --surface-muted: #fcf7f0;
+      --surface-elevated: rgba(182, 139, 110, 0.1);
+      --shadow-soft: 0 6px 16px rgba(0, 0, 0, 0.02);
+      --hero-avatar-shadow: 0 25px 35px -10px rgba(30, 74, 95, 0.45);
+    }
+
+    :root[data-theme="dark"] {
+      --teal-deep: #8dc8d4;
+      --taupe: #d8a27a;
+      --cream-bg: #0f171d;
+      --paper: #17232b;
+      --text-rich: #edf4f7;
+      --text-soft: #b8c7d0;
+      --border-warm: #314450;
+      --shadow-warm: 0 18px 36px -14px rgba(0, 0, 0, 0.55);
+      --nav-bg: rgba(15, 23, 29, 0.88);
+      --hero-grad-start: #17242d;
+      --hero-grad-end: #0f171d;
+      --footer-bg: #091017;
+      --footer-text: #d8e5eb;
+      --footer-link: #f4dccb;
+      --surface-muted: #1d2b35;
+      --surface-elevated: rgba(216, 162, 122, 0.14);
+      --shadow-soft: 0 10px 22px rgba(0, 0, 0, 0.24);
+      --hero-avatar-shadow: 0 25px 35px -10px rgba(0, 0, 0, 0.6);
     }
 
     body {
@@ -56,7 +101,7 @@
     .navbar {
       position: sticky;
       top: 0;
-      background: rgba(254, 252, 247, 0.9);
+      background: var(--nav-bg);
       backdrop-filter: blur(14px);
       -webkit-backdrop-filter: blur(14px);
       box-shadow: 0 4px 16px rgba(0, 0, 0, 0.02);
@@ -89,8 +134,10 @@
       gap: 0.8rem;
       align-items: center;
       flex-wrap: wrap;
+      margin-left: auto;
     }
-    .nav-menu a {
+    .nav-menu a,
+    .nav-dropdown summary {
       text-decoration: none;
       color: var(--text-soft);
       font-weight: 500;
@@ -102,14 +149,85 @@
       border-radius: 50px;
       transition: all 0.2s;
       border: 1px solid transparent;
+      cursor: pointer;
+      list-style: none;
+      user-select: none;
     }
-    .nav-menu a i {
+    .nav-menu a i,
+    .nav-dropdown summary i {
       color: var(--taupe);
     }
-    .nav-menu a:hover {
-      background: rgba(182, 139, 110, 0.1);
+    .nav-menu a:hover,
+    .nav-dropdown summary:hover,
+    .nav-dropdown[open] summary {
+      background: var(--surface-elevated);
       border-color: var(--taupe);
       color: var(--teal-deep);
+    }
+
+    .nav-dropdown {
+      position: relative;
+    }
+
+    .nav-dropdown summary::-webkit-details-marker {
+      display: none;
+    }
+
+    .nav-dropdown summary::after {
+      content: "▾";
+      font-size: 0.78rem;
+      color: var(--taupe);
+      margin-left: 0.15rem;
+    }
+
+    .dropdown-menu {
+      position: absolute;
+      top: calc(100% + 0.55rem);
+      right: 0;
+      min-width: 250px;
+      display: none;
+      flex-direction: column;
+      gap: 0.35rem;
+      padding: 0.7rem;
+      border-radius: 18px;
+      background: var(--paper);
+      border: 1px solid var(--border-warm);
+      box-shadow: var(--shadow-warm);
+      z-index: 120;
+    }
+
+    .nav-dropdown[open] .dropdown-menu {
+      display: flex;
+    }
+
+    .dropdown-menu a {
+      width: 100%;
+      justify-content: flex-start;
+    }
+
+    .nav-controls {
+      display: flex;
+      align-items: center;
+      gap: 0.8rem;
+      margin-left: 1rem;
+    }
+
+    .theme-toggle {
+      width: 44px;
+      height: 44px;
+      border-radius: 50%;
+      border: 1px solid var(--border-warm);
+      background: var(--paper);
+      color: var(--teal-deep);
+      font-size: 1.15rem;
+      cursor: pointer;
+      box-shadow: var(--shadow-soft);
+      transition: transform 0.2s ease, border-color 0.2s ease, background 0.2s ease;
+    }
+
+    .theme-toggle:hover {
+      transform: translateY(-1px) scale(1.03);
+      border-color: var(--taupe);
     }
 
     .nav-toggle {
@@ -254,7 +372,7 @@
       display: flex;
       align-items: center;
       gap: 3rem;
-      background: linear-gradient(135deg, #faf6f0, #ffffff);
+      background: linear-gradient(135deg, var(--hero-grad-start), var(--hero-grad-end));
       border-radius: 40px;
       padding: 3rem 3.5rem;
       margin-top: 0.9rem;
@@ -280,7 +398,7 @@
       font-size: 5.5rem;
       font-weight: 400;
       font-family: "Lora", serif;
-      box-shadow: 0 25px 35px -10px var(--teal-deep);
+      box-shadow: var(--hero-avatar-shadow);
       border: 6px solid var(--taupe);
     }
     .hero h1 {
@@ -315,7 +433,7 @@
       background: var(--paper);
       border-radius: 40px;
       padding: 0.8rem 2rem;
-      box-shadow: 0 6px 16px rgba(0,0,0,0.02);
+      box-shadow: var(--shadow-soft);
       border: 1px solid var(--border-warm);
       text-align: center;
       width: 100%;
@@ -361,14 +479,14 @@
     }
 
     footer {
-      background: var(--teal-deep);
-      color: #e0d6cb;
+      background: var(--footer-bg);
+      color: var(--footer-text);
       padding: 2.5rem 2rem;
       border-radius: 40px 40px 0 0;
       margin-top: 5rem;
     }
     .footer-links a {
-      color: #f0e7db;
+      color: var(--footer-link);
       text-decoration: none;
       margin: 0 1rem 0.5rem 0;
       font-weight: 400;
@@ -394,9 +512,16 @@
       .hero { flex-direction: column-reverse; text-align: center; padding: 2rem 1.5rem; }
       .avatar-circle { width: 160px; height: 160px; font-size: 4rem; }
       .navbar { padding: 0.8rem 1.5rem; }
-      .nav-menu { display: none; width: 100%; flex-direction: column; align-items: flex-start; padding: 1rem 0; }
+      .nav-menu { display: none; width: 100%; flex-direction: column; align-items: flex-start; padding: 1rem 0; margin-left: 0; order: 3; }
       .nav-menu.show { display: flex; }
-      .nav-menu a { width: 100%; }
+      .nav-menu a, .nav-dropdown { width: 100%; }
+      .nav-dropdown summary { width: 100%; }
+      .dropdown-menu {
+        position: static;
+        min-width: 100%;
+        margin-top: 0.5rem;
+      }
+      .nav-controls { margin-left: auto; }
       .nav-toggle { display: block; }
       .stats { grid-template-columns: repeat(2, minmax(0, 1fr)); }
       section { margin: 3.2rem 0; }
@@ -484,16 +609,20 @@
     <div class="nav-brand">
       Anthoniraj Amalanathan <small>PhD · Professor, VIT</small>
     </div>
-    <button class="nav-toggle" id="navToggle" aria-label="menu" aria-controls="navMenu" aria-expanded="false">☰</button>
     <div class="nav-menu" id="navMenu">
       <a href="#home"><i class="fas fa-home" aria-hidden="true"></i>Home</a>
       <a href="#about"><i class="fas fa-user" aria-hidden="true"></i>About</a>
       <a href="#research"><i class="fas fa-flask" aria-hidden="true"></i>Research</a>
       <a href="#teaching"><i class="fas fa-chalkboard-teacher" aria-hidden="true"></i>Teaching</a>
+      <a href="dsa_demos/index.html" data-theme-link="true" data-base-href="dsa_demos/index.html"><i class="fas fa-project-diagram" aria-hidden="true"></i>DSA</a>
       <!-- <a href="#skills"><i class="fas fa-code" aria-hidden="true"></i>Skills</a> -->
       <a href="#leadership"><i class="fas fa-users" aria-hidden="true"></i>Leadership</a>
       <!-- <a href="#achievements"><i class="fas fa-award" aria-hidden="true"></i>Achievements</a> -->
       <a href="#contact"><i class="fas fa-envelope" aria-hidden="true"></i>Contact</a>
+    </div>
+    <div class="nav-controls">
+      <button class="theme-toggle" id="themeToggle" aria-label="Switch to dark mode" title="Switch theme">🌙</button>
+      <button class="nav-toggle" id="navToggle" aria-label="menu" aria-controls="navMenu" aria-expanded="false">☰</button>
     </div>
   </nav>
 
@@ -679,7 +808,7 @@
           <p><i class="fas fa-globe"></i> <a href="https://github.com/anthoniraj" target="_blank" rel="noopener noreferrer">github.com/anthoniraj</a> · <a href="https://scholar.google.com/citations?user=8jphK5EAAAAJ&hl=en" target="_blank" rel="noopener noreferrer">Google Scholar</a></p>
           <p><i class="fas fa-external-link-alt"></i> <a href="https://form.jotform.com/230438093049456" target="_blank" rel="noopener noreferrer">JotForm contact</a> (secure form)</p>
         </div> -->
-        <div class="card" style="background: #fcf7f0;">
+        <div class="card" style="background: var(--surface-muted);">
           <h3>📬 Quick message</h3>
           <p style="margin-bottom: 1.5rem;">Use the secure Jotform link below for direct inquiries.</p>
           <a href="https://form.jotform.com/230438093049456" target="_blank" rel="noopener noreferrer" class="btn"><i class="fas fa-paper-plane"></i> Go to contact form</a>
@@ -701,9 +830,43 @@
   <script>
     const toggle = document.getElementById('navToggle');
     const menu = document.getElementById('navMenu');
+    const themeToggle = document.getElementById('themeToggle');
+
+    function getActiveTheme() {
+      return document.documentElement.getAttribute('data-theme') === 'dark' ? 'dark' : 'light';
+    }
+
+    function syncThemeLinks() {
+      document.querySelectorAll('[data-theme-link="true"]').forEach((link) => {
+        const url = new URL(link.dataset.baseHref, window.location.href);
+        url.searchParams.set('theme', getActiveTheme());
+        link.href = url.pathname + url.search;
+      });
+    }
+
+    function applyTheme(theme) {
+      document.documentElement.setAttribute('data-theme', theme);
+      localStorage.setItem('site-theme', theme);
+      themeToggle.textContent = theme === 'dark' ? '☀️' : '🌙';
+      themeToggle.setAttribute('aria-label', theme === 'dark' ? 'Switch to light mode' : 'Switch to dark mode');
+      themeToggle.title = theme === 'dark' ? 'Switch to light mode' : 'Switch to dark mode';
+      syncThemeLinks();
+    }
+
+    const requestedTheme = new URLSearchParams(window.location.search).get('theme');
+    const initialTheme = requestedTheme === 'dark' || requestedTheme === 'light'
+      ? requestedTheme
+      : (localStorage.getItem('site-theme') === 'dark' ? 'dark' : 'light');
+
+    applyTheme(initialTheme);
+
     toggle.addEventListener('click', () => {
       menu.classList.toggle('show');
       toggle.setAttribute('aria-expanded', menu.classList.contains('show') ? 'true' : 'false');
+    });
+
+    themeToggle.addEventListener('click', () => {
+      applyTheme(getActiveTheme() === 'dark' ? 'light' : 'dark');
     });
 
     const animateCounters = (root = document) => {
@@ -748,6 +911,7 @@
     document.querySelectorAll('#navMenu a').forEach(link => {
       link.addEventListener('click', () => {
         if (menu.classList.contains('show')) menu.classList.remove('show');
+        toggle.setAttribute('aria-expanded', 'false');
       });
     });
 

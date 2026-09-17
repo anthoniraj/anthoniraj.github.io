@@ -1,0 +1,728 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Binary Search — Step by Step</title>
+<script>
+  (function() {
+    try {
+      var requestedTheme = new URLSearchParams(window.location.search).get('theme');
+      var savedTheme = localStorage.getItem('site-theme');
+      var theme = requestedTheme === 'dark' || requestedTheme === 'light' ? requestedTheme : savedTheme;
+      if (theme === 'light') {
+        document.documentElement.setAttribute('data-theme', 'light');
+      } else {
+        document.documentElement.setAttribute('data-theme', 'dark');
+      }
+    } catch (error) {
+      document.documentElement.setAttribute('data-theme', 'dark');
+      console.warn('Theme preference could not be loaded.', error);
+    }
+  }());
+</script>
+<style>
+  :root{
+    --bg:#0f172a;
+    --panel:#1e293b;
+    --text:#e2e8f0;
+    --muted:#94a3b8;
+    --accent:#38bdf8;
+    --found:#22c55e;
+    --discard:#334155;
+    --low:#f472b6;
+    --high:#facc15;
+    --mid:#38bdf8;
+    --border:#334155;
+    --code-bg:#0b1220;
+    --code-border:#1e293b;
+    --code-text:#cbd5e1;
+    --code-kw:#c084fc;
+    --code-cm:#7b8aa3;
+    --code-active-bg:rgba(56,189,248,0.18);
+    --explain-bg:#0f172a;
+    --btn-text:#052e16;
+    --bg-grad-a:#0f172a;
+    --bg-grad-b:#1e1b4b;
+    --shadow:rgba(0,0,0,0.35);
+    --checked-bg:#475569;
+    --checked-border:#64748b;
+    --trace-bg:#0b1220;
+    --trace-border:#1e293b;
+    --scrollbar-track:#0b1220;
+    --scrollbar-thumb:#475569;
+    --scrollbar-thumb-hover:#64748b;
+    color-scheme:dark;
+  }
+  :root[data-theme="light"]{
+    --bg:#f1f5f9;
+    --panel:#ffffff;
+    --text:#1e293b;
+    --muted:#64748b;
+    --accent:#0284c7;
+    --found:#16a34a;
+    --discard:#e2e8f0;
+    --low:#db2777;
+    --high:#b45309;
+    --mid:#0284c7;
+    --border:#cbd5e1;
+    --code-bg:#f8fafc;
+    --code-border:#cbd5e1;
+    --code-text:#1e293b;
+    --code-kw:#7c3aed;
+    --code-cm:#64748b;
+    --code-active-bg:rgba(2,132,199,0.14);
+    --explain-bg:#eef2ff;
+    --btn-text:#ffffff;
+    --bg-grad-a:#e0e7ff;
+    --bg-grad-b:#f8fafc;
+    --shadow:rgba(15,23,42,0.12);
+    --checked-bg:#e2e8f0;
+    --checked-border:#94a3b8;
+    --trace-bg:#ffffff;
+    --trace-border:#cbd5e1;
+    --scrollbar-track:#e2e8f0;
+    --scrollbar-thumb:#94a3b8;
+    --scrollbar-thumb-hover:#64748b;
+    color-scheme:light;
+  }
+  *{
+    box-sizing:border-box;
+    scrollbar-width:thin;
+    scrollbar-color:var(--scrollbar-thumb) var(--scrollbar-track);
+  }
+  *::-webkit-scrollbar{
+    width:12px;
+    height:12px;
+  }
+  *::-webkit-scrollbar-track{
+    background:var(--scrollbar-track);
+  }
+  *::-webkit-scrollbar-thumb{
+    background:var(--scrollbar-thumb);
+    border-radius:999px;
+    border:3px solid var(--scrollbar-track);
+  }
+  *::-webkit-scrollbar-thumb:hover{
+    background:var(--scrollbar-thumb-hover);
+  }
+  body{
+    margin:0;
+    font-family:'Segoe UI', system-ui, -apple-system, sans-serif;
+    background:linear-gradient(160deg,var(--bg-grad-a),var(--bg-grad-b));
+    color:var(--text);
+    min-height:100vh;
+    padding:32px 16px 60px;
+    transition:background 0.3s ease, color 0.3s ease;
+  }
+  body.embedded{
+    padding:18px 14px 28px;
+  }
+  .page-actions{
+    position:fixed;
+    top:18px;
+    left:18px;
+    display:flex;
+    gap:10px;
+    z-index:100;
+  }
+  .icon-link,
+  .theme-toggle{
+    width:44px;
+    height:44px;
+    border-radius:50%;
+    background:var(--panel);
+    border:1.5px solid var(--border);
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    font-size:1.3rem;
+    cursor:pointer;
+    box-shadow:0 4px 14px var(--shadow);
+    z-index:100;
+    transition:transform 0.2s ease;
+    text-decoration:none;
+    color:var(--text);
+  }
+  .theme-toggle{
+    position:fixed;
+    top:18px;
+    right:18px;
+  }
+  .icon-link:hover,
+  .theme-toggle:hover{transform:scale(1.08);}
+  body.embedded .page-actions,
+  body.embedded .theme-toggle{
+    display:none;
+  }
+  .layout{
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    max-width:1180px;
+    margin:0 auto;
+    gap:0;
+  }
+  .main-col{
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    width:100%;
+  }
+  @media (min-width:960px){
+    .layout{
+      flex-direction:row;
+      align-items:flex-start;
+      justify-content:center;
+      gap:36px;
+    }
+    .main-col{
+      width:auto;
+      flex:0 1 640px;
+    }
+    .code-col{
+      flex:0 0 420px;
+      position:sticky;
+      top:32px;
+    }
+  }
+  h1{
+    font-size:1.6rem;
+    margin-bottom:4px;
+    text-align:center;
+  }
+  .subtitle{
+    color:var(--muted);
+    margin-bottom:10px;
+    text-align:center;
+    max-width:600px;
+    line-height:1.5;
+  }
+  .target-badge{
+    color:var(--found);
+    font-weight:700;
+  }
+
+  .array-row{
+    display:flex;
+    gap:10px;
+    margin:20px 0 8px;
+    flex-wrap:wrap;
+    justify-content:center;
+  }
+  .cell-wrap{
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    width:64px;
+    padding-top:14px;
+  }
+  .index{
+    font-size:1rem;
+    font-weight:700;
+    color:var(--muted);
+    margin-bottom:10px;
+    height:22px;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    transition:all 0.3s ease;
+  }
+  .index.active{
+    font-size:1.05rem;
+    color:#fff;
+    background:var(--mid);
+    padding:2px 10px;
+    border-radius:8px;
+    box-shadow:0 3px 10px rgba(0,0,0,0.3);
+    transform:translateY(-2px) scale(1.08);
+  }
+  .index.active.found-idx{
+    background:var(--found);
+  }
+  .cell{
+    width:60px;
+    height:60px;
+    border-radius:12px;
+    background:var(--panel);
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    font-size:1.3rem;
+    font-weight:600;
+    border:2px solid var(--border);
+    transition:all 0.4s ease;
+    position:relative;
+    z-index:1;
+  }
+  .cell.discarded{
+    background:var(--checked-bg);
+    border-color:var(--checked-border);
+    color:var(--text);
+    opacity:0.75;
+    transform:scale(0.92);
+  }
+  .cell.mid{
+    border-color:var(--mid);
+    box-shadow:0 0 18px rgba(56,189,248,0.6);
+    transform:translateY(-4px) scale(1.05);
+  }
+  .cell.found{
+    background:var(--found);
+    border-color:var(--found);
+    color:#052e16;
+    box-shadow:0 0 24px rgba(34,197,94,0.8);
+    transform:translateY(-4px) scale(1.12);
+  }
+  .pointer-label{
+    font-size:0.7rem;
+    margin-top:4px;
+    height:14px;
+    font-weight:700;
+  }
+  .pointer-label.low{color:var(--low);}
+  .pointer-label.high{color:var(--high);}
+  .pointer-label.mid{color:var(--mid);}
+
+  .legend{
+    display:flex;
+    gap:18px;
+    flex-wrap:wrap;
+    justify-content:center;
+    margin:18px 0 6px;
+    font-size:0.82rem;
+    color:var(--muted);
+  }
+  .legend span{display:flex;align-items:center;gap:6px;}
+  .dot{width:10px;height:10px;border-radius:50%;display:inline-block;}
+
+  .panel{
+    background:var(--panel);
+    border-radius:16px;
+    padding:20px 24px;
+    margin-top:26px;
+    width:100%;
+    max-width:640px;
+    box-shadow:0 8px 24px var(--shadow);
+  }
+  .vars{
+    display:flex;
+    justify-content:center;
+    text-align:center;
+    margin-bottom:18px;
+    flex-wrap:wrap;
+    gap:14px;
+  }
+  .var-box{
+    min-width:96px;
+    background:var(--bg);
+    border:1.5px solid var(--border);
+    border-radius:12px;
+    padding:6px 18px;
+  }
+  .var-box .val{
+    font-size:1.9rem;
+    font-weight:800;
+    line-height:1.2;
+  }
+  .var-box .lbl{
+    font-size:0.8rem;
+    font-weight:600;
+    letter-spacing:0.03em;
+    color:var(--muted);
+    margin-top:2px;
+  }
+  #lowVal{color:var(--low);}
+  #highVal{color:var(--high);}
+  #midVal{color:var(--mid);}
+
+  .explanation{
+    background:var(--explain-bg);
+    border-left:4px solid var(--accent);
+    padding:14px 16px;
+    border-radius:8px;
+    min-height:70px;
+    font-size:0.98rem;
+    line-height:1.55;
+  }
+  .explanation b{color:var(--accent);}
+  .explanation .success{color:var(--found);font-weight:700;}
+
+  .controls{
+    display:flex;
+    gap:12px;
+    justify-content:center;
+    margin-top:22px;
+    flex-wrap:wrap;
+  }
+  button{
+    background:var(--accent);
+    color:var(--btn-text);
+    border:none;
+    padding:10px 20px;
+    border-radius:10px;
+    font-size:0.95rem;
+    font-weight:700;
+    cursor:pointer;
+    transition:transform 0.15s ease, opacity 0.15s ease;
+  }
+  button:hover{transform:translateY(-2px);}
+  button:disabled{opacity:0.35;cursor:not-allowed;transform:none;}
+  button.secondary{
+    background:transparent;
+    color:var(--text);
+    border:1.5px solid var(--border);
+  }
+
+  .step-counter{
+    text-align:center;
+    color:var(--muted);
+    font-size:0.85rem;
+    margin-top:10px;
+  }
+
+  .code-box{
+    margin-top:30px;
+    width:100%;
+    max-width:640px;
+    max-height:none;
+    background:var(--code-bg);
+    border-radius:14px;
+    padding:18px 20px;
+    font-family:'Consolas','Monaco',monospace;
+    font-size:0.85rem;
+    line-height:1.7;
+    color:var(--code-text);
+    overflow-x:auto;
+    border:1px solid var(--code-border);
+  }
+  .code-box .ln{display:block; padding:2px 6px; border-radius:4px;}
+  .code-box .active{background:var(--code-active-bg); box-shadow:inset 3px 0 0 var(--accent);}
+  .code-box .kw{color:var(--code-kw);}
+  .code-box .num{color:var(--high);}
+  .code-box .cm{color:var(--code-cm);}
+
+  .trace-box{
+    margin-top:14px;
+    width:100%;
+    max-width:640px;
+    background:var(--trace-bg);
+    border:1px solid var(--trace-border);
+    border-radius:14px;
+    padding:16px 20px;
+    font-family:'Consolas','Monaco',monospace;
+    font-size:0.82rem;
+    line-height:1.8;
+    color:var(--code-text);
+  }
+  .trace-box .tline{display:block;}
+  .trace-box .tkey{color:var(--muted);}
+  .trace-box .tval{color:var(--accent); font-weight:700;}
+  .trace-box .tcond{
+    margin-top:8px;
+    padding-top:8px;
+    border-top:1px dashed var(--code-border);
+    color:var(--text);
+  }
+  .trace-box .tcond .true{color:var(--found); font-weight:700;}
+  .trace-box .tcond .false{color:var(--low); font-weight:700;}
+</style>
+</head>
+<body>
+
+<div class="page-actions">
+  <a class="icon-link" id="homeLink" href="../index.html" aria-label="Go to home page" title="Go to home page">⌂</a>
+  <a class="icon-link" id="dsaLink" href="index.html" aria-label="Go to DSA page" title="Go to DSA page">≡</a>
+</div>
+
+<button class="theme-toggle" id="themeToggle" title="Switch theme">🌙</button>
+
+<div class="layout">
+  <div class="main-col">
+    <h1>Binary Search — Step by Step Animnation</h1>
+    <p class="subtitle">Finding target <span class="target-badge" id="targetLabel">26</span> in a sorted list.
+    Watch how the search space shrinks in half every step — that's what makes binary search fast!</p>
+
+    <div class="array-row" id="arrayRow"></div>
+
+    <div class="legend">
+      <span><span class="dot" style="background:var(--low)"></span> low</span>
+      <span><span class="dot" style="background:var(--mid)"></span> mid</span>
+      <span><span class="dot" style="background:var(--high)"></span> high</span>
+      <span><span class="dot" style="background:var(--checked-bg)"></span> discarded</span>
+      <span><span class="dot" style="background:var(--found)"></span> found!</span>
+    </div>
+
+    <div class="panel">
+      <div class="vars">
+        <div class="var-box"><div class="val" id="targetVal">26</div><div class="lbl">target</div></div>
+        <div class="var-box"><div class="val" id="lowVal">-</div><div class="lbl">low</div></div>
+        <div class="var-box"><div class="val" id="highVal">-</div><div class="lbl">high</div></div>
+        <div class="var-box"><div class="val" id="midVal">-</div><div class="lbl">mid</div></div>
+      </div>
+      <div class="explanation" id="explanation">Press <b>Start</b> to begin the search.</div>
+    </div>
+
+    <div class="controls">
+      <button class="secondary" id="prevBtn">⬅ Prev</button>
+      <button id="playBtn">▶ Play</button>
+      <button id="nextBtn">Next ➡</button>
+      <button class="secondary" id="resetBtn">⟲ Reset</button>
+    </div>
+  </div>
+
+  <div class="code-col">
+    <div class="code-box" id="codeBox"></div>
+    <div class="trace-box" id="traceBox"></div>
+  </div>
+</div>
+
+<script>
+if (window.self !== window.top) {
+  document.body.classList.add('embedded');
+}
+
+const numbers = [3, 8, 12, 19, 26, 40, 55];
+const target = 26;
+document.getElementById('targetLabel').textContent = target;
+
+// Build the array cells
+const arrayRow = document.getElementById('arrayRow');
+numbers.forEach((n, i) => {
+  const wrap = document.createElement('div');
+  wrap.className = 'cell-wrap';
+  wrap.innerHTML = `
+    <div class="index" id="idx-${i}">${i}</div>
+    <div class="cell" id="cell-${i}">${n}</div>
+    <div class="pointer-label" id="ptr-${i}"></div>
+  `;
+  arrayRow.appendChild(wrap);
+});
+
+const codeLines = [
+  {t:'numbers = [3, 8, 12, 19, 26, 40, 55]', tag:'init'},
+  {t:'<span class="kw">target</span> = 26', tag:'init'},
+  {t:'<span class="kw">low</span> = 0', tag:'init'},
+  {t:'<span class="kw">high</span> = len(numbers) - 1', tag:'init'},
+  {t:'<span class="kw">found</span> = -1', tag:'init'},
+  {t:'<span class="kw">while</span> low <= high:', tag:'loop'},
+  {t:'&nbsp;&nbsp;mid = (low + high) // 2', tag:'mid'},
+  {t:'&nbsp;&nbsp;<span class="kw">if</span> numbers[mid] == <span class="kw">target</span>:', tag:'check'},
+  {t:'&nbsp;&nbsp;&nbsp;&nbsp;found = mid; <span class="kw">break</span>', tag:'foundline'},
+  {t:'&nbsp;&nbsp;<span class="kw">elif</span> numbers[mid] < <span class="kw">target</span>:', tag:'checklt'},
+  {t:'&nbsp;&nbsp;&nbsp;&nbsp;low = mid + 1  <span class="cm"># search right half</span>', tag:'goright'},
+  {t:'&nbsp;&nbsp;<span class="kw">else</span>:', tag:'checkgt'},
+  {t:'&nbsp;&nbsp;&nbsp;&nbsp;high = mid - 1  <span class="cm"># search left half</span>', tag:'goleft'},
+];
+const codeBox = document.getElementById('codeBox');
+codeBox.innerHTML = codeLines.map(l => `<span class="ln" data-tag="${l.tag}">${l.t}</span>`).join('');
+
+function highlightCode(tags){
+  document.querySelectorAll('.code-box .ln').forEach(el=>{
+    el.classList.toggle('active', tags.includes(el.dataset.tag));
+  });
+}
+
+// ---- Simulate the algorithm and record every step ----
+function buildSteps(){
+  const steps = [];
+  let low = 0, high = numbers.length - 1, found = -1;
+
+  steps.push({
+    low, high, mid: null, found,
+    discarded: [],
+    text: `Start with <b>low = 0</b> and <b>high = ${high}</b> — the whole array is in play.`,
+    tags: ['init'],
+    cond: null
+  });
+
+  let discardedSoFar = [];
+  while (low <= high) {
+    const mid = Math.floor((low + high) / 2);
+    steps.push({
+      low, high, mid, found,
+      discarded: [...discardedSoFar],
+      text: `Compute <b>mid = (${low} + ${high}) // 2 = ${mid}</b>. Compare numbers[${mid}] = <b>${numbers[mid]}</b> with the <b>target (${target})</b>.`,
+      tags: ['mid'],
+      cond: null
+    });
+
+    if (numbers[mid] === target) {
+      found = mid;
+      steps.push({
+        low, high, mid, found,
+        discarded: [...discardedSoFar],
+        text: `<span class="success">numbers[${mid}] == target (${target}) → Target found at index ${mid}! 🎉</span>`,
+        tags: ['check','foundline'],
+        cond: `numbers[${mid}] == target  →  ${numbers[mid]} == ${target}  →  <span class="true">True</span>`
+      });
+      break;
+    } else if (numbers[mid] < target) {
+      steps.push({
+        low, high, mid, found,
+        discarded: [...discardedSoFar],
+        text: `${numbers[mid]} < target (${target}), so the target must be to the <b>right</b>. Discard indices ${low}–${mid}.`,
+        tags: ['check','checklt'],
+        cond: `numbers[${mid}] == target  →  ${numbers[mid]} == ${target}  →  <span class="false">False</span>\nnumbers[${mid}] < target  →  ${numbers[mid]} < ${target}  →  <span class="true">True</span>`
+      });
+      for (let k = low; k <= mid; k++) discardedSoFar.push(k);
+      low = mid + 1;
+      steps.push({
+        low, high, mid: null, found,
+        discarded: [...discardedSoFar],
+        text: `Set <b>low = ${low}</b>. Search space shrinks to indices ${low}–${high}.`,
+        tags: ['goright'],
+        cond: null
+      });
+    } else {
+      steps.push({
+        low, high, mid, found,
+        discarded: [...discardedSoFar],
+        text: `${numbers[mid]} > target (${target}), so the target must be to the <b>left</b>. Discard indices ${mid}–${high}.`,
+        tags: ['check','checkgt'],
+        cond: `numbers[${mid}] == target  →  ${numbers[mid]} == ${target}  →  <span class="false">False</span>\nnumbers[${mid}] < target  →  ${numbers[mid]} < ${target}  →  <span class="false">False</span>`
+      });
+      for (let k = mid; k <= high; k++) discardedSoFar.push(k);
+      high = mid - 1;
+      steps.push({
+        low, high: high, mid: null, found,
+        discarded: [...discardedSoFar],
+        text: `Set <b>high = ${high}</b>. Search space shrinks to indices ${low}–${high}.`,
+        tags: ['goleft'],
+        cond: null
+      });
+    }
+  }
+
+  steps.push({
+    low, high, mid: null, found,
+    discarded: numbers.map((_, i) => i).filter(i => i !== found),
+    text: found !== -1
+      ? `<span class="success">Done! found = ${found} → print(found) outputs <b>${found}</b>.</span>`
+      : `<span class="success">Done! low > high, so the loop ends — target not found.</span>`,
+    tags: ['loop'],
+    finalHighlightOnly: found,
+    cond: null
+  });
+
+  return steps;
+}
+
+const steps = buildSteps();
+let idx = 0;
+let playing = false;
+let timer = null;
+
+function render(){
+  const s = steps[idx];
+  document.getElementById('targetVal').textContent = target;
+  document.getElementById('lowVal').textContent = s.low;
+  document.getElementById('highVal').textContent = s.high;
+  document.getElementById('midVal').textContent = s.mid !== null ? s.mid : '-';
+  document.getElementById('explanation').innerHTML = s.text;
+
+  const listStr = `[${numbers.join(', ')}]`;
+  const condHtml = s.cond
+    ? `<div class="tcond">${s.cond.split('\n').map(l => `<span class="tline">${l}</span>`).join('')}</div>`
+    : '';
+  document.getElementById('traceBox').innerHTML = `
+    <span class="tline"><span class="tkey">list</span>&nbsp; = ${listStr}</span>
+    <span class="tline"><span class="tkey">target</span> = <span class="tval">${target}</span></span>
+    <span class="tline"><span class="tkey">low</span>&nbsp;&nbsp;&nbsp; = <span class="tval">${s.low}</span></span>
+    <span class="tline"><span class="tkey">high</span>&nbsp;&nbsp; = <span class="tval">${s.high}</span></span>
+    <span class="tline"><span class="tkey">mid</span>&nbsp;&nbsp;&nbsp; = <span class="tval">${s.mid !== null ? s.mid : '—'}</span></span>
+    ${condHtml}
+  `;
+
+  numbers.forEach((_, i) => {
+    const cell = document.getElementById(`cell-${i}`);
+    const ptr = document.getElementById(`ptr-${i}`);
+    const idxLabel = document.getElementById(`idx-${i}`);
+    cell.className = 'cell';
+    ptr.textContent = '';
+    idxLabel.className = 'index';
+
+    const isFinal = idx === steps.length - 1;
+    const finalFoundIdx = s.finalHighlightOnly !== undefined ? s.finalHighlightOnly : -1;
+
+    if (isFinal && finalFoundIdx === i) {
+      cell.classList.add('found');
+      idxLabel.classList.add('active', 'found-idx');
+    } else if (s.discarded.includes(i)) {
+      cell.classList.add('discarded');
+    } else if (s.found !== -1 && s.mid === i && s.found === i) {
+      cell.classList.add('found');
+      idxLabel.classList.add('active', 'found-idx');
+    } else if (s.mid === i) {
+      cell.classList.add('mid');
+      idxLabel.classList.add('active');
+    }
+
+    const labels = [];
+    if (s.low === i) labels.push('<span class="pointer-label low">low</span>');
+    if (s.high === i) labels.push('<span class="pointer-label high">high</span>');
+    if (s.mid === i) labels.push('<span class="pointer-label mid">mid</span>');
+    ptr.innerHTML = labels.join(' ');
+  });
+
+  highlightCode(s.tags);
+
+  document.getElementById('prevBtn').disabled = idx === 0;
+  document.getElementById('nextBtn').disabled = idx === steps.length - 1;
+  if (idx === steps.length - 1) stopPlay();
+}
+
+function stopPlay(){
+  playing = false;
+  clearInterval(timer);
+  document.getElementById('playBtn').textContent = '▶ Play';
+}
+
+document.getElementById('nextBtn').addEventListener('click', () => {
+  if (idx < steps.length - 1) { idx++; render(); }
+});
+document.getElementById('prevBtn').addEventListener('click', () => {
+  if (idx > 0) { idx--; render(); }
+});
+document.getElementById('resetBtn').addEventListener('click', () => {
+  stopPlay(); idx = 0; render();
+});
+document.getElementById('playBtn').addEventListener('click', () => {
+  if (playing) { stopPlay(); return; }
+  if (idx === steps.length - 1) idx = 0;
+  playing = true;
+  document.getElementById('playBtn').textContent = '⏸ Pause';
+  timer = setInterval(() => {
+    if (idx < steps.length - 1) { idx++; render(); }
+    else stopPlay();
+  }, 1600);
+});
+
+render();
+
+const themeToggle = document.getElementById('themeToggle');
+const homeLink = document.getElementById('homeLink');
+const dsaLink = document.getElementById('dsaLink');
+
+function syncNavLinks(theme) {
+  homeLink.setAttribute('href', `../index.html?theme=${encodeURIComponent(theme)}`);
+  dsaLink.setAttribute('href', `index.html?demo=binary&theme=${encodeURIComponent(theme)}`);
+}
+
+function applyTheme(theme) {
+  document.documentElement.setAttribute('data-theme', theme);
+  localStorage.setItem('site-theme', theme);
+  themeToggle.textContent = theme === 'dark' ? '☀️' : '🌙';
+  themeToggle.title = theme === 'dark' ? 'Switch to light theme' : 'Switch to dark theme';
+  themeToggle.setAttribute('aria-label', themeToggle.title);
+  syncNavLinks(theme);
+}
+
+applyTheme(document.documentElement.getAttribute('data-theme') === 'light' ? 'light' : 'dark');
+
+themeToggle.addEventListener('click', () => {
+  applyTheme(document.documentElement.getAttribute('data-theme') === 'dark' ? 'light' : 'dark');
+});
+</script>
+</body>
+</html>
