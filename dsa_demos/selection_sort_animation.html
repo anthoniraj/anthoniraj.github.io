@@ -1,0 +1,279 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Selection Sort — Step by Step</title>
+<script>
+  (function() {
+    try {
+      var requestedTheme = new URLSearchParams(window.location.search).get('theme');
+      var savedTheme = localStorage.getItem('site-theme');
+      var theme = requestedTheme === 'dark' || requestedTheme === 'light' ? requestedTheme : savedTheme;
+      if (theme === 'light') {
+        document.documentElement.setAttribute('data-theme', 'light');
+      } else {
+        document.documentElement.setAttribute('data-theme', 'dark');
+      }
+    } catch (error) {
+      document.documentElement.setAttribute('data-theme', 'dark');
+      console.warn('Theme preference could not be loaded.', error);
+    }
+  }());
+</script>
+<style>
+  :root{
+    --bg:#0f172a;--panel:#1e293b;--text:#e2e8f0;--muted:#94a3b8;--accent:#38bdf8;--current:#facc15;--min:#f472b6;--swap:#f97316;--sorted:#22c55e;--border:#334155;--code-bg:#0b1220;--code-border:#1e293b;--code-text:#cbd5e1;--code-kw:#c084fc;--code-cm:#7b8aa3;--code-active-bg:rgba(56,189,248,0.16);--explain-bg:#0f172a;--btn-text:#052e16;--bg-grad-a:#0f172a;--bg-grad-b:#1e1b4b;--shadow:rgba(0,0,0,0.35);--trace-bg:#0b1220;--trace-border:#1e293b;--scrollbar-track:#0b1220;--scrollbar-thumb:#475569;--scrollbar-thumb-hover:#64748b;color-scheme:dark;
+  }
+  :root[data-theme="light"]{
+    --bg:#f1f5f9;--panel:#ffffff;--text:#1e293b;--muted:#64748b;--accent:#0284c7;--current:#b45309;--min:#db2777;--swap:#ea580c;--sorted:#16a34a;--border:#cbd5e1;--code-bg:#f8fafc;--code-border:#cbd5e1;--code-text:#1e293b;--code-kw:#7c3aed;--code-cm:#64748b;--code-active-bg:rgba(2,132,199,0.14);--explain-bg:#eef2ff;--btn-text:#ffffff;--bg-grad-a:#e0e7ff;--bg-grad-b:#f8fafc;--shadow:rgba(15,23,42,0.12);--trace-bg:#ffffff;--trace-border:#cbd5e1;--scrollbar-track:#e2e8f0;--scrollbar-thumb:#94a3b8;--scrollbar-thumb-hover:#64748b;color-scheme:light;
+  }
+  *{box-sizing:border-box;scrollbar-width:thin;scrollbar-color:var(--scrollbar-thumb) var(--scrollbar-track);}*::-webkit-scrollbar{width:12px;height:12px;}*::-webkit-scrollbar-track{background:var(--scrollbar-track);}*::-webkit-scrollbar-thumb{background:var(--scrollbar-thumb);border-radius:999px;border:3px solid var(--scrollbar-track);}*::-webkit-scrollbar-thumb:hover{background:var(--scrollbar-thumb-hover);}body{margin:0;font-family:'Segoe UI',system-ui,-apple-system,sans-serif;background:linear-gradient(160deg,var(--bg-grad-a),var(--bg-grad-b));color:var(--text);min-height:100vh;padding:32px 16px 60px;transition:background 0.3s ease,color 0.3s ease;}body.embedded{padding:18px 14px 28px;}.page-actions{position:fixed;top:18px;left:18px;display:flex;gap:10px;z-index:100;}.icon-link,.theme-toggle{width:44px;height:44px;border-radius:50%;background:var(--panel);border:1.5px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:1.3rem;cursor:pointer;box-shadow:0 4px 14px var(--shadow);z-index:100;transition:transform 0.2s ease;text-decoration:none;color:var(--text);}.theme-toggle{position:fixed;top:18px;right:18px;}.icon-link:hover,.theme-toggle:hover{transform:scale(1.08);}body.embedded .page-actions,body.embedded .theme-toggle{display:none;}.layout{display:flex;flex-direction:column;align-items:center;max-width:1180px;margin:0 auto;gap:0;}.main-col{display:flex;flex-direction:column;align-items:center;width:100%;}@media (min-width:960px){.layout{flex-direction:row;align-items:flex-start;justify-content:center;gap:36px;}.main-col{width:auto;flex:0 1 640px;}.code-col{flex:0 0 420px;position:sticky;top:32px;}}h1{font-size:1.6rem;margin-bottom:4px;text-align:center;}.subtitle{color:var(--muted);margin-bottom:10px;text-align:center;max-width:620px;line-height:1.5;}.target-badge{color:var(--sorted);font-weight:700;}.array-row{display:flex;gap:12px;align-items:flex-end;justify-content:center;flex-wrap:wrap;min-height:240px;margin:28px 0 12px;width:100%;}.bar-wrap{display:flex;flex-direction:column;align-items:center;justify-content:flex-end;width:74px;}.bar{width:60px;border-radius:14px 14px 10px 10px;background:linear-gradient(180deg,var(--accent),#0ea5e9);border:2px solid transparent;display:flex;align-items:flex-end;justify-content:center;padding-bottom:10px;color:#e0f2fe;font-weight:800;font-size:1rem;box-shadow:0 10px 22px rgba(2,132,199,0.2);transition:transform 0.35s ease,box-shadow 0.35s ease,opacity 0.35s ease,border-color 0.35s ease,background 0.35s ease;}.bar.current{border-color:var(--current);box-shadow:0 0 0 3px rgba(250,204,21,0.2),0 0 18px rgba(250,204,21,0.45);transform:translateY(-6px);}.bar.min{border-color:var(--min);background:linear-gradient(180deg,var(--min),#fb7185);box-shadow:0 0 0 3px rgba(244,114,182,0.18),0 0 18px rgba(244,114,182,0.42);transform:translateY(-10px) scale(1.03);}.bar.swap{background:linear-gradient(180deg,var(--swap),#fb923c);border-color:var(--swap);}.bar.sorted{background:linear-gradient(180deg,var(--sorted),#4ade80);border-color:var(--sorted);color:#052e16;box-shadow:0 0 0 3px rgba(34,197,94,0.18),0 0 18px rgba(34,197,94,0.45);}.bar-label{margin-top:10px;font-size:0.82rem;font-weight:700;color:var(--muted);min-height:18px;text-align:center;}.legend{display:flex;gap:18px;flex-wrap:wrap;justify-content:center;margin:10px 0 6px;font-size:0.82rem;color:var(--muted);}.legend span{display:flex;align-items:center;gap:6px;}.dot{width:10px;height:10px;border-radius:50%;display:inline-block;}.panel{background:var(--panel);border-radius:16px;padding:20px 24px;margin-top:26px;width:100%;max-width:640px;box-shadow:0 8px 24px var(--shadow);}.vars{display:flex;justify-content:center;text-align:center;margin-bottom:18px;flex-wrap:wrap;gap:14px;}.var-box{min-width:96px;background:var(--bg);border:1.5px solid var(--border);border-radius:12px;padding:6px 18px;}.var-box .val{font-size:1.9rem;font-weight:800;line-height:1.2;}.var-box .lbl{font-size:0.8rem;font-weight:600;letter-spacing:0.03em;color:var(--muted);margin-top:2px;}#iVal{color:var(--sorted);}#jVal{color:var(--current);}#minVal{color:var(--min);}.explanation{background:var(--explain-bg);border-left:4px solid var(--accent);padding:14px 16px;border-radius:8px;min-height:70px;font-size:0.98rem;line-height:1.55;}.explanation b{color:var(--accent);} .explanation .success{color:var(--sorted);font-weight:700;}.controls{display:flex;gap:12px;justify-content:center;margin-top:22px;flex-wrap:wrap;}button{background:var(--accent);color:var(--btn-text);border:none;padding:10px 20px;border-radius:10px;font-size:0.95rem;font-weight:700;cursor:pointer;transition:transform 0.15s ease,opacity 0.15s ease;}button:hover{transform:translateY(-2px);}button:disabled{opacity:0.35;cursor:not-allowed;transform:none;}button.secondary{background:transparent;color:var(--text);border:1.5px solid var(--border);}.code-box{margin-top:30px;width:100%;max-width:640px;background:var(--code-bg);border-radius:14px;padding:18px 20px;font-family:'Consolas','Monaco',monospace;font-size:0.85rem;line-height:1.7;color:var(--code-text);overflow-x:auto;border:1px solid var(--code-border);}.code-box .ln{display:block;padding:2px 6px;border-radius:4px;}.code-box .active{background:var(--code-active-bg);box-shadow:inset 3px 0 0 var(--accent);}.code-box .kw{color:var(--code-kw);} .code-box .cm{color:var(--code-cm);}.trace-box{margin-top:14px;width:100%;max-width:640px;background:var(--trace-bg);border:1px solid var(--trace-border);border-radius:14px;padding:16px 20px;font-family:'Consolas','Monaco',monospace;font-size:0.82rem;line-height:1.8;color:var(--code-text);}.trace-box .tline{display:block;}.trace-box .tkey{color:var(--muted);}.trace-box .tval{color:var(--accent);font-weight:700;}.trace-box .tcond{margin-top:8px;padding-top:8px;border-top:1px dashed var(--code-border);color:var(--text);}.trace-box .true{color:var(--sorted);font-weight:700;}.trace-box .false{color:#f43f5e;font-weight:700;}
+</style>
+</head>
+<body>
+<div class="page-actions">
+  <a class="icon-link" id="homeLink" href="../index.html" aria-label="Go to home page" title="Go to home page">⌂</a>
+  <a class="icon-link" id="dsaLink" href="index.html" aria-label="Go to DSA page" title="Go to DSA page">≡</a>
+</div>
+
+<button class="theme-toggle" id="themeToggle" title="Switch theme">🌙</button>
+
+<div class="layout">
+  <div class="main-col">
+    <h1>Selection Sort — Step by Step Animation</h1>
+    <p class="subtitle">Sorting <span class="target-badge" id="arrayLabel">[29, 10, 14, 37, 13]</span> by scanning for the minimum value in the unsorted suffix and swapping it into position.</p>
+
+    <div class="array-row" id="arrayRow"></div>
+
+    <div class="legend">
+      <span><span class="dot" style="background:var(--sorted)"></span> sorted prefix</span>
+      <span><span class="dot" style="background:var(--current)"></span> current j</span>
+      <span><span class="dot" style="background:var(--min)"></span> min_index</span>
+    </div>
+
+    <div class="panel">
+      <div class="vars">
+        <div class="var-box"><div class="val" id="iVal">0</div><div class="lbl">i</div></div>
+        <div class="var-box"><div class="val" id="jVal">1</div><div class="lbl">j</div></div>
+        <div class="var-box"><div class="val" id="minVal">0</div><div class="lbl">min_index</div></div>
+      </div>
+      <div class="explanation" id="explanation">Press <b>Play</b> to start the sort.</div>
+    </div>
+
+    <div class="controls">
+      <button class="secondary" id="prevBtn">⬅ Prev</button>
+      <button id="playBtn">▶ Play</button>
+      <button id="nextBtn">Next ➡</button>
+      <button class="secondary" id="resetBtn">⟲ Reset</button>
+    </div>
+  </div>
+
+  <div class="code-col">
+    <div class="code-box" id="codeBox"></div>
+    <div class="trace-box" id="traceBox"></div>
+  </div>
+</div>
+
+<script>
+if (window.self !== window.top) {
+  document.body.classList.add('embedded');
+}
+
+const startNumbers = [29, 10, 14, 37, 13];
+document.getElementById('arrayLabel').textContent = `[${startNumbers.join(', ')}]`;
+
+const arrayRow = document.getElementById('arrayRow');
+startNumbers.forEach((_, index) => {
+  const wrap = document.createElement('div');
+  wrap.className = 'bar-wrap';
+  wrap.innerHTML = `
+    <div class="bar" id="bar-${index}"></div>
+    <div class="bar-label" id="label-${index}"></div>
+  `;
+  arrayRow.appendChild(wrap);
+});
+
+const codeLines = [
+  {t:'<span class="kw">def</span> selection_sort(arr):', tag:'def'},
+  {t:'&nbsp;&nbsp;n = len(arr)', tag:'init'},
+  {t:'&nbsp;&nbsp;<span class="kw">for</span> i <span class="kw">in</span> range(n - 1):', tag:'outer'},
+  {t:'&nbsp;&nbsp;&nbsp;&nbsp;min_index = i', tag:'mininit'},
+  {t:'&nbsp;&nbsp;&nbsp;&nbsp;<span class="kw">for</span> j <span class="kw">in</span> range(i + 1, n):', tag:'inner'},
+  {t:'&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="kw">if</span> arr[j] &lt; arr[min_index]:', tag:'check'},
+  {t:'&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;min_index = j', tag:'update'},
+  {t:'&nbsp;&nbsp;&nbsp;&nbsp;arr[i], arr[min_index] = arr[min_index], arr[i] <span class="cm"># swap</span>', tag:'swap'},
+  {t:'&nbsp;&nbsp;<span class="kw">return</span> arr', tag:'return'}
+];
+document.getElementById('codeBox').innerHTML = codeLines.map((line) => `<span class="ln" data-tag="${line.tag}">${line.t}</span>`).join('');
+
+function highlightCode(tags) {
+  document.querySelectorAll('.code-box .ln').forEach((line) => {
+    line.classList.toggle('active', tags.includes(line.dataset.tag));
+  });
+}
+
+function buildSteps() {
+  const arr = [...startNumbers];
+  const n = arr.length;
+  const steps = [];
+
+  steps.push({
+    arr: [...arr], i: 0, j: 1, minIndex: 0, sorted: [], current: null, swapping: [],
+    text: `Start with the unsorted list <b>[${arr.join(', ')}]</b>. On each pass, Selection Sort finds the smallest remaining value.`,
+    tags: ['def', 'init'], cond: null
+  });
+
+  for (let i = 0; i < n - 1; i++) {
+    let minIndex = i;
+    steps.push({
+      arr: [...arr], i, j: i + 1, minIndex, sorted: Array.from({ length: i }, (_, index) => index), current: null, swapping: [],
+      text: `Pass <b>${i + 1}</b>: assume index <b>${i}</b> is the smallest so far, so <b>min_index = ${i}</b>.`,
+      tags: ['outer', 'mininit'], cond: null
+    });
+
+    for (let j = i + 1; j < n; j++) {
+      steps.push({
+        arr: [...arr], i, j, minIndex, sorted: Array.from({ length: i }, (_, index) => index), current: j, swapping: [],
+        text: `Compare <b>arr[${j}] = ${arr[j]}</b> with the current minimum <b>arr[${minIndex}] = ${arr[minIndex]}</b>.`,
+        tags: ['inner', 'check'],
+        cond: `arr[${j}] < arr[${minIndex}]  →  ${arr[j]} < ${arr[minIndex]}  →  ${arr[j] < arr[minIndex] ? '<span class="true">True</span>' : '<span class="false">False</span>'}`
+      });
+
+      if (arr[j] < arr[minIndex]) {
+        minIndex = j;
+        steps.push({
+          arr: [...arr], i, j, minIndex, sorted: Array.from({ length: i }, (_, index) => index), current: j, swapping: [],
+          text: `Update <b>min_index = ${j}</b> because <b>${arr[j]}</b> is the new smallest value seen in this pass.`,
+          tags: ['check', 'update'],
+          cond: `min_index = ${j}`
+        });
+      }
+    }
+
+    const left = arr[i];
+    const right = arr[minIndex];
+    arr[i] = right;
+    arr[minIndex] = left;
+    steps.push({
+      arr: [...arr], i, j: null, minIndex, sorted: Array.from({ length: i }, (_, index) => index), current: null, swapping: [i, minIndex],
+      text: `Swap <b>arr[${i}]</b> with <b>arr[${minIndex}]</b> so the smallest remaining value <b>${right}</b> moves into position ${i}.`,
+      tags: ['swap'], cond: `swap indices ${i} and ${minIndex}  →  [${arr.join(', ')}]`
+    });
+
+    steps.push({
+      arr: [...arr], i, j: null, minIndex: i, sorted: Array.from({ length: i + 1 }, (_, index) => index), current: null, swapping: [],
+      text: `<span class="success">Index ${i} is now finalized. The sorted prefix grows to <b>[${arr.slice(0, i + 1).join(', ')}]</b>.</span>`,
+      tags: ['outer'], cond: null
+    });
+  }
+
+  steps.push({
+    arr: [...arr], i: n - 1, j: null, minIndex: n - 1, sorted: arr.map((_, index) => index), current: null, swapping: [],
+    text: `<span class="success">Done! Selection Sort returns <b>[${arr.join(', ')}]</b>.</span>`,
+    tags: ['return'], cond: null
+  });
+
+  return steps;
+}
+
+const steps = buildSteps();
+let idx = 0;
+let playing = false;
+let timer = null;
+
+function render() {
+  const step = steps[idx];
+  document.getElementById('iVal').textContent = step.i !== null ? step.i : '-';
+  document.getElementById('jVal').textContent = step.j !== null ? step.j : '-';
+  document.getElementById('minVal').textContent = step.minIndex !== null ? step.minIndex : '-';
+  document.getElementById('explanation').innerHTML = step.text;
+
+  const condHtml = step.cond ? `<div class="tcond"><span class="tline">${step.cond}</span></div>` : '';
+  document.getElementById('traceBox').innerHTML = `
+    <span class="tline"><span class="tkey">arr</span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; = [${step.arr.join(', ')}]</span>
+    <span class="tline"><span class="tkey">i</span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; = <span class="tval">${step.i !== null ? step.i : '—'}</span></span>
+    <span class="tline"><span class="tkey">j</span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; = <span class="tval">${step.j !== null ? step.j : '—'}</span></span>
+    <span class="tline"><span class="tkey">min_index</span> = <span class="tval">${step.minIndex !== null ? step.minIndex : '—'}</span></span>
+    ${condHtml}
+  `;
+
+  const maxValue = Math.max(...startNumbers);
+  step.arr.forEach((value, index) => {
+    const bar = document.getElementById(`bar-${index}`);
+    const label = document.getElementById(`label-${index}`);
+    bar.className = 'bar';
+    if (step.sorted.includes(index)) bar.classList.add('sorted');
+    if (step.current === index) bar.classList.add('current');
+    if (step.minIndex === index) bar.classList.add('min');
+    if (step.swapping.includes(index)) bar.classList.add('swap');
+    bar.style.height = `${80 + (value / maxValue) * 120}px`;
+    bar.textContent = value;
+
+    const tags = [];
+    if (step.i === index) tags.push('i');
+    if (step.current === index) tags.push('j');
+    if (step.minIndex === index) tags.push('min');
+    if (step.sorted.includes(index)) tags.push('sorted');
+    label.textContent = tags.join(' · ');
+  });
+
+  highlightCode(step.tags);
+  document.getElementById('prevBtn').disabled = idx === 0;
+  document.getElementById('nextBtn').disabled = idx === steps.length - 1;
+  if (idx === steps.length - 1) stopPlay();
+}
+
+function stopPlay() {
+  playing = false;
+  clearInterval(timer);
+  document.getElementById('playBtn').textContent = '▶ Play';
+}
+
+document.getElementById('nextBtn').addEventListener('click', () => {
+  if (idx < steps.length - 1) { idx += 1; render(); }
+});
+document.getElementById('prevBtn').addEventListener('click', () => {
+  if (idx > 0) { idx -= 1; render(); }
+});
+document.getElementById('resetBtn').addEventListener('click', () => {
+  stopPlay(); idx = 0; render();
+});
+document.getElementById('playBtn').addEventListener('click', () => {
+  if (playing) { stopPlay(); return; }
+  if (idx === steps.length - 1) idx = 0;
+  playing = true;
+  document.getElementById('playBtn').textContent = '⏸ Pause';
+  timer = setInterval(() => {
+    if (idx < steps.length - 1) { idx += 1; render(); }
+    else stopPlay();
+  }, 1700);
+});
+
+render();
+
+const themeToggle = document.getElementById('themeToggle');
+const homeLink = document.getElementById('homeLink');
+const dsaLink = document.getElementById('dsaLink');
+
+function syncNavLinks(theme) {
+  homeLink.setAttribute('href', `../index.html?theme=${encodeURIComponent(theme)}`);
+  dsaLink.setAttribute('href', `index.html?demo=selection&theme=${encodeURIComponent(theme)}`);
+}
+
+function applyTheme(theme) {
+  document.documentElement.setAttribute('data-theme', theme);
+  localStorage.setItem('site-theme', theme);
+  themeToggle.textContent = theme === 'dark' ? '☀️' : '🌙';
+  themeToggle.title = theme === 'dark' ? 'Switch to light theme' : 'Switch to dark theme';
+  themeToggle.setAttribute('aria-label', themeToggle.title);
+  syncNavLinks(theme);
+}
+
+applyTheme(document.documentElement.getAttribute('data-theme') === 'light' ? 'light' : 'dark');
+themeToggle.addEventListener('click', () => {
+  applyTheme(document.documentElement.getAttribute('data-theme') === 'dark' ? 'light' : 'dark');
+});
+</script>
+</body>
+</html>

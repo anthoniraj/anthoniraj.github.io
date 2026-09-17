@@ -488,6 +488,20 @@
 
         <nav class="toc" id="tocNav">
           <details class="toc-group" open>
+            <summary>Complexity Basics</summary>
+            <div class="toc-children">
+              <a class="sidebar-link" href="space_complexity.html" data-demo="space" data-title="Space Complexity" data-description="A simple explanation of how much extra memory an algorithm uses.">
+                <strong>Space Complexity</strong>
+                <span>Guide</span>
+              </a>
+              <a class="sidebar-link" href="time_complexity.html" data-demo="time" data-title="Time Complexity" data-description="A simple explanation of how the amount of work grows as input grows.">
+                <strong>Time Complexity</strong>
+                <span>Guide</span>
+              </a>
+            </div>
+          </details>
+
+          <details class="toc-group" open>
             <summary>Searching</summary>
             <div class="toc-children">
               <a class="sidebar-link active" href="linear_search_animation.html" data-demo="linear" data-title="Linear Search" data-description="Sequential search animation with index-by-index tracing.">
@@ -504,10 +518,18 @@
           <details class="toc-group">
             <summary>Sorting</summary>
             <div class="toc-children">
-              <div class="sidebar-note">
-                <strong style="display:block; color:var(--primary); margin-bottom:0.35rem;">Coming Soon</strong>
-                <span style="color:var(--muted); line-height:1.6; display:block;">Add Bubble Sort, Selection Sort, Merge Sort, or Quick Sort here when the demos are ready.</span>
-              </div>
+              <a class="sidebar-link" href="bubble_sort_animation.html" data-demo="bubble" data-title="Bubble Sort" data-description="Adjacent comparisons that bubble larger values toward the end.">
+                <strong>Bubble Sort</strong>
+                <span>O(n²)</span>
+              </a>
+              <a class="sidebar-link" href="selection_sort_animation.html" data-demo="selection" data-title="Selection Sort" data-description="Repeatedly select the minimum item and place it at the front.">
+                <strong>Selection Sort</strong>
+                <span>O(n²)</span>
+              </a>
+              <a class="sidebar-link" href="insertion_sort_animation.html" data-demo="insertion" data-title="Insertion Sort" data-description="Build a sorted prefix by inserting each value into place.">
+                <strong>Insertion Sort</strong>
+                <span>O(n²)</span>
+              </a>
             </div>
           </details>
         </nav>
@@ -535,6 +557,16 @@
   const tocLinks = Array.from(document.querySelectorAll('.sidebar-link'));
 
   const demos = {
+    space: {
+      file: 'space_complexity.html',
+      title: 'Space Complexity',
+      description: 'A simple explanation of how much extra memory an algorithm uses.'
+    },
+    time: {
+      file: 'time_complexity.html',
+      title: 'Time Complexity',
+      description: 'A simple explanation of how the amount of work grows as input grows.'
+    },
     linear: {
       file: 'linear_search_animation.html',
       title: 'Linear Search',
@@ -544,6 +576,21 @@
       file: 'binary_search_animation.html',
       title: 'Binary Search',
       description: 'Sorted-array search that halves the active range each step.'
+    },
+    bubble: {
+      file: 'bubble_sort_animation.html',
+      title: 'Bubble Sort',
+      description: 'Adjacent comparisons that bubble larger values toward the end.'
+    },
+    selection: {
+      file: 'selection_sort_animation.html',
+      title: 'Selection Sort',
+      description: 'Repeatedly select the minimum item and place it at the front.'
+    },
+    insertion: {
+      file: 'insertion_sort_animation.html',
+      title: 'Insertion Sort',
+      description: 'Build a sorted prefix by inserting each value into place.'
     }
   };
 
