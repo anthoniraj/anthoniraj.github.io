@@ -90,9 +90,9 @@
   .theme-toggle{position:fixed;top:18px;right:18px;}
   .icon-link:hover,.theme-toggle:hover{transform:scale(1.08);}
   body.embedded .page-actions,body.embedded .theme-toggle{display:none;}
-  .layout{display:flex;flex-direction:column;align-items:center;max-width:1180px;margin:0 auto;gap:0;}
+  .layout{display:flex;flex-direction:column;align-items:center;max-width:1300px;margin:0 auto;gap:0;}
   .main-col{display:flex;flex-direction:column;align-items:center;width:100%;}
-  @media (min-width:960px){.layout{flex-direction:row;align-items:flex-start;justify-content:center;gap:36px;}.main-col{width:auto;flex:0 1 640px;}.code-col{flex:0 0 420px;position:sticky;top:32px;}}
+  @media (min-width:960px){.layout{flex-direction:row;align-items:flex-start;justify-content:center;gap:36px;}.main-col{width:auto;flex:0 1 640px;}.code-col{flex:0 0 520px;position:sticky;top:32px;}}
   h1{font-size:1.6rem;margin-bottom:4px;text-align:center;}
   .subtitle{color:var(--muted);margin-bottom:10px;text-align:center;max-width:620px;line-height:1.5;}
   .target-badge{color:var(--sorted);font-weight:700;}
@@ -194,13 +194,13 @@ startNumbers.forEach((_, index) => {
 });
 
 const codeLines = [
-  {t:'<span class="kw">def</span> bubble_sort(arr):', tag:'def'},
-  {t:'&nbsp;&nbsp;n = len(arr)', tag:'init'},
-  {t:'&nbsp;&nbsp;<span class="kw">for</span> i <span class="kw">in</span> range(n - 1):', tag:'outer'},
-  {t:'&nbsp;&nbsp;&nbsp;&nbsp;<span class="kw">for</span> j <span class="kw">in</span> range(n - 1 - i):', tag:'inner'},
-  {t:'&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="kw">if</span> arr[j] &gt; arr[j + 1]:', tag:'check'},
-  {t:'&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;arr[j], arr[j + 1] = arr[j + 1], arr[j] <span class="cm"># swap</span>', tag:'swap'},
-  {t:'&nbsp;&nbsp;<span class="kw">return</span> arr', tag:'return'}
+  {t:'numbers = [5, 1, 4, 2, 8]', tag:'setup'},
+  {t:'n = len(numbers)', tag:'init'},
+  {t:'<span class="kw">for</span> i <span class="kw">in</span> range(n - 1):', tag:'outer'},
+  {t:'&nbsp;&nbsp;<span class="kw">for</span> j <span class="kw">in</span> range(n - 1 - i):', tag:'inner'},
+  {t:'&nbsp;&nbsp;&nbsp;&nbsp;<span class="kw">if</span> numbers[j] &gt; numbers[j + 1]:', tag:'check'},
+  {t:'&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;numbers[j], numbers[j + 1] = numbers[j + 1], numbers[j] <span class="cm"># swap</span>', tag:'swap'},
+  {t:'<span class="kw">print</span>(numbers)', tag:'print'}
 ];
 document.getElementById('codeBox').innerHTML = codeLines.map((line) => `<span class="ln" data-tag="${line.tag}">${line.t}</span>`).join('');
 
@@ -223,7 +223,7 @@ function buildSteps() {
     sorted: [],
     swapped: [],
     text: `Start with the unsorted list <b>[${arr.join(', ')}]</b>. Bubble Sort moves the largest remaining value to the end on each pass.`,
-    tags: ['def', 'init'],
+    tags: ['setup', 'init'],
     cond: null
   });
 
@@ -280,8 +280,8 @@ function buildSteps() {
     comparing: [],
     sorted: arr.map((_, index) => index),
     swapped: [],
-    text: `<span class="success">Done! Bubble Sort returns <b>[${arr.join(', ')}]</b>.</span>`,
-    tags: ['return'],
+    text: `<span class="success">Done! The sorted list is <b>[${arr.join(', ')}]</b>, so print(numbers) shows this final order.</span>`,
+    tags: ['print'],
     cond: null
   });
 
