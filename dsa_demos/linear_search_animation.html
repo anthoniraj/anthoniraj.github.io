@@ -4,6 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Linear Search — Step by Step</title>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <script>
   (function() {
     try {
@@ -197,6 +198,47 @@
   .target-badge{
     color:var(--found);
     font-weight:700;
+  }
+  .target-input{
+    width:72px;
+    height:30px;
+    padding:2px 6px;
+    font-family:inherit;
+    font-size:1rem;
+    font-weight:700;
+    color:var(--found);
+    background:var(--panel);
+    border:2px solid var(--found);
+    border-radius:8px;
+    text-align:center;
+    box-shadow:0 2px 8px var(--shadow);
+    outline:none;
+    vertical-align:middle;
+    display:inline-block;
+    margin:0 4px;
+    transition:border-color 0.2s ease, box-shadow 0.2s ease, transform 0.15s ease, background 0.2s ease;
+    box-sizing:border-box;
+  }
+  .target-input:hover{
+    transform:translateY(-1px);
+    box-shadow:0 4px 12px var(--shadow);
+  }
+  .target-input:focus{
+    border-color:var(--found);
+    box-shadow:0 0 0 3px rgba(34,197,94,0.3);
+    background:var(--bg);
+  }
+  .target-input.invalid{
+    border-color:#f43f5e;
+    box-shadow:0 0 0 2px rgba(244,63,94,0.3);
+  }
+  .target-input::-webkit-outer-spin-button,
+  .target-input::-webkit-inner-spin-button{
+    -webkit-appearance:none;
+    margin:0;
+  }
+  .target-input[type=number]{
+    -moz-appearance:textfield;
   }
 
   .array-row{
@@ -430,6 +472,7 @@
     body.embedded{padding:10px 6px 20px;}
     h1{font-size:1.25rem;margin-bottom:3px;}
     .subtitle{font-size:0.84rem;line-height:1.4;margin-bottom:8px;}
+    .target-input{width:64px;height:26px;font-size:0.86rem;padding:1px 4px;margin:0 2px;}
     .legend{font-size:0.75rem;gap:10px;margin:8px 0 4px;}
     .icon-link,.theme-toggle{width:38px;height:38px;font-size:1.1rem;top:10px;}
     .page-actions{top:10px;left:10px;gap:8px;}
@@ -454,6 +497,7 @@
     .trace-box{margin-top:10px;padding:12px 12px;font-size:0.76rem;line-height:1.6;border-radius:10px;overflow-x:auto;-webkit-overflow-scrolling:touch;}
   }
   @media (max-width:380px){
+    .target-input{width:56px;height:24px;font-size:0.80rem;}
     .array-row{gap:4px;}
     .cell-wrap{width:38px;}
     .cell{width:36px;height:36px;font-size:0.92rem;}
@@ -478,7 +522,7 @@
 <div class="layout">
   <div class="main-col">
     <h1>Linear Search — Step by Step Animation</h1>
-    <p class="subtitle">Finding target <span class="target-badge" id="targetLabel">12</span> by checking each item
+    <p class="subtitle">Finding target <input type="number" id="targetInput" class="target-input" value="12" min="-10000" max="10000" step="1" title="Edit target value (min: -10000, max: 10000)" aria-label="Search target value"> by checking each item
     one by one, from left to right, until we find it (or run out of items).</p>
 
     <div class="array-row" id="arrayRow"></div>
@@ -518,8 +562,8 @@ if (window.self !== window.top) {
 }
 
 const numbers = [23, 5, 90, 12, 47];
-const target = 12;
-document.getElementById('targetLabel').textContent = target;
+let target = 12;
+const targetInput = document.getElementById('targetInput');
 
 // Build the array cells
 const arrayRow = document.getElementById('arrayRow');
@@ -558,7 +602,7 @@ function renderCode(step) {
     : '# waiting for match';
   const codeLines = [
     {t:'numbers = [23, 5, 90, 12, 47]', tag:'init'},
-    {t:'<span class="kw">target</span> = 12', tag:'init'},
+    {t:`<span class="kw">target</span> = ${target}`, tag:'init'},
     {t:'found_index = -1', tag:'init'},
     {t:`<span class="kw">for</span> i <span class="kw">in</span> range(len(numbers)): <span class="cm"># range(${rangeLimit}) =&gt; ${rangeValues}</span>`, tag:'loop'},
     {t:`&nbsp;&nbsp;&nbsp;&nbsp;<span class="kw">if</span> numbers[i] == <span class="kw">target</span>: <span class="cm">${equalsComment}</span>`, tag:'check'},
@@ -619,7 +663,7 @@ function buildSteps(){
     i: null, found: found_index, checked: found_index !== -1 ? numbers.map((_,k)=>k).filter(k=>k!==found_index) : [...checked],
     text: found_index !== -1
       ? `<span class="success">Done! found_index = ${found_index} → print(found_index) outputs <b>${found_index}</b>.</span>`
-      : `<span class="success">Done! We reached the end of the list without a match — found_index stays -1.</span>`,
+      : `<span class="success">Done! We reached the end of the list without a match — target <b>${target}</b> not found (found_index = -1).</span>`,
     tags: ['loop'],
     finalHighlightOnly: found_index,
     cond: null
@@ -628,7 +672,7 @@ function buildSteps(){
   return steps;
 }
 
-const steps = buildSteps();
+let steps = buildSteps();
 let idx = 0;
 let playing = false;
 let timer = null;
@@ -695,11 +739,89 @@ function stopPlay(){
   document.getElementById('playBtn').textContent = '▶ Play';
 }
 
+function updateTarget(newTarget) {
+  target = newTarget;
+  if (targetInput && document.activeElement !== targetInput) {
+    targetInput.value = target;
+  }
+  stopPlay();
+  steps = buildSteps();
+  idx = 0;
+  render();
+}
+
+function showTargetWarning(message) {
+  if (typeof Swal !== 'undefined') {
+    const isDark = document.documentElement.getAttribute('data-theme') !== 'light';
+    Swal.fire({
+      icon: 'warning',
+      title: 'Target Limit',
+      text: message,
+      confirmButtonText: 'OK',
+      confirmButtonColor: '#0284c7',
+      background: isDark ? '#1e293b' : '#ffffff',
+      color: isDark ? '#e2e8f0' : '#1e293b'
+    });
+  } else {
+    alert(message);
+  }
+}
+
+let targetAlertShown = false;
+
+if (targetInput) {
+  targetInput.addEventListener('input', () => {
+    const val = targetInput.value.trim();
+    if (val === '' || val === '-') {
+      targetInput.classList.add('invalid');
+      return;
+    }
+    const parsed = parseInt(val, 10);
+    if (Number.isInteger(parsed) && parsed >= -10000 && parsed <= 10000) {
+      targetAlertShown = false;
+      targetInput.classList.remove('invalid');
+      target = parsed;
+      stopPlay();
+      steps = buildSteps();
+      idx = 0;
+      render();
+    } else {
+      targetInput.classList.add('invalid');
+      if (Number.isInteger(parsed) && (parsed < -10000 || parsed > 10000) && !targetAlertShown) {
+        targetAlertShown = true;
+        showTargetWarning(`Target value must be between -10000 and 10000 (you entered ${parsed}).`);
+      } else if (Number.isInteger(parsed) && parsed >= -10000 && parsed <= 10000) {
+        targetAlertShown = false;
+      }
+    }
+  });
+
+  targetInput.addEventListener('change', () => {
+    const parsed = parseInt(targetInput.value, 10);
+    if (!Number.isInteger(parsed) || parsed < -10000 || parsed > 10000) {
+      showTargetWarning(`Target value must be an integer between -10000 and 10000 (you entered ${targetInput.value || 'empty'}).`);
+      targetInput.classList.remove('invalid');
+      targetInput.value = target;
+      targetAlertShown = false;
+    } else {
+      targetInput.classList.remove('invalid');
+      updateTarget(parsed);
+      targetAlertShown = false;
+    }
+  });
+
+  targetInput.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter') {
+      targetInput.blur();
+    }
+  });
+}
+
 function handleStepNavigationKey(event) {
-  const target = event.target;
-  if (target instanceof HTMLElement) {
-    const tagName = target.tagName;
-    if (target.isContentEditable || tagName === 'INPUT' || tagName === 'TEXTAREA' || tagName === 'SELECT') {
+  const el = event.target;
+  if (el instanceof HTMLElement) {
+    const tagName = el.tagName;
+    if (el.isContentEditable || tagName === 'INPUT' || tagName === 'TEXTAREA' || tagName === 'SELECT') {
       return;
     }
   }
