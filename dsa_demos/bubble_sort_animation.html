@@ -90,9 +90,9 @@
   .theme-toggle{position:fixed;top:18px;right:18px;}
   .icon-link:hover,.theme-toggle:hover{transform:scale(1.08);}
   body.embedded .page-actions,body.embedded .theme-toggle{display:none;}
-  .layout{display:flex;flex-direction:column;align-items:center;max-width:1300px;margin:0 auto;gap:0;}
+  .layout{display:flex;flex-direction:column;align-items:center;max-width:1440px;margin:0 auto;gap:0;}
   .main-col{display:flex;flex-direction:column;align-items:center;width:100%;}
-  @media (min-width:960px){.layout{flex-direction:row;align-items:flex-start;justify-content:center;gap:36px;}.main-col{width:auto;flex:0 1 640px;}.code-col{flex:0 0 520px;position:sticky;top:32px;}}
+  @media (min-width:960px){.layout{flex-direction:row;align-items:flex-start;justify-content:center;gap:32px;}.main-col{width:auto;flex:0 1 560px;}.code-col{flex:0 0 740px;position:sticky;top:32px;}}
   h1{font-size:1.6rem;margin-bottom:4px;text-align:center;}
   .subtitle{color:var(--muted);margin-bottom:10px;text-align:center;max-width:620px;line-height:1.5;}
   .target-badge{color:var(--sorted);font-weight:700;}
@@ -106,7 +106,7 @@
   .legend{display:flex;gap:18px;flex-wrap:wrap;justify-content:center;margin:10px 0 6px;font-size:0.82rem;color:var(--muted);}
   .legend span{display:flex;align-items:center;gap:6px;}
   .dot{width:10px;height:10px;border-radius:50%;display:inline-block;}
-  .panel{background:var(--panel);border-radius:16px;padding:20px 24px;margin-top:26px;width:100%;max-width:640px;box-shadow:0 8px 24px var(--shadow);}
+  .panel{background:var(--panel);border-radius:16px;padding:20px 24px;margin-top:26px;width:100%;max-width:560px;box-shadow:0 8px 24px var(--shadow);}
   .vars{display:flex;justify-content:center;text-align:center;margin-bottom:18px;flex-wrap:wrap;gap:14px;}
   .var-box{min-width:96px;background:var(--bg);border:1.5px solid var(--border);border-radius:12px;padding:6px 18px;}
   .var-box .val{font-size:1.9rem;font-weight:800;line-height:1.2;}
@@ -117,12 +117,14 @@
   .controls{display:flex;gap:12px;justify-content:center;margin-top:22px;flex-wrap:wrap;}
   button{background:var(--accent);color:var(--btn-text);border:none;padding:10px 20px;border-radius:10px;font-size:0.95rem;font-weight:700;cursor:pointer;transition:transform 0.15s ease,opacity 0.15s ease;}
   button:hover{transform:translateY(-2px);}button:disabled{opacity:0.35;cursor:not-allowed;transform:none;}button.secondary{background:transparent;color:var(--text);border:1.5px solid var(--border);}
-  .code-box{margin-top:30px;width:100%;max-width:640px;background:var(--code-bg);border-radius:14px;padding:18px 20px;font-family:'Consolas','Monaco',monospace;font-size:0.85rem;line-height:1.7;color:var(--code-text);overflow-x:auto;border:1px solid var(--code-border);}
-  .code-box .ln{display:block;padding:2px 6px;border-radius:4px;}
+  .code-box{margin-top:30px;width:100%;max-width:740px;background:var(--code-bg);border-radius:14px;padding:18px 20px;font-family:'Consolas','Monaco',monospace;font-size:0.95rem;line-height:1.75;color:var(--code-text);overflow-x:auto;border:1px solid var(--code-border);}
+  .code-box .ln{display:block;padding:2px 8px;border-radius:4px;white-space:nowrap;}
   .code-box .active{background:var(--code-active-bg);box-shadow:inset 3px 0 0 var(--compare);}
   .code-box .kw{color:var(--code-kw);} .code-box .cm{color:var(--code-cm);}
-  .trace-box{margin-top:14px;width:100%;max-width:640px;background:var(--trace-bg);border:1px solid var(--trace-border);border-radius:14px;padding:16px 20px;font-family:'Consolas','Monaco',monospace;font-size:0.82rem;line-height:1.8;color:var(--code-text);}
-  .trace-box .tline{display:block;}
+  .code-box .true{color:var(--sorted);font-weight:700;}
+  .code-box .false{color:#f43f5e;font-weight:700;}
+  .trace-box{margin-top:14px;width:100%;max-width:740px;background:var(--trace-bg);border:1px solid var(--trace-border);border-radius:14px;padding:16px 20px;font-family:'Consolas','Monaco',monospace;font-size:0.92rem;line-height:1.8;color:var(--code-text);}
+  .trace-box .tline{display:block;white-space:nowrap;}
   .trace-box .tkey{color:var(--muted);}
   .trace-box .tval{color:var(--accent);font-weight:700;}
   .trace-box .tcond{margin-top:8px;padding-top:8px;border-top:1px dashed var(--code-border);color:var(--text);}
@@ -193,16 +195,41 @@ startNumbers.forEach((_, index) => {
   arrayRow.appendChild(wrap);
 });
 
-const codeLines = [
-  {t:'numbers = [5, 1, 4, 2, 8]', tag:'setup'},
-  {t:'n = len(numbers)', tag:'init'},
-  {t:'<span class="kw">for</span> i <span class="kw">in</span> range(n - 1):', tag:'outer'},
-  {t:'&nbsp;&nbsp;<span class="kw">for</span> j <span class="kw">in</span> range(n - 1 - i):', tag:'inner'},
-  {t:'&nbsp;&nbsp;&nbsp;&nbsp;<span class="kw">if</span> numbers[j] &gt; numbers[j + 1]:', tag:'check'},
-  {t:'&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;numbers[j], numbers[j + 1] = numbers[j + 1], numbers[j] <span class="cm"># swap</span>', tag:'swap'},
-  {t:'<span class="kw">print</span>(numbers)', tag:'print'}
-];
-document.getElementById('codeBox').innerHTML = codeLines.map((line) => `<span class="ln" data-tag="${line.tag}">${line.t}</span>`).join('');
+const codeBox = document.getElementById('codeBox');
+
+function formatRangeValues(start, endExclusive) {
+  return `[${Array.from({ length: Math.max(endExclusive - start, 0) }, (_, index) => start + index).join(', ')}]`;
+}
+
+function formatCodeBool(result) {
+  return `<span class="${result ? 'true' : 'false'}">${result ? 'True' : 'False'}</span>`;
+}
+
+function renderCode(step) {
+  const outerRangeLimit = startNumbers.length - 1;
+  const outerRange = formatRangeValues(0, outerRangeLimit);
+  const activeI = step && step.i !== null ? step.i : 0;
+  const innerRangeLimit = startNumbers.length - 1 - activeI;
+  const innerRange = formatRangeValues(0, innerRangeLimit);
+  const hasCompare = step && typeof step.compareLeft === 'number' && typeof step.compareRight === 'number';
+  const compareComment = hasCompare
+    ? `# ${step.compareLeft} &gt; ${step.compareRight} =&gt; ${formatCodeBool(step.compareLeft > step.compareRight)}`
+    : '# waiting for comparison';
+  const swapComment = step && step.tags.includes('swap')
+    ? `# swap ${step.compareLeft} and ${step.compareRight} =&gt; [${step.arr.join(', ')}]`
+    : '# before swapping';
+  const codeLines = [
+    {t:'numbers = [5, 1, 4, 2, 8]', tag:'setup'},
+    {t:'n = len(numbers) - 1 <span class="cm"># max index</span>', tag:'init'},
+    {t:`<span class="kw">for</span> i <span class="kw">in</span> range(n): <span class="cm"># range(${outerRangeLimit}) =&gt; ${outerRange}</span>`, tag:'outer'},
+    {t:`&nbsp;&nbsp;&nbsp;&nbsp;<span class="kw">for</span> j <span class="kw">in</span> range(n - i): <span class="cm"># range(${innerRangeLimit}) =&gt; ${innerRange}</span>`, tag:'inner'},
+    {t:`&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="kw">if</span> numbers[j] &gt; numbers[j + 1]: <span class="cm">${compareComment}</span>`, tag:'check'},
+    {t:`&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="cm">${swapComment}</span>`, tag:'swap'},
+    {t:'&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;numbers[j], numbers[j + 1] = numbers[j + 1], numbers[j]', tag:'swap'},
+    {t:'<span class="kw">print</span>(numbers)', tag:'print'}
+  ];
+  codeBox.innerHTML = codeLines.map((line) => `<span class="ln" data-tag="${line.tag}">${line.t}</span>`).join('');
+}
 
 function highlightCode(tags) {
   document.querySelectorAll('.code-box .ln').forEach((line) => {
@@ -212,7 +239,7 @@ function highlightCode(tags) {
 
 function buildSteps() {
   const arr = [...startNumbers];
-  const n = arr.length;
+  const n = arr.length - 1;
   const steps = [];
 
   steps.push({
@@ -227,14 +254,16 @@ function buildSteps() {
     cond: null
   });
 
-  for (let i = 0; i < n - 1; i++) {
-    for (let j = 0; j < n - 1 - i; j++) {
+  for (let i = 0; i < n; i++) {
+    for (let j = 0; j < n - i; j++) {
       steps.push({
         arr: [...arr],
         i,
         j,
+        compareLeft: arr[j],
+        compareRight: arr[j + 1],
         comparing: [j, j + 1],
-        sorted: Array.from({ length: i }, (_, offset) => n - 1 - offset),
+        sorted: Array.from({ length: i }, (_, offset) => n - offset),
         swapped: [],
         text: `Pass <b>${i + 1}</b>: compare adjacent values <b>arr[${j}] = ${arr[j]}</b> and <b>arr[${j + 1}] = ${arr[j + 1]}</b>.`,
         tags: ['outer', 'inner', 'check'],
@@ -250,8 +279,10 @@ function buildSteps() {
           arr: [...arr],
           i,
           j,
+          compareLeft: left,
+          compareRight: right,
           comparing: [j, j + 1],
-          sorted: Array.from({ length: i }, (_, offset) => n - 1 - offset),
+          sorted: Array.from({ length: i }, (_, offset) => n - offset),
           swapped: [j, j + 1],
           text: `Because <b>${left} > ${right}</b>, swap them. The larger value <b>${left}</b> moves one step to the right.`,
           tags: ['check', 'swap'],
@@ -263,11 +294,11 @@ function buildSteps() {
     steps.push({
       arr: [...arr],
       i,
-      j: n - 2 - i,
+      j: n - 1 - i,
       comparing: [],
-      sorted: Array.from({ length: i + 1 }, (_, offset) => n - 1 - offset),
+      sorted: Array.from({ length: i + 1 }, (_, offset) => n - offset),
       swapped: [],
-      text: `<span class="success">End of pass ${i + 1}: the value <b>${arr[n - 1 - i]}</b> is now locked into its final position at index ${n - 1 - i}.</span>`,
+      text: `<span class="success">End of pass ${i + 1}: the value <b>${arr[n - i]}</b> is now locked into its final position at index ${n - i}.</span>`,
       tags: ['outer'],
       cond: null
     });
@@ -275,7 +306,7 @@ function buildSteps() {
 
   steps.push({
     arr: [...arr],
-    i: n - 2,
+    i: n - 1,
     j: null,
     comparing: [],
     sorted: arr.map((_, index) => index),
@@ -295,6 +326,7 @@ let timer = null;
 
 function render() {
   const step = steps[idx];
+  renderCode(step);
   document.getElementById('passVal').textContent = step.i !== null ? step.i : '-';
   document.getElementById('jVal').textContent = step.j !== null ? step.j : '-';
   document.getElementById('rightVal').textContent = step.comparing.length === 2 ? step.comparing[1] : '-';
@@ -303,6 +335,7 @@ function render() {
   const condHtml = step.cond ? `<div class="tcond"><span class="tline">${step.cond}</span></div>` : '';
   document.getElementById('traceBox').innerHTML = `
     <span class="tline"><span class="tkey">arr</span>&nbsp;&nbsp;&nbsp;&nbsp; = [${step.arr.join(', ')}]</span>
+    <span class="tline"><span class="tkey">n</span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; = <span class="tval">${startNumbers.length - 1}</span></span>
     <span class="tline"><span class="tkey">i</span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; = <span class="tval">${step.i !== null ? step.i : '—'}</span></span>
     <span class="tline"><span class="tkey">j</span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; = <span class="tval">${step.j !== null ? step.j : '—'}</span></span>
     <span class="tline"><span class="tkey">sorted</span> = <span class="tval">[${step.sorted.join(', ')}]</span></span>
@@ -345,6 +378,26 @@ function stopPlay() {
   document.getElementById('playBtn').textContent = '▶ Play';
 }
 
+function handleStepNavigationKey(event) {
+  const target = event.target;
+  if (target instanceof HTMLElement) {
+    const tagName = target.tagName;
+    if (target.isContentEditable || tagName === 'INPUT' || tagName === 'TEXTAREA' || tagName === 'SELECT') {
+      return;
+    }
+  }
+
+  if (event.key === 'ArrowRight' && idx < steps.length - 1) {
+    event.preventDefault();
+    idx += 1;
+    render();
+  } else if (event.key === 'ArrowLeft' && idx > 0) {
+    event.preventDefault();
+    idx -= 1;
+    render();
+  }
+}
+
 document.getElementById('nextBtn').addEventListener('click', () => {
   if (idx < steps.length - 1) { idx += 1; render(); }
 });
@@ -364,6 +417,7 @@ document.getElementById('playBtn').addEventListener('click', () => {
     else stopPlay();
   }, 1600);
 });
+document.addEventListener('keydown', handleStepNavigationKey);
 
 render();
 

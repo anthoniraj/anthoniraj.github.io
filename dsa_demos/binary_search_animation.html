@@ -159,7 +159,7 @@
     display:flex;
     flex-direction:column;
     align-items:center;
-    max-width:1180px;
+    max-width:1440px;
     margin:0 auto;
     gap:0;
   }
@@ -174,14 +174,14 @@
       flex-direction:row;
       align-items:flex-start;
       justify-content:center;
-      gap:36px;
+      gap:32px;
     }
     .main-col{
       width:auto;
-      flex:0 1 640px;
+      flex:0 1 560px;
     }
     .code-col{
-      flex:0 0 420px;
+      flex:0 0 720px;
       position:sticky;
       top:32px;
     }
@@ -384,38 +384,40 @@
   .code-box{
     margin-top:30px;
     width:100%;
-    max-width:640px;
+    max-width:720px;
     max-height:none;
     background:var(--code-bg);
     border-radius:14px;
     padding:18px 20px;
     font-family:'Consolas','Monaco',monospace;
-    font-size:0.85rem;
-    line-height:1.7;
+    font-size:0.95rem;
+    line-height:1.75;
     color:var(--code-text);
     overflow-x:auto;
     border:1px solid var(--code-border);
   }
-  .code-box .ln{display:block; padding:2px 6px; border-radius:4px;}
+  .code-box .ln{display:block; padding:2px 8px; border-radius:4px; white-space:nowrap;}
   .code-box .active{background:var(--code-active-bg); box-shadow:inset 3px 0 0 var(--accent);}
   .code-box .kw{color:var(--code-kw);}
   .code-box .num{color:var(--high);}
   .code-box .cm{color:var(--code-cm);}
+  .code-box .true{color:var(--found); font-weight:700;}
+  .code-box .false{color:#f43f5e; font-weight:700;}
 
   .trace-box{
     margin-top:14px;
     width:100%;
-    max-width:640px;
+    max-width:720px;
     background:var(--trace-bg);
     border:1px solid var(--trace-border);
     border-radius:14px;
     padding:16px 20px;
     font-family:'Consolas','Monaco',monospace;
-    font-size:0.82rem;
+    font-size:0.92rem;
     line-height:1.8;
     color:var(--code-text);
   }
-  .trace-box .tline{display:block;}
+  .trace-box .tline{display:block; white-space:nowrap;}
   .trace-box .tkey{color:var(--muted);}
   .trace-box .tval{color:var(--accent); font-weight:700;}
   .trace-box .tcond{
@@ -439,7 +441,7 @@
 
 <div class="layout">
   <div class="main-col">
-    <h1>Binary Search — Step by Step Animnation</h1>
+    <h1>Binary Search — Step by Step Animation</h1>
     <p class="subtitle">Finding target <span class="target-badge" id="targetLabel">26</span> in a sorted list.
     Watch how the search space shrinks in half every step — that's what makes binary search fast!</p>
 
@@ -499,23 +501,48 @@ numbers.forEach((n, i) => {
   arrayRow.appendChild(wrap);
 });
 
-const codeLines = [
-  {t:'numbers = [3, 8, 12, 19, 26, 40, 55]', tag:'init'},
-  {t:'<span class="kw">target</span> = 26', tag:'init'},
-  {t:'<span class="kw">low</span> = 0', tag:'init'},
-  {t:'<span class="kw">high</span> = len(numbers) - 1', tag:'init'},
-  {t:'<span class="kw">found</span> = -1', tag:'init'},
-  {t:'<span class="kw">while</span> low <= high:', tag:'loop'},
-  {t:'&nbsp;&nbsp;mid = (low + high) // 2', tag:'mid'},
-  {t:'&nbsp;&nbsp;<span class="kw">if</span> numbers[mid] == <span class="kw">target</span>:', tag:'check'},
-  {t:'&nbsp;&nbsp;&nbsp;&nbsp;found = mid; <span class="kw">break</span>', tag:'foundline'},
-  {t:'&nbsp;&nbsp;<span class="kw">elif</span> numbers[mid] < <span class="kw">target</span>:', tag:'checklt'},
-  {t:'&nbsp;&nbsp;&nbsp;&nbsp;low = mid + 1  <span class="cm"># search right half</span>', tag:'goright'},
-  {t:'&nbsp;&nbsp;<span class="kw">else</span>:', tag:'checkgt'},
-  {t:'&nbsp;&nbsp;&nbsp;&nbsp;high = mid - 1  <span class="cm"># search left half</span>', tag:'goleft'},
-];
 const codeBox = document.getElementById('codeBox');
-codeBox.innerHTML = codeLines.map(l => `<span class="ln" data-tag="${l.tag}">${l.t}</span>`).join('');
+
+function formatCodeBool(result) {
+  return `<span class="${result ? 'true' : 'false'}">${result ? 'True' : 'False'}</span>`;
+}
+
+function renderCode(step) {
+  const low = step ? step.low : 0;
+  const high = step ? step.high : numbers.length - 1;
+  const hasMid = step && step.mid !== null;
+  const mid = hasMid ? step.mid : Math.floor((low + high) / 2);
+  const midValue = hasMid ? numbers[mid] : null;
+  const whileComment = `# ${low} <= ${high} =&gt; ${formatCodeBool(low <= high)}`;
+  const midComment = hasMid
+    ? `# (${low} + ${high}) // 2 =&gt; ${mid}`
+    : '# waiting for current mid';
+  const equalsComment = hasMid
+    ? `# ${midValue} == ${target} =&gt; ${formatCodeBool(midValue === target)}`
+    : '# waiting for comparison';
+  const lessThanComment = hasMid
+    ? `# ${midValue} &lt; ${target} =&gt; ${formatCodeBool(midValue < target)}`
+    : '# waiting for comparison';
+  const greaterThanComment = hasMid
+    ? `# ${midValue} &gt; ${target} =&gt; ${formatCodeBool(midValue > target)}`
+    : '# waiting for comparison';
+  const codeLines = [
+    {t:'numbers = [3, 8, 12, 19, 26, 40, 55]', tag:'init'},
+    {t:'<span class="kw">target</span> = 26', tag:'init'},
+    {t:'<span class="kw">low</span> = 0', tag:'init'},
+    {t:'<span class="kw">high</span> = len(numbers) - 1', tag:'init'},
+    {t:'<span class="kw">found</span> = -1', tag:'init'},
+    {t:`<span class="kw">while</span> low <= high: <span class="cm">${whileComment}</span>`, tag:'loop'},
+    {t:`&nbsp;&nbsp;&nbsp;&nbsp;mid = (low + high) // 2 <span class="cm">${midComment}</span>`, tag:'mid'},
+    {t:`&nbsp;&nbsp;&nbsp;&nbsp;<span class="kw">if</span> numbers[mid] == <span class="kw">target</span>: <span class="cm">${equalsComment}</span>`, tag:'check'},
+    {t:'&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;found = mid; <span class="kw">break</span>', tag:'foundline'},
+    {t:`&nbsp;&nbsp;&nbsp;&nbsp;<span class="kw">elif</span> numbers[mid] &lt; <span class="kw">target</span>: <span class="cm">${lessThanComment}</span>`, tag:'checklt'},
+    {t:'&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;low = mid + 1  <span class="cm"># search right half</span>', tag:'goright'},
+    {t:`&nbsp;&nbsp;&nbsp;&nbsp;<span class="kw">else</span>: <span class="cm"># ${greaterThanComment.replace('# ', '')}</span>`, tag:'checkgt'},
+    {t:'&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;high = mid - 1  <span class="cm"># search left half</span>', tag:'goleft'},
+  ];
+  codeBox.innerHTML = codeLines.map(l => `<span class="ln" data-tag="${l.tag}">${l.t}</span>`).join('');
+}
 
 function highlightCode(tags){
   document.querySelectorAll('.code-box .ln').forEach(el=>{
@@ -615,6 +642,7 @@ let timer = null;
 
 function render(){
   const s = steps[idx];
+  renderCode(s);
   document.getElementById('targetVal').textContent = target;
   document.getElementById('lowVal').textContent = s.low;
   document.getElementById('highVal').textContent = s.high;
@@ -678,6 +706,26 @@ function stopPlay(){
   document.getElementById('playBtn').textContent = '▶ Play';
 }
 
+function handleStepNavigationKey(event) {
+  const target = event.target;
+  if (target instanceof HTMLElement) {
+    const tagName = target.tagName;
+    if (target.isContentEditable || tagName === 'INPUT' || tagName === 'TEXTAREA' || tagName === 'SELECT') {
+      return;
+    }
+  }
+
+  if (event.key === 'ArrowRight' && idx < steps.length - 1) {
+    event.preventDefault();
+    idx += 1;
+    render();
+  } else if (event.key === 'ArrowLeft' && idx > 0) {
+    event.preventDefault();
+    idx -= 1;
+    render();
+  }
+}
+
 document.getElementById('nextBtn').addEventListener('click', () => {
   if (idx < steps.length - 1) { idx++; render(); }
 });
@@ -697,6 +745,7 @@ document.getElementById('playBtn').addEventListener('click', () => {
     else stopPlay();
   }, 1600);
 });
+document.addEventListener('keydown', handleStepNavigationKey);
 
 render();
 

@@ -515,7 +515,7 @@
             </div>
           </details>
 
-          <details class="toc-group">
+          <details class="toc-group" open>
             <summary>Sorting</summary>
             <div class="toc-children">
               <a class="sidebar-link" href="bubble_sort_animation.html" data-demo="bubble" data-title="Bubble Sort" data-description="Adjacent comparisons that bubble larger values toward the end.">
@@ -555,6 +555,7 @@
   const demoFrame = document.getElementById('demoFrame');
   const frameShell = document.querySelector('.frame-shell');
   const tocLinks = Array.from(document.querySelectorAll('.sidebar-link'));
+  const tocGroups = Array.from(document.querySelectorAll('.toc-group'));
 
   const demos = {
     space: {
@@ -610,6 +611,10 @@
   function setActiveLink(demoKey) {
     tocLinks.forEach((link) => {
       link.classList.toggle('active', link.dataset.demo === demoKey);
+    });
+
+    tocGroups.forEach((group) => {
+      group.open = true;
     });
   }
 
