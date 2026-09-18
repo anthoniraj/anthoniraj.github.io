@@ -111,7 +111,7 @@
   .var-box{min-width:96px;background:var(--bg);border:1.5px solid var(--border);border-radius:12px;padding:6px 18px;}
   .var-box .val{font-size:1.9rem;font-weight:800;line-height:1.2;}
   .var-box .lbl{font-size:0.8rem;font-weight:600;letter-spacing:0.03em;color:var(--muted);margin-top:2px;}
-  #passVal{color:var(--swap);}#jVal{color:var(--compare);}#rightVal{color:var(--sorted);}
+  #passVal{color:var(--swap);}#iVal{color:var(--code-kw);}#jVal{color:var(--compare);}#rightVal{color:var(--sorted);}
   .explanation{background:var(--explain-bg);border-left:4px solid var(--accent);padding:14px 16px;border-radius:8px;min-height:70px;font-size:0.98rem;line-height:1.55;}
   .explanation b{color:var(--accent);} .explanation .success{color:var(--sorted);font-weight:700;}
   .controls{display:flex;gap:12px;justify-content:center;margin-top:22px;flex-wrap:wrap;}
@@ -155,7 +155,8 @@
 
     <div class="panel">
       <div class="vars">
-        <div class="var-box"><div class="val" id="passVal">0</div><div class="lbl">pass (i)</div></div>
+        <div class="var-box"><div class="val" id="passVal">1</div><div class="lbl">pass</div></div>
+        <div class="var-box"><div class="val" id="iVal">0</div><div class="lbl">i</div></div>
         <div class="var-box"><div class="val" id="jVal">0</div><div class="lbl">j</div></div>
         <div class="var-box"><div class="val" id="rightVal">1</div><div class="lbl">j + 1</div></div>
       </div>
@@ -244,20 +245,23 @@ function buildSteps() {
 
   steps.push({
     arr: [...arr],
+    pass: 1,
     i: 0,
     j: 0,
     comparing: [],
     sorted: [],
     swapped: [],
-    text: `Start with the unsorted list <b>[${arr.join(', ')}]</b>. Bubble Sort moves the largest remaining value to the end on each pass.`,
+    text: `Start with the unsorted list <b>[${arr.join(', ')}]</b>. Bubble Sort takes <b>${n} passes</b>, moving the largest remaining value to the end on each pass.`,
     tags: ['setup', 'init'],
     cond: null
   });
 
   for (let i = 0; i < n; i++) {
+    const currentPass = i + 1;
     for (let j = 0; j < n - i; j++) {
       steps.push({
         arr: [...arr],
+        pass: currentPass,
         i,
         j,
         compareLeft: arr[j],
@@ -265,7 +269,7 @@ function buildSteps() {
         comparing: [j, j + 1],
         sorted: Array.from({ length: i }, (_, offset) => n - offset),
         swapped: [],
-        text: `Pass <b>${i + 1}</b>: compare adjacent values <b>arr[${j}] = ${arr[j]}</b> and <b>arr[${j + 1}] = ${arr[j + 1]}</b>.`,
+        text: `Pass <b>${currentPass} of ${n}</b> (i = ${i}): compare adjacent values <b>arr[${j}] = ${arr[j]}</b> and <b>arr[${j + 1}] = ${arr[j + 1]}</b>.`,
         tags: ['outer', 'inner', 'check'],
         cond: `arr[${j}] > arr[${j + 1}]  →  ${arr[j]} > ${arr[j + 1]}  →  ${arr[j] > arr[j + 1] ? '<span class="true">True</span>' : '<span class="false">False</span>'}`
       });
@@ -277,6 +281,7 @@ function buildSteps() {
         arr[j + 1] = left;
         steps.push({
           arr: [...arr],
+          pass: currentPass,
           i,
           j,
           compareLeft: left,
@@ -293,12 +298,13 @@ function buildSteps() {
 
     steps.push({
       arr: [...arr],
+      pass: currentPass,
       i,
       j: n - 1 - i,
       comparing: [],
       sorted: Array.from({ length: i + 1 }, (_, offset) => n - offset),
       swapped: [],
-      text: `<span class="success">End of pass ${i + 1}: the value <b>${arr[n - i]}</b> is now locked into its final position at index ${n - i}.</span>`,
+      text: `<span class="success">End of pass ${currentPass} of ${n}: the value <b>${arr[n - i]}</b> is now locked into its final position at index ${n - i}.</span>`,
       tags: ['outer'],
       cond: null
     });
@@ -306,12 +312,13 @@ function buildSteps() {
 
   steps.push({
     arr: [...arr],
+    pass: n,
     i: n - 1,
     j: null,
     comparing: [],
     sorted: arr.map((_, index) => index),
     swapped: [],
-    text: `<span class="success">Done! The sorted list is <b>[${arr.join(', ')}]</b>, so print(numbers) shows this final order.</span>`,
+    text: `<span class="success">Done! All ${n} passes completed. The sorted list is <b>[${arr.join(', ')}]</b>, so print(numbers) shows this final order.</span>`,
     tags: ['print'],
     cond: null
   });
@@ -327,7 +334,8 @@ let timer = null;
 function render() {
   const step = steps[idx];
   renderCode(step);
-  document.getElementById('passVal').textContent = step.i !== null ? step.i : '-';
+  document.getElementById('passVal').textContent = step.pass !== undefined ? step.pass : (step.i !== null ? step.i + 1 : '-');
+  document.getElementById('iVal').textContent = step.i !== null ? step.i : '-';
   document.getElementById('jVal').textContent = step.j !== null ? step.j : '-';
   document.getElementById('rightVal').textContent = step.comparing.length === 2 ? step.comparing[1] : '-';
   document.getElementById('explanation').innerHTML = step.text;
@@ -335,6 +343,7 @@ function render() {
   const condHtml = step.cond ? `<div class="tcond"><span class="tline">${step.cond}</span></div>` : '';
   document.getElementById('traceBox').innerHTML = `
     <span class="tline"><span class="tkey">arr</span>&nbsp;&nbsp;&nbsp;&nbsp; = [${step.arr.join(', ')}]</span>
+    <span class="tline"><span class="tkey">pass</span>&nbsp;&nbsp;&nbsp; = <span class="tval">${step.pass !== undefined ? step.pass : (step.i !== null ? step.i + 1 : '—')}</span> of ${startNumbers.length - 1}</span>
     <span class="tline"><span class="tkey">n</span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; = <span class="tval">${startNumbers.length - 1}</span></span>
     <span class="tline"><span class="tkey">i</span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; = <span class="tval">${step.i !== null ? step.i : '—'}</span></span>
     <span class="tline"><span class="tkey">j</span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; = <span class="tval">${step.j !== null ? step.j : '—'}</span></span>
