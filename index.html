@@ -796,6 +796,7 @@
       <a href="#about"><i class="fas fa-user" aria-hidden="true"></i>About</a>
       <a href="#research"><i class="fas fa-flask" aria-hidden="true"></i>Research</a>
       <a href="#teaching"><i class="fas fa-chalkboard-teacher" aria-hidden="true"></i>Teaching</a>
+      <a href="timetable/index.html" data-theme-link="true" data-base-href="timetable/index.html" title="Portable timetable visualizer for VIT Students"><i class="fas fa-calendar-alt" aria-hidden="true"></i>Timetable</a>
       <a href="dsa_demos/index.html" data-theme-link="true" data-base-href="dsa_demos/index.html"><i class="fas fa-project-diagram" aria-hidden="true"></i>DSA</a>
       <!-- <a href="#skills"><i class="fas fa-code" aria-hidden="true"></i>Skills</a> -->
       <a href="#leadership"><i class="fas fa-users" aria-hidden="true"></i>Leadership</a>
@@ -859,6 +860,7 @@
           <ul class="list-academic">
             <li>AI & Data Science</li>
             <li>Deep Learning & Recommendation Systems</li>
+            <li>Large Language Models (LLM)</li>
             <li>Cognitive Science & AI Chatbots</li>
             <li>Cyber Security</li>
             <li>Language Modeling</li>
@@ -877,11 +879,12 @@
           </ul>
         </div>
         <div class="card">
-          <h3><i class="fas fa-quote-right"></i> Recent Publications</h3>
+          <h3><i class="fas fa-quote-right"></i> Recent Publications</h3> 
+          <div class="publication-item">GeoForensic-AI: A Lightweight and Explainable Forensic AI Framework...<span class="pub-venue">IEEE Access 2026</span></div>
           <div class="publication-item">GeoGuard: A Hybrid Deep Learning Intrusion Detection System...<span class="pub-venue">IEEE Access 2025</span></div>
           <div class="publication-item">Advancements in Optimization Algorithms... <span class="pub-venue">ICOTL 2023</span></div>
           <div class="publication-item">Automated Lung Nodule Detection... <span class="pub-venue">Comp. Assist. Methods 2022</span></div>
-          <div class="publication-item">Single Stage Deep Transfer Learning...<span class="pub-venue">IJECS 2021</span></div>
+          <!-- <div class="publication-item">Single Stage Deep Transfer Learning...<span class="pub-venue">IJECS 2021</span></div> -->
           <div style="margin-top:1.5rem;"><a href="https://scholar.google.com/citations?user=8jphK5EAAAAJ&hl=en" target="_blank" rel="noopener noreferrer" class="btn-outline btn" style="padding:0.5rem 1.5rem;"><i class="fas fa-google"></i> Google Scholar</a></div>
         </div>
       </div>
@@ -1020,9 +1023,9 @@
 
     function syncThemeLinks() {
       document.querySelectorAll('[data-theme-link="true"]').forEach((link) => {
-        const url = new URL(link.dataset.baseHref, window.location.href);
-        url.searchParams.set('theme', getActiveTheme());
-        link.href = url.pathname + url.search;
+        const baseHref = link.dataset.baseHref || link.getAttribute('href');
+        const cleanBase = baseHref.split('?')[0];
+        link.href = `${cleanBase}?theme=${encodeURIComponent(getActiveTheme())}`;
       });
     }
 
