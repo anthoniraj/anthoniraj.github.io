@@ -450,6 +450,15 @@
       padding: 8px 10px;
       gap: 0.6rem;
     }
+    .toc-toggle {
+      width: 36px;
+      min-width: 36px;
+      padding: 0;
+      justify-content: center;
+    }
+    .toc-toggle span {
+      display: none;
+    }
     .topbar-title span {
       display: none;
     }
@@ -466,7 +475,7 @@
   <div class="page-shell">
     <div class="topbar">
       <div class="topbar-actions">
-        <button class="toc-toggle" id="tocToggle" aria-controls="tocSidebar" aria-expanded="true">☰ <span>Contents</span></button>
+        <button class="toc-toggle" id="tocToggle" aria-controls="tocSidebar" aria-expanded="true" aria-label="Toggle contents" title="Toggle contents">☰ <span>Contents</span></button>
         <div class="topbar-title">
           <strong id="headerTitle">Data Structure and Algorithms</strong>
           <span id="headerSubtitle">Linear Search</span>
