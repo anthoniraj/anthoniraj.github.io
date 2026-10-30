@@ -3359,6 +3359,213 @@
         font-size: 0.44rem;
       }
     }
+
+    /* ==========================================
+       DRAG & DROP HELP GUIDE & SPOTLIGHT DEMO
+       ========================================== */
+    .drag-demo-backdrop {
+      position: fixed;
+      inset: 0;
+      background: rgba(15, 23, 42, 0.75);
+      backdrop-filter: blur(3px);
+      -webkit-backdrop-filter: blur(3px);
+      z-index: 99990;
+      opacity: 0;
+      transition: opacity 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+      pointer-events: auto;
+    }
+    .drag-demo-backdrop.active {
+      opacity: 1;
+    }
+
+    .drag-demo-spotlight {
+      position: fixed;
+      border-radius: 8px;
+      pointer-events: none;
+      z-index: 99992;
+      transition: all 0.25s ease;
+      box-sizing: border-box;
+    }
+
+    .drag-demo-spotlight-source {
+      border: 2px solid #6366f1;
+      box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.4), 0 0 25px rgba(99, 102, 241, 0.6);
+      animation: demoPulseSource 1.8s infinite ease-in-out;
+    }
+
+    .drag-demo-spotlight-target {
+      border: 2px dashed #10b981;
+      box-shadow: 0 0 0 4px rgba(16, 185, 129, 0.3), 0 0 25px rgba(16, 185, 129, 0.5);
+      background: rgba(16, 185, 129, 0.08);
+    }
+
+    .drag-demo-spotlight-target.drag-over {
+      border-style: solid;
+      background: rgba(16, 185, 129, 0.22);
+      box-shadow: 0 0 0 5px rgba(16, 185, 129, 0.6), 0 0 35px rgba(16, 185, 129, 0.8);
+    }
+
+    @keyframes demoPulseSource {
+      0%, 100% {
+        box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.4), 0 0 25px rgba(99, 102, 241, 0.6);
+      }
+      50% {
+        box-shadow: 0 0 0 7px rgba(99, 102, 241, 0.7), 0 0 35px rgba(99, 102, 241, 0.85);
+      }
+    }
+
+    .drag-demo-cursor {
+      position: fixed;
+      z-index: 99996;
+      pointer-events: none;
+      filter: drop-shadow(0 6px 12px rgba(0, 0, 0, 0.6));
+      transform: translate(-30%, -20%);
+      transition: transform 0.2s ease;
+      will-change: top, left, transform;
+    }
+
+    .drag-demo-ghost {
+      position: fixed;
+      z-index: 99995;
+      pointer-events: none;
+      padding: 6px 12px;
+      border-radius: 6px;
+      background: #1e293b;
+      border: 1.5px solid #6366f1;
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5);
+      color: #ffffff;
+      font-size: 0.75rem;
+      font-weight: 700;
+      white-space: nowrap;
+      transform: translate(-50%, -130%);
+      opacity: 0;
+      transition: opacity 0.2s ease, transform 0.2s ease;
+      will-change: top, left, opacity;
+    }
+    .drag-demo-ghost.visible {
+      opacity: 1;
+      transform: translate(-50%, -140%) scale(1.05);
+    }
+
+    .drag-demo-card {
+      position: fixed;
+      z-index: 99998;
+      max-width: 440px;
+      width: calc(100vw - 32px);
+      background: var(--bg-card, #1e293b);
+      border: 1.5px solid var(--accent-primary, #6366f1);
+      border-radius: 16px;
+      box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.65), 0 0 0 1px rgba(255, 255, 255, 0.08);
+      padding: 20px 22px;
+      color: var(--text-primary, #f8fafc);
+      font-family: 'Inter', sans-serif;
+      animation: demoCardSlideIn 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+      box-sizing: border-box;
+    }
+
+    [data-theme="light"] .drag-demo-card {
+      background: #ffffff;
+      color: #0f172a;
+      border-color: #6366f1;
+      box-shadow: 0 20px 45px rgba(0, 0, 0, 0.2);
+    }
+
+    @keyframes demoCardSlideIn {
+      from {
+        opacity: 0;
+        transform: translateY(16px) scale(0.97);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+      }
+    }
+
+    .drag-demo-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 12px;
+    }
+    .drag-demo-title {
+      font-size: 1.02rem;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      color: var(--text-primary, #f8fafc);
+    }
+    [data-theme="light"] .drag-demo-title {
+      color: #1e1b4b;
+    }
+    .drag-demo-close-btn {
+      background: transparent;
+      border: none;
+      color: var(--text-muted, #94a3b8);
+      font-size: 1.15rem;
+      cursor: pointer;
+      line-height: 1;
+      padding: 4px;
+      border-radius: 6px;
+      transition: all 0.15s ease;
+    }
+    .drag-demo-close-btn:hover {
+      color: var(--text-primary, #f8fafc);
+      background: rgba(255, 255, 255, 0.1);
+    }
+    .drag-demo-features {
+      list-style: none;
+      padding: 0;
+      margin: 0 0 16px 0;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+    .drag-demo-feature-item {
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+      font-size: 0.84rem;
+      line-height: 1.45;
+      color: var(--text-secondary, #cbd5e1);
+    }
+    [data-theme="light"] .drag-demo-feature-item {
+      color: #334155;
+    }
+    .drag-demo-feature-icon {
+      font-size: 1.1rem;
+      flex-shrink: 0;
+      margin-top: -1px;
+    }
+    .drag-demo-actions {
+      display: flex;
+      align-items: center;
+      justify-content: flex-end;
+      gap: 10px;
+      margin-top: 14px;
+      padding-top: 12px;
+      border-top: 1px solid var(--border-color, rgba(255, 255, 255, 0.1));
+    }
+    .drag-demo-target-badge {
+      position: absolute;
+      bottom: -24px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: #10b981;
+      color: #ffffff;
+      font-size: 0.65rem;
+      font-weight: 700;
+      padding: 2px 8px;
+      border-radius: 9999px;
+      white-space: nowrap;
+      box-shadow: 0 4px 10px rgba(16, 185, 129, 0.4);
+      opacity: 0;
+      transition: opacity 0.25s ease;
+      pointer-events: none;
+    }
+    .drag-demo-target-badge.visible {
+      opacity: 1;
+    }
   </style>
 </head>
 
@@ -3875,6 +4082,9 @@
       <div class="stats-pills">
         <div class="pill" id="totalCoursesPill">0 Courses</div>
         <div class="pill pill-highlight" id="totalCreditsPill">0.0 Credits</div>
+        <button type="button" class="pill" onclick="showDragDropDemo(true)" style="background: rgba(99,102,241,0.15); border: 1px solid rgba(99,102,241,0.35); color: var(--accent-primary, #818cf8); cursor: pointer; font-weight: 600; display: inline-flex; align-items: center; gap: 4px;" title="💡 Watch Drag & Drop Help Demo">
+          <span>💡</span> <span>Drag Guide</span>
+        </button>
       </div>
     </div>
 
@@ -7634,12 +7844,328 @@ BMAT101\tCalculus and Linear Algebra\tB1+TB1\tNIL\tPRP110\t13302 - RAJA DAS - SA
                 } else if (result.dismiss === Swal.DismissReason.cancel) {
                   generatePDF();
                 }
+
+                setTimeout(() => {
+                  checkAndTriggerDragDropDemo();
+                }, 500);
               });
             }, 400);
 
           }, 450);
         }, 450);
       }, 400);
+    }
+
+    // ==========================================
+    // 8.5 INTERACTIVE DRAG & DROP SPOTLIGHT DEMO GUIDE
+    // ==========================================
+
+    let demoCycleTimer = null;
+    let demoStepTimeouts = [];
+
+    function clearDemoTimeouts() {
+      demoStepTimeouts.forEach(t => clearTimeout(t));
+      demoStepTimeouts = [];
+      if (demoCycleTimer) {
+        clearInterval(demoCycleTimer);
+        demoCycleTimer = null;
+      }
+    }
+
+    function checkAndTriggerDragDropDemo() {
+      try {
+        const seen = localStorage.getItem('timetable_drag_drop_demo_seen');
+        if (seen === 'true') return;
+      } catch (e) {}
+      showDragDropDemo(false);
+    }
+
+    function handleDemoKeydown(e) {
+      if (e.key === 'Escape') {
+        closeDragDropDemo();
+      }
+    }
+
+    function handleDemoResize() {
+      if (document.getElementById('dragDemoContainer')) {
+        closeDragDropDemo();
+      }
+    }
+
+    function showDragDropDemo(force) {
+      if (!force) {
+        try {
+          if (localStorage.getItem('timetable_drag_drop_demo_seen') === 'true') return;
+        } catch (e) {}
+      }
+
+      if (document.getElementById('dragDemoContainer')) {
+        closeDragDropDemo();
+      }
+
+      // Switch to matrix timetable view if not active
+      if (activeView !== 'matrix') {
+        switchView('matrix');
+      }
+
+      setTimeout(() => {
+        setupDragDropDemoUI();
+      }, 250);
+    }
+
+    function setupDragDropDemoUI() {
+      // Find occupied cell
+      const occupiedCells = Array.from(document.querySelectorAll('.matrix-table td.occupied-slot'));
+      if (occupiedCells.length === 0) return;
+
+      // Pick a representative cell (e.g. index 1 or 0)
+      const sourceCell = occupiedCells.length > 1 ? occupiedCells[1] : occupiedCells[0];
+      const sourceMode = sourceCell.getAttribute('data-mode') || 'THEORY';
+      const courseCode = sourceCell.getAttribute('data-course-code') || 'Course';
+      const slot = sourceCell.getAttribute('data-slot') || '';
+
+      // Find compatible empty cell in same table
+      const table = sourceCell.closest('.matrix-table') || document.querySelector('.matrix-table');
+      let emptyCell = table ? table.querySelector(`td.empty-slot[data-mode="${sourceMode}"]`) : null;
+      if (!emptyCell) {
+        emptyCell = document.querySelector(`td.empty-slot[data-mode="${sourceMode}"]`) || document.querySelector('td.empty-slot');
+      }
+      if (!emptyCell) return;
+
+      // Scroll smoothly into view
+      sourceCell.scrollIntoView({ behavior: 'smooth', block: 'center', inline: 'center' });
+
+      setTimeout(() => {
+        const sRect = sourceCell.getBoundingClientRect();
+        const tRect = emptyCell.getBoundingClientRect();
+
+        // Container
+        const container = document.createElement('div');
+        container.id = 'dragDemoContainer';
+        container.innerHTML = `
+          <div class="drag-demo-backdrop active" id="dragDemoBackdrop" onclick="closeDragDropDemo()"></div>
+          
+          <!-- Source Spotlight -->
+          <div class="drag-demo-spotlight drag-demo-spotlight-source" id="dragDemoSpotlightSource" style="
+            top: ${sRect.top - 2}px;
+            left: ${sRect.left - 2}px;
+            width: ${sRect.width + 4}px;
+            height: ${sRect.height + 4}px;
+          "></div>
+
+          <!-- Target Spotlight -->
+          <div class="drag-demo-spotlight drag-demo-spotlight-target" id="dragDemoSpotlightTarget" style="
+            top: ${tRect.top - 2}px;
+            left: ${tRect.left - 2}px;
+            width: ${tRect.width + 4}px;
+            height: ${tRect.height + 4}px;
+          ">
+            <span class="drag-demo-target-badge" id="dragDemoTargetBadge">✓ Free Slot (Clash-Free)</span>
+          </div>
+
+          <!-- Animated Floating Ghost -->
+          <div class="drag-demo-ghost" id="dragDemoGhost">
+            <span>📚 ${courseCode}</span> <span style="font-size:0.65rem; opacity:0.85;">(${slot})</span>
+          </div>
+
+          <!-- Animated Cursor Hand -->
+          <div class="drag-demo-cursor" id="dragDemoCursor">
+            <svg width="38" height="38" viewBox="0 0 24 24" fill="none">
+              <path d="M9 11V4.5C9 3.67 9.67 3 10.5 3C11.33 3 12 3.67 12 4.5V10.5M12 7.5C12 6.67 12.67 6 13.5 6C14.33 6 15 6.67 15 7.5V11M15 9.5C15 8.67 15.67 8 16.5 8C17.33 8 18 8.67 18 9.5V14.5C18 18.09 15.09 21 11.5 21C8.78 21 6.44 19.33 5.48 16.92L3.6 12.22C3.33 11.55 3.73 10.79 4.45 10.63C5.03 10.5 5.62 10.77 5.92 11.29L7.5 14V4.5C7.5 3.67 8.17 3 9 3" fill="#6366f1" stroke="#ffffff" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </div>
+
+          <!-- Demo Guide Modal Card -->
+          <div class="drag-demo-card" id="dragDemoCard">
+            <div class="drag-demo-header">
+              <div class="drag-demo-title">
+                <span>💡</span>
+                <span>Drag & Drop Schedule Customizer</span>
+              </div>
+              <button type="button" class="drag-demo-close-btn" onclick="closeDragDropDemo()" title="Close guide (Esc)">✕</button>
+            </div>
+            
+            <ul class="drag-demo-features">
+              <li class="drag-demo-feature-item">
+                <span class="drag-demo-feature-icon">🖱️</span>
+                <div><strong>Desktop Drag & Drop:</strong> Click and drag any course card directly to an empty slot or drop onto another course to swap.</div>
+              </li>
+              <li class="drag-demo-feature-item">
+                <span class="drag-demo-feature-icon">📱</span>
+                <div><strong>Mobile Tap-to-Move:</strong> Tap any course card to select it, then tap an empty slot to place it or tap another course to swap!</div>
+              </li>
+              <li class="drag-demo-feature-item">
+                <span class="drag-demo-feature-icon">🛡️</span>
+                <div><strong>Clash Prevention:</strong> Valid slots glow green, while clashes alert you instantly with collision protection.</div>
+              </li>
+            </ul>
+
+            <div class="drag-demo-actions">
+              <button type="button" class="btn btn-outline btn-sm" onclick="replayDragDemoAnimation()">
+                Replay Demo 🔁
+              </button>
+              <button type="button" class="btn btn-primary btn-sm" onclick="closeDragDropDemo()">
+                Got It, Let's Go! 🚀
+              </button>
+            </div>
+          </div>
+        `;
+
+        document.body.appendChild(container);
+
+        // Position guide card responsibly
+        const card = document.getElementById('dragDemoCard');
+        if (card) {
+          if (window.innerWidth <= 640) {
+            card.style.bottom = '16px';
+            card.style.left = '16px';
+            card.style.right = '16px';
+            card.style.width = 'auto';
+            card.style.maxHeight = '48vh';
+            card.style.overflowY = 'auto';
+          } else {
+            // Anchor safely on desktop
+            card.style.top = '28px';
+            card.style.right = '28px';
+          }
+        }
+
+        window.addEventListener('keydown', handleDemoKeydown);
+        window.addEventListener('resize', handleDemoResize);
+
+        // Start animated cycle
+        startDragDemoCycle(sourceCell, emptyCell, courseCode, slot);
+      }, 350);
+    }
+
+    function startDragDemoCycle(sourceCell, emptyCell, courseCode, slot) {
+      clearDemoTimeouts();
+
+      function triggerCycle() {
+        if (!document.getElementById('dragDemoContainer')) return;
+        const sRect = sourceCell.getBoundingClientRect();
+        const tRect = emptyCell.getBoundingClientRect();
+
+        // Update spotlights in case of minor shifts
+        const sSpot = document.getElementById('dragDemoSpotlightSource');
+        const tSpot = document.getElementById('dragDemoSpotlightTarget');
+        if (sSpot) {
+          sSpot.style.top = `${sRect.top - 2}px`;
+          sSpot.style.left = `${sRect.left - 2}px`;
+          sSpot.style.width = `${sRect.width + 4}px`;
+          sSpot.style.height = `${sRect.height + 4}px`;
+        }
+        if (tSpot) {
+          tSpot.style.top = `${tRect.top - 2}px`;
+          tSpot.style.left = `${tRect.left - 2}px`;
+          tSpot.style.width = `${tRect.width + 4}px`;
+          tSpot.style.height = `${tRect.height + 4}px`;
+        }
+
+        const sX = sRect.left + sRect.width / 2;
+        const sY = sRect.top + sRect.height / 2;
+        const tX = tRect.left + tRect.width / 2;
+        const tY = tRect.top + tRect.height / 2;
+
+        const cursor = document.getElementById('dragDemoCursor');
+        const ghost = document.getElementById('dragDemoGhost');
+        const targetBadge = document.getElementById('dragDemoTargetBadge');
+        if (!cursor || !ghost) return;
+
+        // Reset
+        cursor.style.transition = 'none';
+        cursor.style.left = `${sX}px`;
+        cursor.style.top = `${sY}px`;
+        cursor.style.transform = 'translate(-30%, -20%) scale(1)';
+        ghost.classList.remove('visible');
+        ghost.style.left = `${sX}px`;
+        ghost.style.top = `${sY}px`;
+        if (tSpot) tSpot.classList.remove('drag-over');
+        if (targetBadge) targetBadge.classList.remove('visible');
+
+        // Step 1: Mouse down at 500ms
+        demoStepTimeouts.push(setTimeout(() => {
+          if (!cursor) return;
+          cursor.style.transition = 'transform 0.2s ease';
+          cursor.style.transform = 'translate(-30%, -20%) scale(0.85)';
+          ghost.classList.add('visible');
+
+          // Step 2: Drag begins at 900ms
+          demoStepTimeouts.push(setTimeout(() => {
+            if (!cursor) return;
+            const dragDur = 1400;
+            cursor.style.transition = `left ${dragDur}ms cubic-bezier(0.25, 1, 0.5, 1), top ${dragDur}ms cubic-bezier(0.25, 1, 0.5, 1)`;
+            ghost.style.transition = `left ${dragDur}ms cubic-bezier(0.25, 1, 0.5, 1), top ${dragDur}ms cubic-bezier(0.25, 1, 0.5, 1)`;
+
+            cursor.style.left = `${tX}px`;
+            cursor.style.top = `${tY}px`;
+            ghost.style.left = `${tX}px`;
+            ghost.style.top = `${tY}px`;
+
+            // Step 3: Target highlight midway (at 700ms into drag)
+            demoStepTimeouts.push(setTimeout(() => {
+              if (tSpot) tSpot.classList.add('drag-over');
+            }, 700));
+
+            // Step 4: Drop at target (at end of drag)
+            demoStepTimeouts.push(setTimeout(() => {
+              if (!cursor) return;
+              cursor.style.transform = 'translate(-30%, -20%) scale(1)';
+              if (targetBadge) targetBadge.classList.add('visible');
+
+              // Step 5: Fade ghost
+              demoStepTimeouts.push(setTimeout(() => {
+                ghost.classList.remove('visible');
+              }, 400));
+            }, dragDur + 50));
+
+          }, 400));
+
+        }, 500));
+      }
+
+      triggerCycle();
+      demoCycleTimer = setInterval(triggerCycle, 4200);
+    }
+
+    function replayDragDemoAnimation() {
+      const occupiedCells = Array.from(document.querySelectorAll('.matrix-table td.occupied-slot'));
+      if (occupiedCells.length === 0) return;
+      const sourceCell = occupiedCells.length > 1 ? occupiedCells[1] : occupiedCells[0];
+      const sourceMode = sourceCell.getAttribute('data-mode') || 'THEORY';
+      const courseCode = sourceCell.getAttribute('data-course-code') || 'Course';
+      const slot = sourceCell.getAttribute('data-slot') || '';
+
+      const table = sourceCell.closest('.matrix-table') || document.querySelector('.matrix-table');
+      let emptyCell = table ? table.querySelector(`td.empty-slot[data-mode="${sourceMode}"]`) : null;
+      if (!emptyCell) {
+        emptyCell = document.querySelector(`td.empty-slot[data-mode="${sourceMode}"]`) || document.querySelector('td.empty-slot');
+      }
+      if (!emptyCell) return;
+
+      startDragDemoCycle(sourceCell, emptyCell, courseCode, slot);
+    }
+
+    function closeDragDropDemo() {
+      try {
+        localStorage.setItem('timetable_drag_drop_demo_seen', 'true');
+      } catch (e) {}
+
+      clearDemoTimeouts();
+
+      const container = document.getElementById('dragDemoContainer');
+      if (container) {
+        container.style.opacity = '0';
+        container.style.transition = 'opacity 0.25s ease';
+        setTimeout(() => {
+          if (container && container.parentNode) {
+            container.parentNode.removeChild(container);
+          }
+        }, 260);
+      }
+
+      window.removeEventListener('keydown', handleDemoKeydown);
+      window.removeEventListener('resize', handleDemoResize);
     }
 
     // ==========================================
