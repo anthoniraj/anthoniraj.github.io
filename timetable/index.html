@@ -1909,22 +1909,62 @@
       box-shadow: 0 0 14px rgba(239, 68, 68, 0.45);
     }
 
+    .row-num-drag-cell {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      white-space: nowrap;
+      user-select: none;
+    }
+
+    .row-num-drag-cell .row-idx {
+      font-weight: 700;
+      font-size: 0.85rem;
+      color: var(--text-main);
+      min-width: 16px;
+      text-align: left;
+    }
+
     .drag-handle {
       cursor: grab;
       user-select: none;
       display: inline-flex;
       align-items: center;
       justify-content: center;
-      padding: 2px 4px;
-      border-radius: 4px;
+      width: 22px;
+      height: 22px;
+      font-size: 13px;
+      line-height: 1;
+      border-radius: var(--radius-sm);
       color: var(--text-muted);
-      margin-right: 4px;
-      transition: color 0.15s;
+      background: rgba(255, 255, 255, 0.06);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+      flex-shrink: 0;
     }
 
     .drag-handle:hover {
       color: var(--accent-primary);
-      background: rgba(99, 102, 241, 0.1);
+      background: rgba(99, 102, 241, 0.18);
+      border-color: rgba(99, 102, 241, 0.35);
+      transform: scale(1.1);
+    }
+
+    .drag-handle:active {
+      cursor: grabbing;
+      transform: scale(0.95);
+    }
+
+    [data-theme="light"] .drag-handle {
+      background: rgba(0, 0, 0, 0.04);
+      border-color: rgba(0, 0, 0, 0.1);
+    }
+
+    [data-theme="light"] .drag-handle:hover {
+      color: #4f46e5;
+      background: rgba(99, 102, 241, 0.12);
+      border-color: rgba(99, 102, 241, 0.3);
     }
 
     /* Mobile Practice Banner & Scroll Hint */
@@ -2336,9 +2376,33 @@
       background: var(--bg-surface);
       border: 1px solid var(--border-color);
       border-radius: var(--radius-lg);
-      padding: 20px;
+      padding: 0;
       box-shadow: var(--shadow-lg);
       overflow-x: auto;
+      overflow-y: auto;
+      max-height: calc(100vh - 190px);
+      max-height: calc(100dvh - 190px);
+      min-height: 280px;
+      scrollbar-width: thin;
+      scrollbar-color: rgba(99, 102, 241, 0.4) transparent;
+    }
+
+    .courses-table-container::-webkit-scrollbar {
+      width: 6px;
+      height: 6px;
+    }
+
+    .courses-table-container::-webkit-scrollbar-track {
+      background: transparent;
+    }
+
+    .courses-table-container::-webkit-scrollbar-thumb {
+      background: rgba(99, 102, 241, 0.35);
+      border-radius: 999px;
+    }
+
+    .courses-table-container::-webkit-scrollbar-thumb:hover {
+      background: rgba(99, 102, 241, 0.6);
     }
 
     .courses-table {
@@ -2348,17 +2412,21 @@
     }
 
     .courses-table th {
+      position: sticky;
+      top: 0;
+      z-index: 10;
       background: var(--bg-card);
       color: var(--text-muted);
       font-weight: 600;
       text-align: left;
-      padding: 10px 14px;
-      border-bottom: 1px solid var(--border-color);
+      padding: 11px 14px;
+      border-bottom: 2px solid var(--border-color);
       white-space: nowrap;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.12);
     }
 
     .courses-table td {
-      padding: 12px 14px;
+      padding: 11px 14px;
       border-bottom: 1px solid var(--border-color);
       vertical-align: middle;
     }
@@ -2369,6 +2437,11 @@
 
     .courses-table tr.clashing-row td {
       background: rgba(239, 68, 68, 0.08);
+    }
+
+    .courses-table tr.is-dragging td {
+      opacity: 0.45;
+      background: rgba(99, 102, 241, 0.12);
     }
 
     .action-btn-group {
@@ -2536,10 +2609,22 @@
       .no-print {
         display: none !important;
       }
+
+      .courses-table-container {
+        max-height: none !important;
+        overflow: visible !important;
+        box-shadow: none !important;
+        border: 1px solid #cbd5e1 !important;
+      }
     }
 
     /* Responsive adjustments */
     @media (max-width: 768px) {
+      .courses-table-container {
+        max-height: calc(100vh - 150px);
+        max-height: calc(100dvh - 150px);
+      }
+
       header {
         padding: 5px 8px;
         width: 100%;
@@ -5812,7 +5897,7 @@
 
       if (courses.length === 0) {
         container.innerHTML = `
-          <div class="empty-state">
+          <div class="empty-state" style="margin: 20px;">
             <svg viewBox="0 0 24 24" fill="currentColor"><path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-5 14H7v-2h7v2zm3-4H7v-2h10v2zm0-4H7V7h10v2z"/></svg>
             <h3>No Courses Registered in ${current.name}</h3>
             <p>Fill out the form above to register courses and test your options.</p>
@@ -5825,7 +5910,7 @@
         <table class="courses-table">
           <thead>
             <tr>
-              <th style="width: 40px;">#</th>
+              <th style="width: 68px; min-width: 68px; text-align: center; white-space: nowrap;">#</th>
               <th>Course Code</th>
               <th>Course Name</th>
               <th>Theory / LAB</th>
@@ -5846,9 +5931,11 @@
 
         html += `
           <tr data-course-index="${idx}" draggable="true" ondragstart="handleDragStart(event, ${idx}, '${c.slot}')" ondragend="handleDragEnd(event)">
-            <td>
-              <span class="drag-handle" title="Drag onto timetable grid to relocate slot">⠿</span>
-              <strong>${idx + 1}</strong>
+            <td style="white-space: nowrap; text-align: center; width: 68px;">
+              <div class="row-num-drag-cell">
+                <span class="drag-handle" title="Drag onto timetable grid to relocate slot">⠿</span>
+                <span class="row-idx">${idx + 1}</span>
+              </div>
             </td>
             <td>
               <strong style="color: ${theme.border}; display: inline-flex; align-items: center; gap: 6px;">
