@@ -476,6 +476,18 @@
       background: rgba(0, 0, 0, 0.2);
     }
 
+    .opt-title-mobile {
+      display: none;
+    }
+
+    .opt-title-desktop {
+      display: inline;
+    }
+
+    .opt-tag-desktop {
+      display: inline-block;
+    }
+
     .option-actions {
       display: flex;
       align-items: center;
@@ -859,10 +871,49 @@
     }
 
     .ai-wizard-dialog {
+      width: 94%;
       max-width: 820px;
       max-height: 90vh;
       display: flex;
       flex-direction: column;
+      transition: max-width 0.25s ease, max-height 0.25s ease;
+    }
+
+    /* Based on screen height, dynamically increase AI wizard dialog width and list capacity */
+    @media (min-height: 680px) {
+      .ai-wizard-dialog {
+        max-width: 900px;
+      }
+      .course-preference-list {
+        max-height: 200px;
+      }
+    }
+
+    @media (min-height: 800px) {
+      .ai-wizard-dialog {
+        max-width: 1020px;
+      }
+      .course-preference-list {
+        max-height: 270px;
+      }
+    }
+
+    @media (min-height: 950px) {
+      .ai-wizard-dialog {
+        max-width: 1140px;
+      }
+      .course-preference-list {
+        max-height: 350px;
+      }
+    }
+
+    @media (min-height: 1100px) {
+      .ai-wizard-dialog {
+        max-width: 1240px;
+      }
+      .course-preference-list {
+        max-height: 440px;
+      }
     }
 
     .ai-wizard-dialog .course-modal-body {
@@ -1065,18 +1116,52 @@
     .course-preference-list {
       display: flex;
       flex-direction: column;
-      gap: 6px;
+      gap: 4px;
       max-height: 160px;
       overflow-y: auto;
-      padding-right: 4px;
+      padding-right: 6px;
+      scrollbar-width: thin;
+      scrollbar-color: var(--accent-primary) rgba(0, 0, 0, 0.06);
+    }
+
+    /* Elegant Custom Vertical Scrollbar */
+    .course-preference-list::-webkit-scrollbar,
+    .course-modal-body::-webkit-scrollbar,
+    .ai-wizard-dialog .course-modal-body::-webkit-scrollbar {
+      width: 5px;
+      height: 5px;
+    }
+
+    .course-preference-list::-webkit-scrollbar-track,
+    .course-modal-body::-webkit-scrollbar-track,
+    .ai-wizard-dialog .course-modal-body::-webkit-scrollbar-track {
+      background: rgba(255, 255, 255, 0.04);
+      border-radius: 8px;
+    }
+
+    [data-theme="light"] .course-preference-list::-webkit-scrollbar-track,
+    [data-theme="light"] .course-modal-body::-webkit-scrollbar-track {
+      background: #f1f5f9;
+    }
+
+    .course-preference-list::-webkit-scrollbar-thumb,
+    .course-modal-body::-webkit-scrollbar-thumb,
+    .ai-wizard-dialog .course-modal-body::-webkit-scrollbar-thumb {
+      background: linear-gradient(180deg, #6366f1, #a855f7);
+      border-radius: 8px;
+    }
+
+    .course-preference-list::-webkit-scrollbar-thumb:hover,
+    .course-modal-body::-webkit-scrollbar-thumb:hover {
+      background: linear-gradient(180deg, #4f46e5, #9333ea);
     }
 
     .course-pref-card {
       display: grid;
-      grid-template-columns: 28px 1fr auto;
+      grid-template-columns: 24px 1fr auto;
       align-items: center;
-      gap: 8px;
-      padding: 5px 10px;
+      gap: 6px;
+      padding: 4px 8px;
       background: var(--bg-surface);
       border: 1px solid var(--border-color);
       border-radius: var(--radius-sm);
@@ -1086,15 +1171,15 @@
     .course-pref-controls-wrapper {
       display: flex;
       align-items: center;
-      gap: 8px;
+      gap: 6px;
     }
 
     .course-pref-credits-col {
-      width: 75px;
+      width: 65px;
     }
 
     .course-pref-priority-col {
-      width: 155px;
+      width: 135px;
     }
 
     .course-pref-card.selected {
@@ -1115,40 +1200,43 @@
     .course-pref-code {
       font-family: 'Outfit', sans-serif;
       font-weight: 800;
-      font-size: 0.88rem;
+      font-size: 0.78rem;
       color: var(--text-main);
       display: flex;
       align-items: center;
-      gap: 8px;
+      gap: 6px;
+      line-height: 1.15;
     }
 
     .course-pref-badge {
-      font-size: 0.68rem;
+      font-size: 0.60rem;
       font-family: 'Inter', sans-serif;
       font-weight: normal;
       background: rgba(255, 255, 255, 0.08);
       border: 1px solid var(--border-color);
-      padding: 1px 6px;
-      border-radius: 10px;
+      padding: 1px 5px;
+      border-radius: 8px;
       color: var(--text-muted);
     }
 
     .course-pref-title {
-      font-size: 0.76rem;
+      font-size: 0.68rem;
       color: var(--text-muted);
       white-space: nowrap;
       overflow: hidden;
       text-overflow: ellipsis;
-      max-width: 320px;
+      max-width: 360px;
+      line-height: 1.15;
     }
 
     .course-credit-input {
       width: 100%;
-      padding: 4px 6px;
-      font-size: 0.80rem;
+      padding: 2px 4px;
+      font-size: 0.72rem;
+      height: 24px;
       background: var(--bg-card);
       border: 1px solid var(--border-color);
-      border-radius: 6px;
+      border-radius: 4px;
       color: var(--text-main);
       text-align: center;
       box-sizing: border-box;
@@ -1156,12 +1244,13 @@
 
     .course-priority-select {
       width: 100%;
-      padding: 4px 6px;
-      font-size: 0.74rem;
+      padding: 2px 4px;
+      font-size: 0.68rem;
       font-weight: 600;
+      height: 24px;
       background: var(--bg-card);
       border: 1px solid var(--border-color);
-      border-radius: 6px;
+      border-radius: 4px;
       color: var(--text-main);
       cursor: pointer;
       box-sizing: border-box;
@@ -2514,6 +2603,18 @@
         border-radius: 6px;
       }
 
+      .opt-title-desktop {
+        display: none !important;
+      }
+
+      .opt-title-mobile {
+        display: inline !important;
+      }
+
+      .opt-tag-desktop {
+        display: none !important;
+      }
+
       .plans-action-controls {
         display: flex;
         align-items: center;
@@ -2810,42 +2911,42 @@
 
       .course-pref-card {
         display: grid;
-        grid-template-columns: 26px 1fr;
-        gap: 6px;
-        padding: 6px 8px;
+        grid-template-columns: 24px 1fr;
+        gap: 5px;
+        padding: 4px 6px;
       }
 
       .course-pref-code {
-        font-size: 0.82rem;
-        gap: 6px;
+        font-size: 0.74rem;
+        gap: 5px;
       }
 
       .course-pref-badge {
-        font-size: 0.62rem;
+        font-size: 0.58rem;
         padding: 1px 4px;
       }
 
       .course-pref-title {
-        font-size: 0.72rem;
-        max-width: 220px;
+        font-size: 0.64rem;
+        max-width: 200px;
       }
 
       .course-pref-controls-wrapper {
         grid-column: span 2;
         display: flex;
-        gap: 8px;
+        gap: 6px;
         width: 100%;
         align-items: center;
       }
 
       .course-pref-credits-col {
         flex: 1;
-        min-width: 70px;
+        min-width: 60px;
       }
 
       .course-pref-priority-col {
         flex: 2;
-        min-width: 130px;
+        min-width: 120px;
       }
 
       .credit-select-cards {
@@ -3190,8 +3291,7 @@
           <div class="course-modal-title">
             <span style="font-size: 1.2rem;">🤖</span>
             <div>
-              <div id="aiWizardTitle" style="font-size: 0.95rem; font-weight: 800; line-height: 1.2;">AI Timetable Generator & Schedule Synthesizer</div>
-              <div style="font-size: 0.68rem; color: var(--text-muted); font-weight: normal;">Synthesize clash-free Option 1 & Option 2 schedules automatically</div>
+              <div id="aiWizardTitle" style="font-size: 0.95rem; font-weight: 800; line-height: 1.2;">AI Timetable Generator</div>
             </div>
           </div>
           <button type="button" class="course-modal-close" onclick="closeAIWizard()" title="Close (Esc)">✕</button>
@@ -4041,9 +4141,10 @@
 
         html += `
           <button class="option-tab ${isActive ? 'active' : ''}" onclick="selectOption('${opt.id}')">
-            <span>${cleanName}</span>
-            <span class="opt-tag">${(opt.courses || []).length} courses</span>
-            <span class="opt-tag">${totalCredits.toFixed(1)} Credits</span>
+            <span class="opt-title-desktop">${cleanName}</span>
+            <span class="opt-title-mobile">Option ${idx + 1}</span>
+            <span class="opt-tag opt-tag-desktop">${(opt.courses || []).length} courses</span>
+            <span class="opt-tag">${totalCredits.toFixed(1)} Cr</span>
             ${clashCount > 0 ? `<span class="opt-tag" style="background:#ef4444; color:#fff;">⚠️ ${clashCount}</span>` : ''}
           </button>
         `;
@@ -6409,11 +6510,11 @@ BMAT101\tCalculus and Linear Algebra\tB1+TB1\tNIL`;
             </div>
             <div class="course-pref-controls-wrapper">
               <div class="course-pref-credits-col">
-                <label style="font-size: 0.68rem; color: var(--text-muted); display: block; margin-bottom: 2px;">Credits</label>
+                <label style="font-size: 0.60rem; color: var(--text-muted); display: block; margin-bottom: 2px;">Credits</label>
                 <input type="number" class="course-credit-input" value="${c.credits}" min="1" max="10" step="0.5" onchange="updateCourseCredit('${c.code}', this.value)" title="Course credits">
               </div>
               <div class="course-pref-priority-col">
-                <label style="font-size: 0.68rem; color: var(--text-muted); display: block; margin-bottom: 2px;">Priority / Order</label>
+                <label style="font-size: 0.60rem; color: var(--text-muted); display: block; margin-bottom: 2px;">Priority / Order</label>
                 <select class="course-priority-select" onchange="updateCoursePriority('${c.code}', this.value)" title="Preference Priority">
                   <option value="3" ${c.priority === 3 ? 'selected' : ''}>⭐⭐⭐ High (Must Have)</option>
                   <option value="2" ${c.priority === 2 ? 'selected' : ''}>⭐⭐ Normal</option>
