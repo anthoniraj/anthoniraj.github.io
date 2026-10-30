@@ -1106,7 +1106,7 @@
 
     .course-pref-card {
       display: grid;
-      grid-template-columns: 28px 1fr 80px 150px;
+      grid-template-columns: 28px 1fr auto;
       align-items: center;
       gap: 8px;
       padding: 5px 10px;
@@ -1114,6 +1114,20 @@
       border: 1px solid var(--border-color);
       border-radius: var(--radius-sm);
       transition: all 0.15s ease;
+    }
+
+    .course-pref-controls-wrapper {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .course-pref-credits-col {
+      width: 75px;
+    }
+
+    .course-pref-priority-col {
+      width: 155px;
     }
 
     .course-pref-card.selected {
@@ -1197,12 +1211,20 @@
 
     @media (max-width: 640px) {
       .course-pref-card {
-        grid-template-columns: 32px 1fr;
+        grid-template-columns: 26px 1fr;
         gap: 6px;
       }
-      .course-pref-credits-col,
-      .course-pref-priority-col {
+      .course-pref-controls-wrapper {
         grid-column: span 2;
+        width: 100%;
+      }
+      .course-pref-credits-col {
+        flex: 1;
+        width: auto;
+      }
+      .course-pref-priority-col {
+        flex: 2;
+        width: auto;
       }
     }
 
@@ -1970,6 +1992,84 @@
       width: fit-content;
     }
 
+    /* Desktop vs Mobile Timetable View Containers */
+    .desktop-timetable-view {
+      display: block;
+      width: 100%;
+    }
+
+    .mobile-timetable-view {
+      display: none;
+    }
+
+    /* Light Theme Timetable & Course Colors */
+    [data-theme="light"] .matrix-table td.empty-slot {
+      background: rgba(0, 0, 0, 0.02);
+      color: #64748b;
+      border-color: #cbd5e1;
+    }
+
+    [data-theme="light"] .matrix-table td.empty-slot:hover {
+      background: rgba(99, 102, 241, 0.12);
+      color: #4338ca;
+      border-color: #6366f1;
+    }
+
+    [data-theme="light"] .matrix-table th {
+      background: #f1f5f9;
+      color: #1e293b;
+      border-color: #cbd5e1;
+    }
+
+    [data-theme="light"] .matrix-table td.day-cell {
+      background: #e2e8f0;
+      color: #0f172a;
+    }
+
+    [data-theme="light"] .matrix-table td.lunch-cell {
+      background: #fef3c7;
+      color: #b45309;
+    }
+
+    [data-theme="light"] .matrix-table td.dash-slot {
+      background: #f8fafc;
+      color: #cbd5e1;
+    }
+
+    [data-theme="light"] .mobile-fold-section {
+      background: #ffffff;
+      border-color: #cbd5e1;
+    }
+
+    [data-theme="light"] .mobile-fold-title {
+      background: #eef2ff;
+      color: #4338ca;
+      border-color: #cbd5e1;
+    }
+
+    [data-theme="light"] .mobile-fold-title.afternoon-title {
+      background: #fffbeb;
+      color: #b45309;
+    }
+
+    [data-theme="light"] .mobile-fold-btn {
+      background: #ffffff;
+      border-color: #cbd5e1;
+      color: #475569;
+    }
+
+    [data-theme="light"] .mobile-fold-btn.active {
+      background: #4f46e5;
+      color: #ffffff;
+      border-color: #4f46e5;
+    }
+
+    [data-theme="light"] .mobile-lunch-banner {
+      background: #fffbeb;
+      border-color: #fde68a;
+      color: #b45309;
+    }
+
     /* DAY-BY-DAY AGENDA VIEW */
     .day-agenda-section {
       display: flex;
@@ -2353,32 +2453,131 @@
     /* Responsive adjustments */
     @media (max-width: 768px) {
       header {
-        padding: 10px 12px;
+        padding: 5px 8px;
+        width: 100%;
+        max-width: 100%;
+        box-sizing: border-box;
+        min-height: 40px;
+        gap: 6px;
+      }
+
+      .brand {
+        gap: 6px;
+        flex-shrink: 0;
+      }
+
+      .home-link {
+        width: 28px;
+        height: 28px;
       }
 
       .brand-text h1 {
-        font-size: 1.05rem;
+        font-size: 0.88rem;
+        white-space: nowrap;
       }
 
       .brand-text p {
-        font-size: 0.68rem;
+        display: none;
+      }
+
+      .header-actions {
+        display: flex;
+        align-items: center;
+        gap: 4px;
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+        scrollbar-width: none;
+        max-width: 100%;
+        flex-shrink: 1;
+      }
+
+      .header-actions::-webkit-scrollbar {
+        display: none;
+      }
+
+      .header-icon-btn {
+        height: 28px;
+        min-width: 28px;
+        padding: 2px 6px;
+        font-size: 0.80rem;
+        border-radius: 6px;
+        gap: 3px;
+        flex-shrink: 0;
+      }
+
+      .header-icon-btn .btn-label-inline {
+        display: none !important;
+      }
+
+      .plans-subnav-bar {
+        padding: 4px 8px;
+        top: 40px;
+        width: 100%;
+        max-width: 100%;
+        box-sizing: border-box;
+      }
+
+      .plans-subnav-inner {
+        width: 100%;
+        max-width: 100%;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 6px;
+      }
+
+      .options-tabs {
+        display: flex;
+        align-items: center;
+        gap: 4px;
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+        scrollbar-width: none;
+        flex: 1;
+      }
+
+      .options-tabs::-webkit-scrollbar {
+        display: none;
+      }
+
+      .option-tab {
+        padding: 4px 8px;
+        font-size: 0.74rem;
+        white-space: nowrap;
+        border-radius: 6px;
+      }
+
+      .plans-action-controls {
+        display: flex;
+        align-items: center;
+        gap: 3px;
+        flex-shrink: 0;
+      }
+
+      .plan-btn {
+        width: 26px;
+        height: 26px;
+        font-size: 0.75rem;
       }
 
       main {
-        padding: 12px 8px;
-        gap: 14px;
+        padding: 6px 4px;
+        gap: 8px;
+        width: 100%;
+        max-width: 100%;
+        box-sizing: border-box;
       }
 
       .options-card {
-        padding: 12px 14px;
+        padding: 10px 12px;
       }
 
       .options-header-row {
-        gap: 8px;
+        gap: 6px;
       }
 
       .form-card {
-        padding: 14px;
+        padding: 12px;
       }
 
       .registration-form-grid {
@@ -2392,8 +2591,8 @@
       .toolbar-container {
         flex-direction: column;
         align-items: stretch;
-        padding: 10px 12px;
-        gap: 10px;
+        padding: 8px 10px;
+        gap: 8px;
       }
 
       .view-switcher {
@@ -2403,20 +2602,327 @@
       .view-tab {
         flex: 1;
         text-align: center;
-        padding: 8px 6px;
-        font-size: 0.74rem;
+        padding: 6px 4px;
+        font-size: 0.72rem;
       }
 
       .grid-view-container {
-        padding: 10px 6px;
+        padding: 6px 4px;
       }
 
       .mobile-scroll-hint {
-        display: flex;
+        display: none;
       }
 
       .stats-pills {
         justify-content: space-between;
+      }
+
+      /* Mobile Timetable Split Views (Morning & Afternoon stacked folds) */
+      .desktop-timetable-view {
+        display: none !important;
+      }
+
+      .mobile-timetable-view {
+        display: block !important;
+        width: 100%;
+      }
+
+      .mobile-folds-toolbar {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        margin-bottom: 8px;
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+        scrollbar-width: none;
+        padding-bottom: 2px;
+      }
+
+      .mobile-folds-toolbar::-webkit-scrollbar {
+        display: none;
+      }
+
+      .mobile-fold-btn {
+        padding: 5px 10px;
+        font-size: 0.72rem;
+        font-weight: 600;
+        border-radius: 6px;
+        background: var(--bg-surface);
+        border: 1px solid var(--border-color);
+        color: var(--text-muted);
+        cursor: pointer;
+        white-space: nowrap;
+        transition: all 0.15s ease;
+      }
+
+      .mobile-fold-btn.active {
+        background: var(--accent-primary);
+        color: #fff;
+        border-color: var(--accent-primary);
+      }
+
+      .mobile-fold-section {
+        margin-bottom: 12px;
+        background: var(--bg-surface);
+        border: 1px solid var(--border-color);
+        border-radius: var(--radius-md);
+        overflow: hidden;
+        width: 100%;
+      }
+
+      .mobile-fold-title {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 6px 10px;
+        background: rgba(99, 102, 241, 0.12);
+        border-bottom: 1px solid var(--border-color);
+        font-size: 0.76rem;
+        font-weight: 700;
+        color: var(--accent-primary);
+      }
+
+      .mobile-fold-title.afternoon-title {
+        background: rgba(245, 158, 11, 0.12);
+        color: #f59e0b;
+      }
+
+      .fold-sub-badge {
+        font-size: 0.65rem;
+        padding: 1px 6px;
+        border-radius: 10px;
+        background: rgba(255, 255, 255, 0.1);
+        color: var(--text-muted);
+      }
+
+      .mobile-lunch-banner {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 6px 12px;
+        margin-bottom: 12px;
+        background: rgba(245, 158, 11, 0.08);
+        border: 1px dashed rgba(245, 158, 11, 0.4);
+        border-radius: var(--radius-sm);
+        font-size: 0.74rem;
+        font-weight: 700;
+        color: #f59e0b;
+      }
+
+      .mobile-fold-table-wrap {
+        width: 100%;
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+      }
+
+      .mobile-matrix-table {
+        width: 100%;
+        min-width: 100%;
+        table-layout: fixed;
+      }
+
+      .mobile-matrix-table th {
+        font-size: 0.58rem;
+        padding: 4px 1px;
+        line-height: 1.15;
+      }
+
+      .mobile-matrix-table td {
+        padding: 2px 1px;
+        height: 46px;
+        min-height: 46px;
+        vertical-align: middle;
+      }
+
+      .mobile-matrix-table td.day-cell {
+        font-size: 0.66rem;
+        font-weight: 800;
+        padding: 2px;
+      }
+
+      .mobile-matrix-table td.type-cell {
+        font-size: 0.54rem;
+        font-weight: 700;
+        padding: 2px 1px;
+      }
+
+      .mobile-matrix-table .slot-card-code {
+        font-size: 0.68rem;
+        font-weight: 800;
+        line-height: 1.1;
+      }
+
+      .mobile-matrix-table .slot-card-name {
+        font-size: 0.52rem;
+        line-height: 1.1;
+        max-width: 48px;
+      }
+
+      .mobile-matrix-table .slot-card-meta {
+        font-size: 0.50rem;
+        line-height: 1.1;
+      }
+
+      .mobile-matrix-table td.empty-slot {
+        font-size: 0.62rem;
+        font-weight: 600;
+      }
+
+      /* AI Timetable Generator Modal Mobile Optimization */
+      .course-modal-dialog {
+        width: 95vw;
+        max-width: 95vw;
+        margin: 8px auto;
+        max-height: 94vh;
+      }
+
+      .course-modal-dialog.ai-wizard-dialog {
+        width: 95vw;
+        max-width: 95vw;
+        margin: 8px auto;
+        max-height: 94vh;
+      }
+
+      .ai-wizard-header {
+        padding: 8px 12px;
+      }
+
+      .ai-wizard-header #aiWizardTitle {
+        font-size: 0.86rem;
+      }
+
+      .ai-wizard-dialog .course-modal-body {
+        padding: 8px 10px;
+      }
+
+      .ai-step-indicator {
+        padding: 5px 8px;
+        gap: 4px;
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+        scrollbar-width: none;
+        flex-wrap: nowrap;
+      }
+
+      .ai-step-indicator::-webkit-scrollbar {
+        display: none;
+      }
+
+      .ai-step-pill {
+        font-size: 0.65rem;
+        padding: 2px 7px;
+        flex-shrink: 0;
+      }
+
+      .ai-step-arrow {
+        font-size: 0.65rem;
+        flex-shrink: 0;
+      }
+
+      .excel-dropzone {
+        padding: 10px 8px;
+        margin-bottom: 6px;
+      }
+
+      .dropzone-icon {
+        font-size: 1.3rem;
+      }
+
+      .dropzone-title {
+        font-size: 0.80rem;
+      }
+
+      .dropzone-sub {
+        font-size: 0.66rem;
+      }
+
+      .course-preference-section {
+        padding: 6px 8px;
+      }
+
+      .course-pref-card {
+        display: grid;
+        grid-template-columns: 26px 1fr;
+        gap: 6px;
+        padding: 6px 8px;
+      }
+
+      .course-pref-code {
+        font-size: 0.82rem;
+        gap: 6px;
+      }
+
+      .course-pref-badge {
+        font-size: 0.62rem;
+        padding: 1px 4px;
+      }
+
+      .course-pref-title {
+        font-size: 0.72rem;
+        max-width: 220px;
+      }
+
+      .course-pref-controls-wrapper {
+        grid-column: span 2;
+        display: flex;
+        gap: 8px;
+        width: 100%;
+        align-items: center;
+      }
+
+      .course-pref-credits-col {
+        flex: 1;
+        min-width: 70px;
+      }
+
+      .course-pref-priority-col {
+        flex: 2;
+        min-width: 130px;
+      }
+
+      .credit-select-cards {
+        grid-template-columns: 1fr 1fr;
+        gap: 8px;
+      }
+
+      .credit-card {
+        padding: 10px 8px;
+      }
+
+      .credit-card-val {
+        font-size: 1.25rem;
+      }
+
+      .credit-card-label {
+        font-size: 0.74rem;
+      }
+
+      .credit-card-sub {
+        font-size: 0.62rem;
+      }
+
+      .shift-pref-grid {
+        grid-template-columns: 1fr;
+        gap: 8px;
+      }
+
+      .shift-card {
+        padding: 12px 10px;
+      }
+
+      .avoid-toggle-card {
+        padding: 10px 12px;
+      }
+
+      .ai-wizard-footer {
+        padding: 8px 10px;
+        gap: 6px;
+      }
+
+      .ai-wizard-footer .btn {
+        padding: 6px 10px;
+        font-size: 0.78rem;
       }
     }
   </style>
@@ -3091,18 +3597,18 @@
     // DISTINCT COURSE COLOR THEME PALETTE
     // ==========================================
     const COURSE_PALETTE = [
-      { name: 'Indigo',  bg: '#2d3555', border: '#6366f1', text: '#e0e7ff', subText: '#a5b4fc', lightBg: '#e0e7ff', lightBorder: '#818cf8', lightText: '#1e1b4b', lightSub: '#4338ca', pdfBg: '#e0e7ff', pdfText: '#1e1b4b' },
-      { name: 'Emerald', bg: '#1e3a34', border: '#10b981', text: '#d1fae5', subText: '#6ee7b7', lightBg: '#d1fae5', lightBorder: '#34d399', lightText: '#022c22', lightSub: '#047857', pdfBg: '#d1fae5', pdfText: '#022c22' },
-      { name: 'Amber',   bg: '#3b3524', border: '#f59e0b', text: '#fef3c7', subText: '#fcd34d', lightBg: '#fef3c7', lightBorder: '#f59e0b', lightText: '#451a03', lightSub: '#b45309', pdfBg: '#fef3c7', pdfText: '#451a03' },
-      { name: 'Rose',    bg: '#3d2533', border: '#f43f5e', text: '#ffe4e6', subText: '#fda4af', lightBg: '#ffe4e6', lightBorder: '#fb7185', lightText: '#4c0519', lightSub: '#be123c', pdfBg: '#ffe4e6', pdfText: '#4c0519' },
-      { name: 'Cyan',    bg: '#1a3640', border: '#06b6d4', text: '#cffafe', subText: '#67e8f9', lightBg: '#cffafe', lightBorder: '#22d3ee', lightText: '#083344', lightSub: '#0e7490', pdfBg: '#cffafe', pdfText: '#083344' },
-      { name: 'Purple',  bg: '#322548', border: '#a855f7', text: '#f3e8ff', subText: '#c084fc', lightBg: '#f3e8ff', lightBorder: '#c084fc', lightText: '#3b0764', lightSub: '#7e22ce', pdfBg: '#f3e8ff', pdfText: '#3b0764' },
-      { name: 'Orange',  bg: '#3b2e22', border: '#f97316', text: '#ffedd5', subText: '#fdba74', lightBg: '#ffedd5', lightBorder: '#fb923c', lightText: '#431407', lightSub: '#c2410c', pdfBg: '#ffedd5', pdfText: '#431407' },
-      { name: 'Teal',    bg: '#1c3836', border: '#14b8a6', text: '#ccfbf1', subText: '#5eead4', lightBg: '#ccfbf1', lightBorder: '#2dd4bf', lightText: '#042f2e', lightSub: '#0f766e', pdfBg: '#ccfbf1', pdfText: '#042f2e' },
-      { name: 'Fuchsia', bg: '#382240', border: '#d946ef', text: '#fae8ff', subText: '#e879f9', lightBg: '#fae8ff', lightBorder: '#e879f9', lightText: '#4a044e', lightSub: '#a21caf', pdfBg: '#fae8ff', pdfText: '#4a044e' },
-      { name: 'Blue',    bg: '#1e2f4d', border: '#3b82f6', text: '#dbeafe', subText: '#93c5fd', lightBg: '#dbeafe', lightBorder: '#60a5fa', lightText: '#172554', lightSub: '#1d4ed8', pdfBg: '#dbeafe', pdfText: '#172554' },
-      { name: 'Lime',    bg: '#2c3522', border: '#84cc16', text: '#ecfccb', subText: '#bef264', lightBg: '#ecfccb', lightBorder: '#a3e635', lightText: '#1a2e05', lightSub: '#4d7c0f', pdfBg: '#ecfccb', pdfText: '#1a2e05' },
-      { name: 'Pink',    bg: '#3a2238', border: '#ec4899', text: '#fce7f3', subText: '#f9a8d4', lightBg: '#fce7f3', lightBorder: '#f472b6', lightText: '#500724', lightSub: '#be185d', pdfBg: '#fce7f3', pdfText: '#500724' }
+      { name: 'Indigo',  bg: '#2d3555', border: '#6366f1', text: '#e0e7ff', subText: '#a5b4fc', lightBg: '#eef2ff', lightBorder: '#6366f1', lightText: '#1e1b4b', lightSub: '#4338ca', pdfBg: '#e0e7ff', pdfText: '#1e1b4b' },
+      { name: 'Emerald', bg: '#1e3a34', border: '#10b981', text: '#d1fae5', subText: '#6ee7b7', lightBg: '#ecfdf5', lightBorder: '#10b981', lightText: '#064e3b', lightSub: '#047857', pdfBg: '#d1fae5', pdfText: '#022c22' },
+      { name: 'Amber',   bg: '#3b3524', border: '#f59e0b', text: '#fef3c7', subText: '#fcd34d', lightBg: '#fffbeb', lightBorder: '#f59e0b', lightText: '#78350f', lightSub: '#b45309', pdfBg: '#fef3c7', pdfText: '#451a03' },
+      { name: 'Rose',    bg: '#3d2533', border: '#f43f5e', text: '#ffe4e6', subText: '#fda4af', lightBg: '#fff1f2', lightBorder: '#f43f5e', lightText: '#881337', lightSub: '#be123c', pdfBg: '#ffe4e6', pdfText: '#4c0519' },
+      { name: 'Cyan',    bg: '#1a3640', border: '#06b6d4', text: '#cffafe', subText: '#67e8f9', lightBg: '#ecfeff', lightBorder: '#06b6d4', lightText: '#164e63', lightSub: '#0e7490', pdfBg: '#cffafe', pdfText: '#083344' },
+      { name: 'Purple',  bg: '#322548', border: '#a855f7', text: '#f3e8ff', subText: '#c084fc', lightBg: '#faf5ff', lightBorder: '#a855f7', lightText: '#581c87', lightSub: '#7e22ce', pdfBg: '#f3e8ff', pdfText: '#3b0764' },
+      { name: 'Orange',  bg: '#3b2e22', border: '#f97316', text: '#ffedd5', subText: '#fdba74', lightBg: '#fff7ed', lightBorder: '#f97316', lightText: '#7c2d12', lightSub: '#c2410c', pdfBg: '#ffedd5', pdfText: '#431407' },
+      { name: 'Teal',    bg: '#1c3836', border: '#14b8a6', text: '#ccfbf1', subText: '#5eead4', lightBg: '#f0fdfa', lightBorder: '#14b8a6', lightText: '#134e4a', lightSub: '#0f766e', pdfBg: '#ccfbf1', pdfText: '#042f2e' },
+      { name: 'Fuchsia', bg: '#382240', border: '#d946ef', text: '#fae8ff', subText: '#e879f9', lightBg: '#fdf4ff', lightBorder: '#d946ef', lightText: '#701a75', lightSub: '#a21caf', pdfBg: '#fae8ff', pdfText: '#4a044e' },
+      { name: 'Blue',    bg: '#1e2f4d', border: '#3b82f6', text: '#dbeafe', subText: '#93c5fd', lightBg: '#eff6ff', lightBorder: '#3b82f6', lightText: '#1e3a8a', lightSub: '#1d4ed8', pdfBg: '#dbeafe', pdfText: '#172554' },
+      { name: 'Lime',    bg: '#2c3522', border: '#84cc16', text: '#ecfccb', subText: '#bef264', lightBg: '#f7fee7', lightBorder: '#84cc16', lightText: '#365314', lightSub: '#4d7c0f', pdfBg: '#ecfccb', pdfText: '#1a2e05' },
+      { name: 'Pink',    bg: '#3a2238', border: '#ec4899', text: '#fce7f3', subText: '#f9a8d4', lightBg: '#fdf2f8', lightBorder: '#ec4899', lightText: '#831843', lightSub: '#be185d', pdfBg: '#fce7f3', pdfText: '#500724' }
     ];
 
     function getCourseColorTheme(courseIndex, courseCode) {
@@ -4576,190 +5082,303 @@
         });
       });
 
-      let html = `
-        <table class="matrix-table">
-          <thead>
+      // Reusable generator for day rows across any subset of columns
+      function renderTableDayRows(colsSubset) {
+        let rowsHtml = '';
+        DAYS_ORDER.forEach(d => {
+          const dayKey = d.key;
+          const dayDefs = GRID_DEFINITIONS[dayKey];
+
+          // Row 1: THEORY
+          rowsHtml += `
             <tr>
-              <th rowspan="2" class="day-th-col" style="width: 4.8%;">Day</th>
-              <th rowspan="2" class="type-th-col" style="width: 5.2%;">Type</th>
-              ${TIME_COLUMNS.map(tc => {
-                if (tc.isLunch) {
-                  return `<th rowspan="2" class="lunch-th" style="width: 4.2%;">☕<br><span style="font-size:0.58rem; font-weight:700;">Lunch</span></th>`;
-                }
-                const formattedTheory = tc.theory ? tc.theory.replace(' - ', '<br>') : '-';
-                return `<th class="time-th" style="width: 7.15%;">${formattedTheory}</th>`;
-              }).join('')}
-            </tr>
+              <td rowspan="2" class="day-cell">${dayKey}</td>
+              <td class="type-cell" style="color: #60a5fa;">THEORY</td>
+          `;
+
+          colsSubset.forEach(colIdx => {
+            const slot = dayDefs.THEORY[colIdx];
+            const cellKey = `${dayKey}_THEORY_${colIdx}`;
+            const matches = cellMap[cellKey] || [];
+
+            if (slot === 'Lunch') {
+              rowsHtml += `<td rowspan="2" class="lunch-cell">☕ Lunch</td>`;
+              return;
+            }
+
+            if (slot === '-') {
+              rowsHtml += `<td class="dash-slot">-</td>`;
+              return;
+            }
+
+            if (matches.length === 0) {
+              const isCandidate = moveSelection && moveSelection.mode === 'THEORY';
+              rowsHtml += `
+                <td class="empty-slot ${isCandidate ? 'move-candidate-slot' : ''}"
+                  data-slot="${slot}"
+                  data-mode="THEORY"
+                  onclick="handleCellClick('${slot}', 'THEORY', -1)"
+                  ondragover="handleDragOver(event, '${slot}', 'THEORY', -1)"
+                  ondragleave="handleDragLeave(event)"
+                  ondrop="handleDrop(event, '${slot}', 'THEORY', -1)"
+                  title="${moveSelection ? 'Tap to place ' + moveSelection.code + ' on ' + slot : 'Click to choose slot ' + slot + ' or drop course here'}">
+                  ${slot}
+                </td>
+              `;
+            } else {
+              const isClash = matches.length > 1;
+              const s = matches[0];
+              const theme = getCourseColorTheme(s.courseIndex, s.code);
+              const isLight = document.documentElement.getAttribute('data-theme') === 'light';
+              const cardBg = isLight ? theme.lightBg : theme.bg;
+              const cardText = isLight ? theme.lightText : theme.text;
+              const cardBorder = isLight ? (theme.lightBorder || theme.border) : theme.border;
+              const cardMeta = isLight ? (theme.lightSub || '#475569') : theme.subText;
+              const isSelected = moveSelection && moveSelection.courseIndex === s.courseIndex;
+              const displayCode = isClash ? matches.map(m => m.code).join(' / ') : s.code;
+              const courseIndices = matches.map(m => m.courseIndex).join(',');
+              rowsHtml += `
+                <td class="occupied-slot type-theory ${isClash ? 'type-clash' : ''} ${isSelected ? 'is-selected-move' : ''}"
+                  data-slot="${slot}"
+                  data-mode="THEORY"
+                  data-course-index="${courseIndices}"
+                  style="${isClash ? '' : `background: ${cardBg} !important; border: 1.5px solid ${cardBorder} !important;`}"
+                  draggable="true"
+                  ondragstart="handleDragStart(event, ${s.courseIndex}, '${slot}')"
+                  ondragend="handleDragEnd(event)"
+                  ondragover="handleDragOver(event, '${slot}', 'THEORY', ${s.courseIndex})"
+                  ondragleave="handleDragLeave(event)"
+                  ondrop="handleDrop(event, '${slot}', 'THEORY', ${s.courseIndex})"
+                  onclick="handleCellClick('${slot}', 'THEORY', ${s.courseIndex})"
+                  title="Tap to select/swap or drag | ${s.code} - ${s.name} (${slot}) | Faculty: ${cleanFacultyName(s.faculty)}">
+                  <div class="slot-card-content">
+                    <div class="slot-card-code" style="color: ${isClash ? '#ef4444' : cardText}; font-weight:800;">${displayCode}</div>
+                    <div class="slot-card-name" style="color: ${isClash ? '#ef4444' : (isLight ? theme.lightText : theme.subText)};" title="${(s.name || '').replace(/"/g, '&quot;')}">${((s.name || '').split(' ').slice(0, 2).join(' '))}</div>
+                    <div class="slot-card-meta" style="color: ${cardMeta};">
+                      ${s.venue || 'TBA'} · ${slot} ${isClash ? `<span class="slot-card-clash-tag">⚠️ CLASH (${matches.length})</span>` : ''}
+                    </div>
+                  </div>
+                </td>
+              `;
+            }
+          });
+
+          rowsHtml += `</tr>`;
+
+          // Row 2: LAB
+          rowsHtml += `
             <tr>
-              ${TIME_COLUMNS.map(tc => {
-                if (tc.isLunch) return '';
-                const formattedLab = tc.lab ? tc.lab.replace(' - ', '<br>') : '-';
-                return `<th class="time-th lab-time-th">${formattedLab}</th>`;
-              }).join('')}
-            </tr>
-          </thead>
-          <tbody>
+              <td class="type-cell" style="color: #34d399;">LAB</td>
+          `;
+
+          colsSubset.forEach(colIdx => {
+            const slot = dayDefs.LAB[colIdx];
+            if (slot === 'Lunch') return;
+
+            const cellKey = `${dayKey}_LAB_${colIdx}`;
+            const matches = cellMap[cellKey] || [];
+
+            if (slot === '-') {
+              rowsHtml += `<td class="dash-slot">-</td>`;
+              return;
+            }
+
+            if (matches.length === 0) {
+              const isCandidate = moveSelection && moveSelection.mode === 'LAB';
+              rowsHtml += `
+                <td class="empty-slot ${isCandidate ? 'move-candidate-slot' : ''}"
+                  data-slot="${slot}"
+                  data-mode="LAB"
+                  onclick="handleCellClick('${slot}', 'LAB', -1)"
+                  ondragover="handleDragOver(event, '${slot}', 'LAB', -1)"
+                  ondragleave="handleDragLeave(event)"
+                  ondrop="handleDrop(event, '${slot}', 'LAB', -1)"
+                  title="${moveSelection ? 'Tap to place ' + moveSelection.code + ' on ' + slot : 'Click to choose slot ' + slot + ' or drop course here'}">
+                  ${slot}
+                </td>
+              `;
+            } else {
+              const isClash = matches.length > 1;
+              const s = matches[0];
+              const theme = getCourseColorTheme(s.courseIndex, s.code);
+              const isLight = document.documentElement.getAttribute('data-theme') === 'light';
+              const cardBg = isLight ? theme.lightBg : theme.bg;
+              const cardText = isLight ? theme.lightText : theme.text;
+              const cardBorder = isLight ? (theme.lightBorder || theme.border) : theme.border;
+              const cardMeta = isLight ? (theme.lightSub || '#475569') : theme.subText;
+              const isSelected = moveSelection && moveSelection.courseIndex === s.courseIndex;
+              const displayCode = isClash ? matches.map(m => m.code).join(' / ') : s.code;
+              const courseIndices = matches.map(m => m.courseIndex).join(',');
+              rowsHtml += `
+                <td class="occupied-slot type-lab ${isClash ? 'type-clash' : ''} ${isSelected ? 'is-selected-move' : ''}"
+                  data-slot="${slot}"
+                  data-mode="LAB"
+                  data-course-index="${courseIndices}"
+                  style="${isClash ? '' : `background: ${cardBg} !important; border: 1.5px solid ${cardBorder} !important;`}"
+                  draggable="true"
+                  ondragstart="handleDragStart(event, ${s.courseIndex}, '${slot}')"
+                  ondragend="handleDragEnd(event)"
+                  ondragover="handleDragOver(event, '${slot}', 'LAB', ${s.courseIndex})"
+                  ondragleave="handleDragLeave(event)"
+                  ondrop="handleDrop(event, '${slot}', 'LAB', ${s.courseIndex})"
+                  onclick="handleCellClick('${slot}', 'LAB', ${s.courseIndex})"
+                  title="Tap to select/swap or drag | ${s.code} - ${s.name} (${slot}) | Faculty: ${cleanFacultyName(s.faculty)}">
+                  <div class="slot-card-content">
+                    <div class="slot-card-code" style="color: ${isClash ? '#ef4444' : cardText}; font-weight:800;">${displayCode}</div>
+                    <div class="slot-card-name" style="color: ${isClash ? '#ef4444' : (isLight ? theme.lightText : theme.subText)};" title="${(s.name || '').replace(/"/g, '&quot;')}">${((s.name || '').split(' ').slice(0, 2).join(' '))}</div>
+                    <div class="slot-card-meta" style="color: ${cardMeta};">
+                      ${s.venue || 'TBA'} · ${slot} ${isClash ? `<span class="slot-card-clash-tag">⚠️ CLASH (${matches.length})</span>` : ''}
+                    </div>
+                  </div>
+                </td>
+              `;
+            }
+          });
+
+          rowsHtml += `</tr>`;
+        });
+        return rowsHtml;
+      }
+
+      // 1. Desktop Master Matrix Table (15 Columns Unified)
+      const allCols = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12];
+      const desktopTableHtml = `
+        <div class="desktop-timetable-view">
+          <table class="matrix-table">
+            <thead>
+              <tr>
+                <th rowspan="2" class="day-th-col" style="width: 4.8%;">Day</th>
+                <th rowspan="2" class="type-th-col" style="width: 5.2%;">Type</th>
+                ${TIME_COLUMNS.map(tc => {
+                  if (tc.isLunch) {
+                    return `<th rowspan="2" class="lunch-th" style="width: 4.2%;">☕<br><span style="font-size:0.58rem; font-weight:700;">Lunch</span></th>`;
+                  }
+                  const formattedTheory = tc.theory ? tc.theory.replace(' - ', '<br>') : '-';
+                  return `<th class="time-th" style="width: 7.15%;">${formattedTheory}</th>`;
+                }).join('')}
+              </tr>
+              <tr>
+                ${TIME_COLUMNS.map(tc => {
+                  if (tc.isLunch) return '';
+                  const formattedLab = tc.lab ? tc.lab.replace(' - ', '<br>') : '-';
+                  return `<th class="time-th lab-time-th">${formattedLab}</th>`;
+                }).join('')}
+              </tr>
+            </thead>
+            <tbody>
+              ${renderTableDayRows(allCols)}
+            </tbody>
+          </table>
+        </div>
       `;
 
-      DAYS_ORDER.forEach(d => {
-        const dayKey = d.key;
-        const dayDefs = GRID_DEFINITIONS[dayKey];
+      // 2. Mobile Timetable Split Folds (Morning 0..5 in full width, Lunch, Afternoon 7..12 in full width)
+      const morningCols = [0, 1, 2, 3, 4, 5];
+      const afternoonCols = [7, 8, 9, 10, 11, 12];
 
-        // Row 1: THEORY
-        html += `
-          <tr>
-            <td rowspan="2" class="day-cell">${dayKey}</td>
-            <td class="type-cell" style="color: #60a5fa;">THEORY</td>
-        `;
+      const mobileTableHtml = `
+        <div class="mobile-timetable-view">
+          <!-- Mobile fold selector pill bar -->
+          <div class="mobile-folds-toolbar">
+            <button type="button" class="mobile-fold-btn ${currentMobileFoldMode === 'all' ? 'active' : ''}" id="foldBtnAll" onclick="setMobileFoldView('all')">📑 Both Folds</button>
+            <button type="button" class="mobile-fold-btn ${currentMobileFoldMode === 'morning' ? 'active' : ''}" id="foldBtnMorning" onclick="setMobileFoldView('morning')">🌅 Morning (8:00 - 1:20)</button>
+            <button type="button" class="mobile-fold-btn ${currentMobileFoldMode === 'afternoon' ? 'active' : ''}" id="foldBtnAfternoon" onclick="setMobileFoldView('afternoon')">🌇 Afternoon (2:00 - 7:20)</button>
+          </div>
 
-        dayDefs.THEORY.forEach((slot, colIdx) => {
-          const cellKey = `${dayKey}_THEORY_${colIdx}`;
-          const matches = cellMap[cellKey] || [];
+          <!-- Fold 1: Morning Slots Full Width -->
+          <div class="mobile-fold-section" id="mobileMorningFold" style="display: ${currentMobileFoldMode === 'afternoon' ? 'none' : 'block'};">
+            <div class="mobile-fold-title">
+              <span>🌅 Morning Slots (08:00 – 13:20)</span>
+              <span class="fold-sub-badge">Full Width • 6 Slots</span>
+            </div>
+            <div class="mobile-fold-table-wrap">
+              <table class="matrix-table mobile-matrix-table">
+                <thead>
+                  <tr>
+                    <th rowspan="2" class="day-th-col" style="width: 10%;">Day</th>
+                    <th rowspan="2" class="type-th-col" style="width: 10%;">Type</th>
+                    ${morningCols.map(cIdx => {
+                      const tc = TIME_COLUMNS[cIdx];
+                      const formattedTheory = tc.theory ? tc.theory.replace(' - ', '<br>') : '-';
+                      return `<th class="time-th" style="width: 13.3%;">${formattedTheory}</th>`;
+                    }).join('')}
+                  </tr>
+                  <tr>
+                    ${morningCols.map(cIdx => {
+                      const tc = TIME_COLUMNS[cIdx];
+                      const formattedLab = tc.lab ? tc.lab.replace(' - ', '<br>') : '-';
+                      return `<th class="time-th lab-time-th">${formattedLab}</th>`;
+                    }).join('')}
+                  </tr>
+                </thead>
+                <tbody>
+                  ${renderTableDayRows(morningCols)}
+                </tbody>
+              </table>
+            </div>
+          </div>
 
-          if (slot === 'Lunch') {
-            html += `<td rowspan="2" class="lunch-cell">☕ Lunch</td>`;
-            return;
-          }
+          <!-- Lunch Divider Fold -->
+          <div class="mobile-lunch-banner" id="mobileLunchFold" style="display: ${currentMobileFoldMode === 'all' ? 'flex' : 'none'};">
+            <span>☕ Lunch Break: 01:20 PM – 02:00 PM</span>
+          </div>
 
-          if (slot === '-') {
-            html += `<td class="dash-slot">-</td>`;
-            return;
-          }
-
-          if (matches.length === 0) {
-            // Free slot
-            const isCandidate = moveSelection && moveSelection.mode === 'THEORY';
-            html += `
-              <td class="empty-slot ${isCandidate ? 'move-candidate-slot' : ''}"
-                data-slot="${slot}"
-                data-mode="THEORY"
-                onclick="handleCellClick('${slot}', 'THEORY', -1)"
-                ondragover="handleDragOver(event, '${slot}', 'THEORY', -1)"
-                ondragleave="handleDragLeave(event)"
-                ondrop="handleDrop(event, '${slot}', 'THEORY', -1)"
-                title="${moveSelection ? 'Tap to place ' + moveSelection.code + ' on ' + slot : 'Click to choose slot ' + slot + ' or drop course here'}">
-                ${slot}
-              </td>
-            `;
-          } else {
-            // Occupied
-            const isClash = matches.length > 1;
-            const s = matches[0];
-            const theme = getCourseColorTheme(s.courseIndex, s.code);
-            const isLight = document.documentElement.getAttribute('data-theme') === 'light';
-            const cardBg = isLight ? theme.lightBg : theme.bg;
-            const cardText = isLight ? theme.lightText : theme.text;
-            const cardBorder = isLight ? (theme.lightBorder || theme.border) : theme.border;
-            const cardMeta = isLight ? (theme.lightSub || '#475569') : theme.subText;
-            const isSelected = moveSelection && moveSelection.courseIndex === s.courseIndex;
-            const displayCode = isClash ? matches.map(m => m.code).join(' / ') : s.code;
-            const courseIndices = matches.map(m => m.courseIndex).join(',');
-            html += `
-              <td class="occupied-slot type-theory ${isClash ? 'type-clash' : ''} ${isSelected ? 'is-selected-move' : ''}"
-                data-slot="${slot}"
-                data-mode="THEORY"
-                data-course-index="${courseIndices}"
-                style="${isClash ? '' : `background: ${cardBg} !important; border: 1.5px solid ${cardBorder} !important;`}"
-                draggable="true"
-                ondragstart="handleDragStart(event, ${s.courseIndex}, '${slot}')"
-                ondragend="handleDragEnd(event)"
-                ondragover="handleDragOver(event, '${slot}', 'THEORY', ${s.courseIndex})"
-                ondragleave="handleDragLeave(event)"
-                ondrop="handleDrop(event, '${slot}', 'THEORY', ${s.courseIndex})"
-                onclick="handleCellClick('${slot}', 'THEORY', ${s.courseIndex})"
-                title="Tap to select/swap or drag | ${s.code} - ${s.name} (${slot}) | Faculty: ${cleanFacultyName(s.faculty)}">
-                <div class="slot-card-content">
-                  <div class="slot-card-code" style="color: ${isClash ? '#ef4444' : cardText}; font-weight:800;">${displayCode}</div>
-                  <div class="slot-card-name" style="color: ${isClash ? '#ef4444' : (isLight ? theme.lightText : theme.subText)};" title="${(s.name || '').replace(/"/g, '&quot;')}">${((s.name || '').split(' ').slice(0, 2).join(' '))}</div>
-                  <div class="slot-card-meta" style="color: ${cardMeta};">
-                    ${s.venue || 'TBA'} · ${slot} ${isClash ? `<span class="slot-card-clash-tag">⚠️ CLASH (${matches.length})</span>` : ''}
-                  </div>
-                </div>
-              </td>
-            `;
-          }
-        });
-
-        html += `</tr>`;
-
-        // Row 2: LAB
-        html += `
-          <tr>
-            <td class="type-cell" style="color: #34d399;">LAB</td>
-        `;
-
-        dayDefs.LAB.forEach((slot, colIdx) => {
-          if (slot === 'Lunch') return; // already spanned 2 rows
-
-          const cellKey = `${dayKey}_LAB_${colIdx}`;
-          const matches = cellMap[cellKey] || [];
-
-          if (slot === '-') {
-            html += `<td class="dash-slot">-</td>`;
-            return;
-          }
-
-          if (matches.length === 0) {
-            const isCandidate = moveSelection && moveSelection.mode === 'LAB';
-            html += `
-              <td class="empty-slot ${isCandidate ? 'move-candidate-slot' : ''}"
-                data-slot="${slot}"
-                data-mode="LAB"
-                onclick="handleCellClick('${slot}', 'LAB', -1)"
-                ondragover="handleDragOver(event, '${slot}', 'LAB', -1)"
-                ondragleave="handleDragLeave(event)"
-                ondrop="handleDrop(event, '${slot}', 'LAB', -1)"
-                title="${moveSelection ? 'Tap to place ' + moveSelection.code + ' on ' + slot : 'Click to choose slot ' + slot + ' or drop course here'}">
-                ${slot}
-              </td>
-            `;
-          } else {
-            const isClash = matches.length > 1;
-            const s = matches[0];
-            const theme = getCourseColorTheme(s.courseIndex, s.code);
-            const isLight = document.documentElement.getAttribute('data-theme') === 'light';
-            const cardBg = isLight ? theme.lightBg : theme.bg;
-            const cardText = isLight ? theme.lightText : theme.text;
-            const cardBorder = isLight ? (theme.lightBorder || theme.border) : theme.border;
-            const cardMeta = isLight ? (theme.lightSub || '#475569') : theme.subText;
-            const isSelected = moveSelection && moveSelection.courseIndex === s.courseIndex;
-            const displayCode = isClash ? matches.map(m => m.code).join(' / ') : s.code;
-            const courseIndices = matches.map(m => m.courseIndex).join(',');
-            html += `
-              <td class="occupied-slot type-lab ${isClash ? 'type-clash' : ''} ${isSelected ? 'is-selected-move' : ''}"
-                data-slot="${slot}"
-                data-mode="LAB"
-                data-course-index="${courseIndices}"
-                style="${isClash ? '' : `background: ${cardBg} !important; border: 1.5px solid ${cardBorder} !important;`}"
-                draggable="true"
-                ondragstart="handleDragStart(event, ${s.courseIndex}, '${slot}')"
-                ondragend="handleDragEnd(event)"
-                ondragover="handleDragOver(event, '${slot}', 'LAB', ${s.courseIndex})"
-                ondragleave="handleDragLeave(event)"
-                ondrop="handleDrop(event, '${slot}', 'LAB', ${s.courseIndex})"
-                onclick="handleCellClick('${slot}', 'LAB', ${s.courseIndex})"
-                title="Tap to select/swap or drag | ${s.code} - ${s.name} (${slot}) | Faculty: ${cleanFacultyName(s.faculty)}">
-                <div class="slot-card-content">
-                  <div class="slot-card-code" style="color: ${isClash ? '#ef4444' : cardText}; font-weight:800;">${displayCode}</div>
-                  <div class="slot-card-name" style="color: ${isClash ? '#ef4444' : (isLight ? theme.lightText : theme.subText)};" title="${(s.name || '').replace(/"/g, '&quot;')}">${((s.name || '').split(' ').slice(0, 2).join(' '))}</div>
-                  <div class="slot-card-meta" style="color: ${cardMeta};">
-                    ${s.venue || 'TBA'} · ${slot} ${isClash ? `<span class="slot-card-clash-tag">⚠️ CLASH (${matches.length})</span>` : ''}
-                  </div>
-                </div>
-              </td>
-            `;
-          }
-        });
-
-        html += `</tr>`;
-      });
-
-      html += `
-          </tbody>
-        </table>
+          <!-- Fold 2: Afternoon Slots Full Width (Followed directly as another fold) -->
+          <div class="mobile-fold-section" id="mobileAfternoonFold" style="display: ${currentMobileFoldMode === 'morning' ? 'none' : 'block'};">
+            <div class="mobile-fold-title afternoon-title">
+              <span>🌇 Afternoon Slots (02:00 PM – 07:20 PM)</span>
+              <span class="fold-sub-badge">Full Width • 6 Slots</span>
+            </div>
+            <div class="mobile-fold-table-wrap">
+              <table class="matrix-table mobile-matrix-table">
+                <thead>
+                  <tr>
+                    <th rowspan="2" class="day-th-col" style="width: 10%;">Day</th>
+                    <th rowspan="2" class="type-th-col" style="width: 10%;">Type</th>
+                    ${afternoonCols.map(cIdx => {
+                      const tc = TIME_COLUMNS[cIdx];
+                      const formattedTheory = tc.theory ? tc.theory.replace(' - ', '<br>') : '-';
+                      return `<th class="time-th" style="width: 13.3%;">${formattedTheory}</th>`;
+                    }).join('')}
+                  </tr>
+                  <tr>
+                    ${afternoonCols.map(cIdx => {
+                      const tc = TIME_COLUMNS[cIdx];
+                      const formattedLab = tc.lab ? tc.lab.replace(' - ', '<br>') : '-';
+                      return `<th class="time-th lab-time-th">${formattedLab}</th>`;
+                    }).join('')}
+                  </tr>
+                </thead>
+                <tbody>
+                  ${renderTableDayRows(afternoonCols)}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
       `;
 
-      container.innerHTML = html;
+      container.innerHTML = desktopTableHtml + mobileTableHtml;
+    }
+
+    let currentMobileFoldMode = 'all';
+
+    function setMobileFoldView(mode) {
+      currentMobileFoldMode = mode;
+      const mFold = document.getElementById('mobileMorningFold');
+      const aFold = document.getElementById('mobileAfternoonFold');
+      const lFold = document.getElementById('mobileLunchFold');
+      const bAll = document.getElementById('foldBtnAll');
+      const bM = document.getElementById('foldBtnMorning');
+      const bA = document.getElementById('foldBtnAfternoon');
+
+      if (bAll) bAll.classList.toggle('active', mode === 'all');
+      if (bM) bM.classList.toggle('active', mode === 'morning');
+      if (bA) bA.classList.toggle('active', mode === 'afternoon');
+
+      if (mFold) mFold.style.display = (mode === 'all' || mode === 'morning') ? 'block' : 'none';
+      if (lFold) lFold.style.display = (mode === 'all') ? 'flex' : 'none';
+      if (aFold) aFold.style.display = (mode === 'all' || mode === 'afternoon') ? 'block' : 'none';
     }
 
     // 2. RENDER DAY-BY-DAY AGENDA VIEW
@@ -5605,27 +6224,29 @@ BMAT101\tCalculus and Linear Algebra\tB1+TB1\tNIL`;
         const isSel = c.selected !== false;
         html += `
           <div class="course-pref-card ${isSel ? 'selected' : 'deselected'}" id="courseCard_${c.code}">
-            <div>
+            <div class="course-pref-chk-col">
               <input type="checkbox" id="chk_course_${c.code}" ${isSel ? 'checked' : ''} onchange="toggleCourseSelection('${c.code}', this.checked)" style="transform: scale(1.15); cursor: pointer;" title="Select or Deselect ${c.code}">
             </div>
-            <div style="min-width: 0;">
+            <div class="course-pref-info-col" style="min-width: 0;">
               <div class="course-pref-code">
                 <span>${c.code}</span>
                 <span class="course-pref-badge">${c.offerings.length} combos</span>
               </div>
               <div class="course-pref-title" title="${(c.title || '').replace(/"/g, '&quot;')}">${c.title}</div>
             </div>
-            <div class="course-pref-credits-col">
-              <label style="font-size: 0.68rem; color: var(--text-muted); display: block; margin-bottom: 2px;">Credits</label>
-              <input type="number" class="course-credit-input" value="${c.credits}" min="1" max="10" step="0.5" onchange="updateCourseCredit('${c.code}', this.value)" title="Course credits">
-            </div>
-            <div class="course-pref-priority-col">
-              <label style="font-size: 0.68rem; color: var(--text-muted); display: block; margin-bottom: 2px;">Priority / Order</label>
-              <select class="course-priority-select" onchange="updateCoursePriority('${c.code}', this.value)" title="Preference Priority">
-                <option value="3" ${c.priority === 3 ? 'selected' : ''}>⭐⭐⭐ High (Must Have)</option>
-                <option value="2" ${c.priority === 2 ? 'selected' : ''}>⭐⭐ Normal</option>
-                <option value="1" ${c.priority === 1 ? 'selected' : ''}>⭐ Low (Optional)</option>
-              </select>
+            <div class="course-pref-controls-wrapper">
+              <div class="course-pref-credits-col">
+                <label style="font-size: 0.68rem; color: var(--text-muted); display: block; margin-bottom: 2px;">Credits</label>
+                <input type="number" class="course-credit-input" value="${c.credits}" min="1" max="10" step="0.5" onchange="updateCourseCredit('${c.code}', this.value)" title="Course credits">
+              </div>
+              <div class="course-pref-priority-col">
+                <label style="font-size: 0.68rem; color: var(--text-muted); display: block; margin-bottom: 2px;">Priority / Order</label>
+                <select class="course-priority-select" onchange="updateCoursePriority('${c.code}', this.value)" title="Preference Priority">
+                  <option value="3" ${c.priority === 3 ? 'selected' : ''}>⭐⭐⭐ High (Must Have)</option>
+                  <option value="2" ${c.priority === 2 ? 'selected' : ''}>⭐⭐ Normal</option>
+                  <option value="1" ${c.priority === 1 ? 'selected' : ''}>⭐ Low (Optional)</option>
+                </select>
+              </div>
             </div>
           </div>
         `;
@@ -6373,6 +6994,13 @@ BMAT101\tCalculus and Linear Algebra\tB1+TB1\tNIL`;
         if (themeIcon) themeIcon.innerText = '☀️';
       }
       updateHomeLink(theme);
+
+      // Re-render active timetable view with theme-specific colors
+      if (typeof updateAllViews === 'function' && typeof practiceOptions !== 'undefined' && practiceOptions.length > 0) {
+        updateAllViews();
+      } else if (typeof renderActiveView === 'function') {
+        renderActiveView();
+      }
     }
 
     const Toast = Swal.mixin({
