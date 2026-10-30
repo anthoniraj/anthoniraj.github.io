@@ -3389,16 +3389,6 @@
         <span class="btn-label-inline">Add</span>
       </button>
 
-      <button type="button" class="header-icon-btn" onclick="openImportModal()" title="📋 Paste Portal Text / Bulk Import">
-        <span>📋</span>
-        <span class="btn-label-inline">Import</span>
-      </button>
-
-      <button type="button" class="header-icon-btn" onclick="loadSampleFreshersData()" title="⚡ Pre-fill Sample Freshers Plan">
-        <span>⚡</span>
-        <span class="btn-label-inline">Sample</span>
-      </button>
-
       <button type="button" class="header-icon-btn" onclick="generatePDF()" title="📄 Download Landscape PDF Report with Timetable">
         <span>📄</span>
         <span class="btn-label-inline">PDF</span>
@@ -4474,28 +4464,54 @@
 
     function clearCurrentPlanCourses() {
       const current = getActiveOption();
-      if (current.courses.length === 0) {
-        showToast('Current plan is already empty', 'info');
+      if (!current || !current.courses || current.courses.length === 0) {
+        if (typeof Swal !== 'undefined') {
+          Swal.fire({
+            icon: 'info',
+            title: 'Plan is Empty',
+            text: `"${current ? current.name : 'Current Plan'}" does not have any registered courses to clear.`,
+            confirmButtonColor: '#4f46e5'
+          });
+        } else {
+          alert('Current plan is already empty!');
+        }
         return;
       }
 
-      Swal.fire({
-        title: 'Clear All Courses?',
-        text: `Remove all ${current.courses.length} courses from "${current.name}"?`,
-        icon: 'warning',
-        showCancelButton: true,
-        confirmButtonColor: '#ef4444',
-        cancelButtonColor: '#64748b',
-        confirmButtonText: 'Yes, Clear All'
-      }).then((result) => {
-        if (result.isConfirmed) {
+      if (typeof Swal !== 'undefined') {
+        Swal.fire({
+          title: 'Clear All Courses?',
+          text: `Are you sure you want to remove all ${current.courses.length} courses from "${current.name}"? This action cannot be undone.`,
+          icon: 'warning',
+          showCancelButton: true,
+          confirmButtonColor: '#ef4444',
+          cancelButtonColor: '#64748b',
+          confirmButtonText: 'Yes, Clear All',
+          cancelButtonText: 'Cancel'
+        }).then((result) => {
+          if (result.isConfirmed) {
+            current.courses = [];
+            saveStateToStorage();
+            cancelEditing();
+            updateAllViews();
+            Swal.fire({
+              icon: 'success',
+              title: 'Cleared!',
+              text: `All courses have been removed from "${current.name}".`,
+              timer: 1600,
+              showConfirmButton: false
+            });
+          }
+        });
+      } else {
+        if (confirm(`Remove all ${current.courses.length} courses from "${current.name}"?`)) {
           current.courses = [];
           saveStateToStorage();
           cancelEditing();
           updateAllViews();
-          showToast('Cleared courses for this plan', 'info');
+          alert('All courses cleared successfully!');
         }
-      });
+      }
     }
 
     // ==========================================
