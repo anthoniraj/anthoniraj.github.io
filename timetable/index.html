@@ -6351,10 +6351,7 @@ BMAT101\tCalculus and Linear Algebra\tB1+TB1\tNIL`;
       if (!modal) return;
       modal.classList.add('is-open');
 
-      const area = document.getElementById('aiCourseInput');
-      if (area && !area.value.trim()) {
-        area.value = DEFAULT_HOD_DATA;
-      }
+      // Do not display courses by default; let user upload excel or load local sample
       updateAIParsedPreview();
       selectAICredits(aiWizardState.targetCredits || 25.0);
       setAIWizardStep(1);
@@ -6363,6 +6360,9 @@ BMAT101\tCalculus and Linear Algebra\tB1+TB1\tNIL`;
     function closeAIWizard() {
       const modal = document.getElementById('aiWizardModal');
       if (modal) modal.classList.remove('is-open');
+      try {
+        localStorage.setItem('timetable_ai_wizard_seen', 'true');
+      } catch (e) {}
     }
 
     function handleAIWizardBackdropClick(e) {
@@ -6426,6 +6426,15 @@ BMAT101\tCalculus and Linear Algebra\tB1+TB1\tNIL`;
 
       if (direction > 0 && aiWizardState.currentStep === 1) {
         updateAIParsedPreview();
+        const totalCourses = (aiWizardState.parsedCourses || []).length;
+        if (totalCourses === 0) {
+          Swal.fire({
+            icon: 'info',
+            title: 'No Courses Loaded',
+            text: 'Please upload an Excel allotment sheet (.xlsx, .xls, .csv) or click "Load Department Sample" to populate courses first.'
+          });
+          return;
+        }
         const selected = (aiWizardState.parsedCourses || []).filter(c => c.selected !== false);
         if (selected.length === 0) {
           Swal.fire({
@@ -6617,7 +6626,16 @@ BMAT101\tCalculus and Linear Algebra\tB1+TB1\tNIL`;
 
       const courses = aiWizardState.parsedCourses || [];
       if (courses.length === 0) {
-        container.innerHTML = '<div style="color: var(--text-muted); font-size: 0.8rem; font-style: italic; padding: 12px; text-align: center;">Upload an Excel sheet or load sample to view and prioritize courses.</div>';
+        container.innerHTML = `
+          <div class="empty-pref-state" style="padding: 24px 16px; text-align: center; color: var(--text-muted); font-size: 0.82rem; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 8px;">
+            <span style="font-size: 1.6rem; opacity: 0.8;">📂</span>
+            <div style="font-weight: 600; color: var(--text-main); font-size: 0.88rem;">No Courses Loaded Yet</div>
+            <div style="font-size: 0.78rem; max-width: 440px; line-height: 1.45; color: var(--text-muted);">
+              Upload your department Excel sheet (.xlsx, .xls, .csv) above, or click
+              <a href="javascript:void(0)" onclick="loadSampleHODDataIntoWizard()" style="color: var(--accent-primary); text-decoration: underline; font-weight: 600;">Load Department Sample</a> to test with sample course offerings.
+            </div>
+          </div>
+        `;
         updateCourseStatsPill();
         return;
       }
@@ -6705,6 +6723,16 @@ BMAT101\tCalculus and Linear Algebra\tB1+TB1\tNIL`;
     function updateCourseStatsPill() {
       const courses = aiWizardState.parsedCourses || [];
       const statsPill = document.getElementById('aiSelectedStatsPill');
+      if (!statsPill) return;
+
+      if (courses.length === 0) {
+        statsPill.innerText = '0 Courses Loaded';
+        statsPill.style.background = 'rgba(255, 255, 255, 0.04)';
+        statsPill.style.color = 'var(--text-muted)';
+        statsPill.style.borderColor = 'var(--border-color)';
+        return;
+      }
+
       let selectedCount = 0;
       let selectedCr = 0;
       courses.forEach(c => {
@@ -6713,12 +6741,10 @@ BMAT101\tCalculus and Linear Algebra\tB1+TB1\tNIL`;
           selectedCr += parseFloat(c.credits) || 0;
         }
       });
-      if (statsPill) {
-        statsPill.innerText = `Selected: ${selectedCount} / ${courses.length} (${selectedCr.toFixed(1)} Cr Pool)`;
-        statsPill.style.background = selectedCount > 0 ? 'rgba(16, 185, 129, 0.15)' : 'rgba(239, 68, 68, 0.15)';
-        statsPill.style.color = selectedCount > 0 ? '#10b981' : '#ef4444';
-        statsPill.style.borderColor = selectedCount > 0 ? '#10b981' : '#ef4444';
-      }
+      statsPill.innerText = `Selected: ${selectedCount} / ${courses.length} (${selectedCr.toFixed(1)} Cr Pool)`;
+      statsPill.style.background = selectedCount > 0 ? 'rgba(16, 185, 129, 0.15)' : 'rgba(239, 68, 68, 0.15)';
+      statsPill.style.color = selectedCount > 0 ? '#10b981' : '#ef4444';
+      statsPill.style.borderColor = selectedCount > 0 ? '#10b981' : '#ef4444';
     }
 
     // ==========================================
@@ -7307,7 +7333,9 @@ BMAT101\tCalculus and Linear Algebra\tB1+TB1\tNIL`;
 
             saveStateToStorage();
             updateAllViews();
-            sessionStorage.setItem('timetable_ai_wizard_seen', 'true');
+            try {
+              localStorage.setItem('timetable_ai_wizard_seen', 'true');
+            } catch (e) {}
 
             if (chk4) chk4.className = 'check-item completed';
 
@@ -7436,8 +7464,15 @@ BMAT101\tCalculus and Linear Algebra\tB1+TB1\tNIL`;
       loadStateFromStorage();
       updateAllViews();
 
-      const wizardSeen = sessionStorage.getItem('timetable_ai_wizard_seen');
+      let wizardSeen = false;
+      try {
+        wizardSeen = localStorage.getItem('timetable_ai_wizard_seen');
+      } catch (e) {}
+
       if (!wizardSeen) {
+        try {
+          localStorage.setItem('timetable_ai_wizard_seen', 'true');
+        } catch (e) {}
         setTimeout(() => {
           openAIWizard();
         }, 400);
