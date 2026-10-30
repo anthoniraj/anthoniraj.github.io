@@ -4170,6 +4170,13 @@
       return facStr.replace(/^\d+\s*-\s*/, '').trim();
     }
 
+    function formatVenue(venueStr) {
+      if (!venueStr) return '';
+      const clean = String(venueStr).trim();
+      if (!clean || clean.toUpperCase() === 'TBA' || clean.toUpperCase() === 'NIL' || clean === '-') return '';
+      return clean;
+    }
+
     // ==========================================
     // 2. MULTIPLE OPTIONS / PLANS STATE & STORAGE
     // ==========================================
@@ -5191,7 +5198,7 @@
       const slot = document.getElementById('courseSlot').value.trim().toUpperCase();
       const faculty = document.getElementById('facultyName').value.trim();
       const creditsVal = document.getElementById('courseCredits').value;
-      const venue = (document.getElementById('courseVenue').value.trim() || 'TBA').toUpperCase();
+      const venue = formatVenue(document.getElementById('courseVenue').value.trim());
       const editIdx = parseInt(document.getElementById('editingCourseIndex').value, 10);
 
       if (!code || !name || !slot || !faculty) {
@@ -5268,7 +5275,7 @@
       document.getElementById('courseSlot').value = c.slot || '';
       document.getElementById('facultyName').value = c.faculty || '';
       document.getElementById('courseCredits').value = c.credits != null ? c.credits : 3.0;
-      document.getElementById('courseVenue').value = c.venue || 'TBA';
+      document.getElementById('courseVenue').value = formatVenue(c.venue);
       document.getElementById('editingCourseIndex').value = idx;
 
       document.getElementById('formTitle').innerText = `Edit Course: ${c.code}`;
@@ -5368,8 +5375,8 @@
           let type = "Regular";
           let credits = 3.0;
           let slot = "NIL";
-          let venue = "TBA";
-          let faculty = "TBA";
+          let venue = "";
+          let faculty = "-";
 
           for (let j = i + 1; j < Math.min(i + 15, lines.length); j++) {
             const l = lines[j];
@@ -5380,7 +5387,7 @@
               credits = parseFloat(parts[4]) || 0;
             } else if (l.match(/^([A-Z]\d.*|L\d.*)$/) && slot === "NIL" && !l.includes('-') && !l.includes('Registered')) {
               slot = l;
-            } else if (l.match(/^(PRP[A-Z0-9]+|SJT[A-Z0-9]+|TT[A-Z0-9]+|NIL)$/) && venue === "TBA" && l !== "NIL") {
+            } else if (l.match(/^(PRP[A-Z0-9]+|SJT[A-Z0-9]+|TT[A-Z0-9]+|NIL)$/) && !venue && l !== "NIL") {
               venue = l;
             } else if (l.match(/^\d{4,6}\s*-\s*.+$/)) {
               faculty = l;
@@ -5538,6 +5545,8 @@
               const isSelected = moveSelection && moveSelection.courseIndex === s.courseIndex;
               const displayCode = isClash ? matches.map(m => m.code).join(' / ') : s.code;
               const courseIndices = matches.map(m => m.courseIndex).join(',');
+              const venueDisplay = formatVenue(s.venue);
+              const slotMetaText = venueDisplay ? `${venueDisplay} · ${slot}` : slot;
               rowsHtml += `
                 <td class="occupied-slot type-theory ${isClash ? 'type-clash' : ''} ${isSelected ? 'is-selected-move' : ''}"
                   data-slot="${slot}"
@@ -5551,12 +5560,12 @@
                   ondragleave="handleDragLeave(event)"
                   ondrop="handleDrop(event, '${slot}', 'THEORY', ${s.courseIndex})"
                   onclick="handleCellClick('${slot}', 'THEORY', ${s.courseIndex})"
-                  title="Tap to select/swap or drag | ${s.code} - ${s.name} (${slot}) | Faculty: ${cleanFacultyName(s.faculty)}">
+                  title="Tap to select/swap or drag | ${s.code} - ${s.name} (${slot})${venueDisplay ? ' | Venue: ' + venueDisplay : ''} | Faculty: ${cleanFacultyName(s.faculty)}">
                   <div class="slot-card-content">
                     <div class="slot-card-code" style="color: ${isClash ? '#ef4444' : cardText}; font-weight:800;">${displayCode}</div>
                     <div class="slot-card-name" style="color: ${isClash ? '#ef4444' : (isLight ? theme.lightText : theme.subText)};" title="${(s.name || '').replace(/"/g, '&quot;')}">${((s.name || '').split(' ').slice(0, 2).join(' '))}</div>
                     <div class="slot-card-meta" style="color: ${cardMeta};">
-                      ${s.venue || 'TBA'} · ${slot} ${isClash ? `<span class="slot-card-clash-tag">⚠️ CLASH (${matches.length})</span>` : ''}
+                      ${slotMetaText} ${isClash ? `<span class="slot-card-clash-tag">⚠️ CLASH (${matches.length})</span>` : ''}
                     </div>
                   </div>
                 </td>
@@ -5610,6 +5619,8 @@
               const isSelected = moveSelection && moveSelection.courseIndex === s.courseIndex;
               const displayCode = isClash ? matches.map(m => m.code).join(' / ') : s.code;
               const courseIndices = matches.map(m => m.courseIndex).join(',');
+              const venueDisplay = formatVenue(s.venue);
+              const slotMetaText = venueDisplay ? `${venueDisplay} · ${slot}` : slot;
               rowsHtml += `
                 <td class="occupied-slot type-lab ${isClash ? 'type-clash' : ''} ${isSelected ? 'is-selected-move' : ''}"
                   data-slot="${slot}"
@@ -5623,12 +5634,12 @@
                   ondragleave="handleDragLeave(event)"
                   ondrop="handleDrop(event, '${slot}', 'LAB', ${s.courseIndex})"
                   onclick="handleCellClick('${slot}', 'LAB', ${s.courseIndex})"
-                  title="Tap to select/swap or drag | ${s.code} - ${s.name} (${slot}) | Faculty: ${cleanFacultyName(s.faculty)}">
+                  title="Tap to select/swap or drag | ${s.code} - ${s.name} (${slot})${venueDisplay ? ' | Venue: ' + venueDisplay : ''} | Faculty: ${cleanFacultyName(s.faculty)}">
                   <div class="slot-card-content">
                     <div class="slot-card-code" style="color: ${isClash ? '#ef4444' : cardText}; font-weight:800;">${displayCode}</div>
                     <div class="slot-card-name" style="color: ${isClash ? '#ef4444' : (isLight ? theme.lightText : theme.subText)};" title="${(s.name || '').replace(/"/g, '&quot;')}">${((s.name || '').split(' ').slice(0, 2).join(' '))}</div>
                     <div class="slot-card-meta" style="color: ${cardMeta};">
-                      ${s.venue || 'TBA'} · ${slot} ${isClash ? `<span class="slot-card-clash-tag">⚠️ CLASH (${matches.length})</span>` : ''}
+                      ${slotMetaText} ${isClash ? `<span class="slot-card-clash-tag">⚠️ CLASH (${matches.length})</span>` : ''}
                     </div>
                   </div>
                 </td>
@@ -5850,12 +5861,13 @@
           const typeClass = isLab ? 'type-lab' : 'type-theory';
           const formattedTime = formatTime12Hour(item.timeRange);
           const theme = getCourseColorTheme(item.courseIndex, item.code);
+          const itemVenue = formatVenue(item.venue);
 
           html += `
             <div class="schedule-item" style="border-left: 4px solid ${theme.border};">
               <div class="time-row">
                 <span class="time-range">${formattedTime}</span>
-                <span class="venue-badge">📍 ${item.venue || 'TBA'}</span>
+                ${itemVenue ? `<span class="venue-badge">📍 ${itemVenue}</span>` : ''}
                 <span class="slot-pill" style="border-left: 3px solid ${theme.border};">${item.slot}</span>
                 <span class="type-tag ${typeClass}">${item.type}</span>
               </div>
@@ -5947,7 +5959,7 @@
             <td><span class="type-tag ${typeClass}">${isLab ? 'LAB' : 'Theory'}</span></td>
             <td><span class="slot-pill" style="border-left: 3px solid ${theme.border};">${c.slot}</span></td>
             <td>${cleanFacultyName(c.faculty)}</td>
-            <td><span class="venue-badge">${c.venue || 'TBA'}</span></td>
+            <td>${formatVenue(c.venue) ? `<span class="venue-badge">${formatVenue(c.venue)}</span>` : '<span style="color:var(--text-muted);">-</span>'}</td>
             <td><strong>${(parseFloat(c.credits) || 0).toFixed(1)}</strong></td>
             <td style="text-align: right;">
               <div class="action-btn-group" style="justify-content: flex-end;">
@@ -6021,7 +6033,7 @@
             <td>${isCourseLab(c) ? 'LAB' : 'Theory'}</td>
             <td style="font-family: monospace; font-weight: 600;">${c.slot}</td>
             <td>${cleanFacultyName(c.faculty)}</td>
-            <td style="text-align: center;">${c.venue || 'TBA'}</td>
+            <td style="text-align: center;">${formatVenue(c.venue) || '-'}</td>
             <td style="text-align: center;"><strong>${(parseFloat(c.credits) || 0).toFixed(1)}</strong></td>
           </tr>
         `;
@@ -6111,7 +6123,7 @@
             const displayCode = isClash ? matches.map(m => m.code).join(' / ') : s.code;
             html += `
               <td style="background: ${isClash ? '#fee2e2' : theme.pdfBg} !important; font-weight: 700; color: ${isClash ? '#991b1b' : theme.pdfText} !important; border: 1px solid ${isClash ? '#f87171' : (theme.lightBorder || theme.border)} !important; padding: 2px;">
-                ${displayCode}<br><span style="font-size: 0.48rem; display: block; white-space: nowrap; overflow: hidden; max-width: 55px;" title="${(s.name || '').replace(/"/g, '&quot;')}">${(s.name || '').split(' ').slice(0, 2).join(' ')}</span><span style="font-size: 0.50rem; font-weight: normal;">${s.venue || 'TBA'} · ${slot}</span>
+                ${displayCode}<br><span style="font-size: 0.48rem; display: block; white-space: nowrap; overflow: hidden; max-width: 55px;" title="${(s.name || '').replace(/"/g, '&quot;')}">${(s.name || '').split(' ').slice(0, 2).join(' ')}</span><span style="font-size: 0.50rem; font-weight: normal;">${formatVenue(s.venue) ? `${formatVenue(s.venue)} · ` : ''}${slot}</span>
               </td>
             `;
           }
@@ -6144,7 +6156,7 @@
             const displayCode = isClash ? matches.map(m => m.code).join(' / ') : s.code;
             html += `
               <td style="background: ${isClash ? '#fee2e2' : theme.pdfBg} !important; font-weight: 700; color: ${isClash ? '#991b1b' : theme.pdfText} !important; border: 1px solid ${isClash ? '#f87171' : (theme.lightBorder || theme.border)} !important; padding: 2px;">
-                ${displayCode}<br><span style="font-size: 0.48rem; display: block; white-space: nowrap; overflow: hidden; max-width: 55px;" title="${(s.name || '').replace(/"/g, '&quot;')}">${(s.name || '').split(' ').slice(0, 2).join(' ')}</span><span style="font-size: 0.50rem; font-weight: normal;">${s.venue || 'TBA'} · ${slot}</span>
+                ${displayCode}<br><span style="font-size: 0.48rem; display: block; white-space: nowrap; overflow: hidden; max-width: 55px;" title="${(s.name || '').replace(/"/g, '&quot;')}">${(s.name || '').split(' ').slice(0, 2).join(' ')}</span><span style="font-size: 0.50rem; font-weight: normal;">${formatVenue(s.venue) ? `${formatVenue(s.venue)} · ` : ''}${slot}</span>
               </td>
             `;
           }
@@ -6200,7 +6212,7 @@
               <td>${item.name}</td>
               <td>${item.mode === 'LAB' ? 'LAB' : 'Theory'}</td>
               <td>${cleanFacultyName(item.faculty)}</td>
-              <td style="text-align: center;"><strong>${item.venue || 'TBA'}</strong></td>
+              <td style="text-align: center;"><strong>${formatVenue(item.venue) || '-'}</strong></td>
             </tr>
           `;
         });
@@ -7212,7 +7224,7 @@ BMAT101\tCalculus and Linear Algebra\tB1+TB1\tNIL`;
             slot: off.theorySlot,
             faculty: 'Faculty Assigned',
             credits: theoryCr,
-            venue: 'TBA'
+            venue: ''
           });
         }
 
@@ -7224,7 +7236,7 @@ BMAT101\tCalculus and Linear Algebra\tB1+TB1\tNIL`;
             slot: off.labSlot,
             faculty: 'Faculty Assigned',
             credits: labCr,
-            venue: 'TBA'
+            venue: ''
           });
         }
 
