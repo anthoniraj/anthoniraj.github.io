@@ -1865,11 +1865,44 @@
       user-select: none;
       box-shadow: none;
       border-radius: 0;
-      transition: transform 0.12s ease;
+      transition: transform 0.15s ease, box-shadow 0.15s ease, opacity 0.15s ease, filter 0.15s ease;
+      position: relative;
     }
 
     .matrix-table td.occupied-slot:active {
       cursor: grabbing;
+    }
+
+    /* Softly dim unhovered occupied slots when a course is hovered so the active course stands out */
+    .has-hovered-course .matrix-table td.occupied-slot:not(.course-slot-highlighted) {
+      opacity: 0.38 !important;
+      filter: grayscale(35%) contrast(0.92);
+      transition: opacity 0.18s ease, filter 0.18s ease;
+    }
+
+    /* Luminous highlight for all slots (Theory and Lab) of the hovered course */
+    .matrix-table td.occupied-slot.course-slot-highlighted {
+      opacity: 1 !important;
+      filter: none !important;
+      transform: scale(1.06) translateZ(0);
+      z-index: 25 !important;
+      overflow: visible !important;
+      box-shadow: 0 0 0 2.5px var(--accent-primary, #6366f1), 0 6px 20px rgba(99, 102, 241, 0.45) !important;
+      border-color: var(--accent-primary, #6366f1) !important;
+    }
+
+    [data-theme="light"] .matrix-table td.occupied-slot.course-slot-highlighted {
+      box-shadow: 0 0 0 2.5px #4f46e5, 0 6px 18px rgba(79, 70, 229, 0.4) !important;
+      border-color: #4f46e5 !important;
+    }
+
+    .courses-table tr.course-row-highlighted td {
+      background: rgba(99, 102, 241, 0.16) !important;
+    }
+
+    .schedule-item.course-item-highlighted {
+      box-shadow: 0 0 0 2px var(--accent-primary, #6366f1), 0 6px 18px rgba(99, 102, 241, 0.35) !important;
+      transform: translateX(4px);
     }
 
     .matrix-table td.occupied-slot.is-dragging {
@@ -4177,6 +4210,11 @@
       return clean;
     }
 
+    function getCourseBaseCode(code) {
+      if (!code) return '';
+      return String(code).trim().toUpperCase().replace(/[_ -]?(LAB|THEORY|TH|PRAC|P|L)$/i, '');
+    }
+
     // ==========================================
     // 2. MULTIPLE OPTIONS / PLANS STATE & STORAGE
     // ==========================================
@@ -4852,6 +4890,7 @@
     }
 
     function handleDragStart(e, courseIndex, slotToken) {
+      clearCourseSlotHighlights();
       const current = getActiveOption();
       const c = current.courses[courseIndex];
       if (!c) return;
@@ -5050,6 +5089,132 @@
         executeSwapCourses(sourceIdx, sSlot, sMode, targetCourseIndex, targetSlot, targetMode);
       } else {
         executeMoveCourse(sourceIdx, targetSlot, targetMode, sSlot);
+      }
+    }
+
+    // ==========================================
+    // COURSE HOVER HIGHLIGHTING (THEORY & LAB)
+    // ==========================================
+
+    let activeHighlightedKey = null;
+
+    function highlightCourseSlots(targetEl) {
+      if (dragSource) return;
+      if (!targetEl) {
+        clearCourseSlotHighlights();
+        return;
+      }
+
+      const cell = targetEl.closest('[data-course-index]');
+      if (!cell) {
+        clearCourseSlotHighlights();
+        return;
+      }
+
+      const rawIdx = cell.getAttribute('data-course-index');
+      const rawCodes = cell.getAttribute('data-course-code') || '';
+      const rawBases = cell.getAttribute('data-base-code') || '';
+
+      if (!rawIdx && !rawCodes && !rawBases) {
+        clearCourseSlotHighlights();
+        return;
+      }
+
+      const currentKey = `${rawIdx}|${rawCodes}|${rawBases}`;
+      if (currentKey === activeHighlightedKey) return;
+      activeHighlightedKey = currentKey;
+
+      const targetIndices = new Set(rawIdx ? rawIdx.split(',').filter(Boolean) : []);
+      const targetCodes = new Set(rawCodes ? rawCodes.split(',').filter(Boolean).map(s => s.trim().toUpperCase()) : []);
+      const targetBases = new Set(rawBases ? rawBases.split(',').filter(Boolean).map(s => s.trim().toUpperCase()) : []);
+
+      // Cross-match all related courses (theory and lab) in active plan
+      const current = getActiveOption();
+      (current.courses || []).forEach((c, idx) => {
+        const code = (c.code || '').trim().toUpperCase();
+        const base = getCourseBaseCode(code);
+        if (targetIndices.has(String(idx)) || targetCodes.has(code) || targetBases.has(base)) {
+          targetIndices.add(String(idx));
+          if (code) targetCodes.add(code);
+          if (base) targetBases.add(base);
+        }
+      });
+
+      const printableArea = document.getElementById('printableArea');
+      if (printableArea) {
+        printableArea.classList.add('has-hovered-course');
+      }
+
+      // Highlight matching slots on the timetable matrix grid (both Theory and LAB)
+      document.querySelectorAll('.matrix-table td.occupied-slot').forEach(td => {
+        const tdIndices = (td.getAttribute('data-course-index') || '').split(',').filter(Boolean);
+        const tdCodes = (td.getAttribute('data-course-code') || '').toUpperCase().split(',').filter(Boolean);
+        const tdBases = (td.getAttribute('data-base-code') || '').toUpperCase().split(',').filter(Boolean);
+
+        const matches = tdIndices.some(i => targetIndices.has(i)) ||
+                        tdCodes.some(c => targetCodes.has(c)) ||
+                        tdBases.some(b => targetBases.has(b));
+
+        td.classList.toggle('course-slot-highlighted', matches);
+      });
+
+      // Highlight matching rows in Registered Courses Table
+      document.querySelectorAll('.courses-table tr[data-course-index]').forEach(tr => {
+        const trIdx = tr.getAttribute('data-course-index');
+        const trCode = (tr.getAttribute('data-course-code') || '').toUpperCase();
+        const trBase = (tr.getAttribute('data-base-code') || '').toUpperCase();
+
+        const matches = targetIndices.has(trIdx) || targetCodes.has(trCode) || targetBases.has(trBase);
+        tr.classList.toggle('course-row-highlighted', matches);
+      });
+
+      // Highlight matching items in Day Agenda View
+      document.querySelectorAll('.schedule-item[data-course-index]').forEach(item => {
+        const itemIdx = item.getAttribute('data-course-index');
+        const itemCode = (item.getAttribute('data-course-code') || '').toUpperCase();
+        const itemBase = (item.getAttribute('data-base-code') || '').toUpperCase();
+
+        const matches = targetIndices.has(itemIdx) || targetCodes.has(itemCode) || targetBases.has(itemBase);
+        item.classList.toggle('course-item-highlighted', matches);
+      });
+    }
+
+    function clearCourseSlotHighlights() {
+      if (!activeHighlightedKey) return;
+      activeHighlightedKey = null;
+
+      const printableArea = document.getElementById('printableArea');
+      if (printableArea) {
+        printableArea.classList.remove('has-hovered-course');
+      }
+
+      document.querySelectorAll('.matrix-table td.course-slot-highlighted').forEach(td => {
+        td.classList.remove('course-slot-highlighted');
+      });
+
+      document.querySelectorAll('.courses-table tr.course-row-highlighted').forEach(tr => {
+        tr.classList.remove('course-row-highlighted');
+      });
+
+      document.querySelectorAll('.schedule-item.course-item-highlighted').forEach(item => {
+        item.classList.remove('course-item-highlighted');
+      });
+    }
+
+    function handleCourseHoverEnter(e) {
+      if (dragSource) return;
+      const target = e.target ? e.target.closest('[data-course-index]') : null;
+      if (target) {
+        highlightCourseSlots(target);
+      } else {
+        clearCourseSlotHighlights();
+      }
+    }
+
+    function handleCourseHoverLeave(e) {
+      if (dragSource) return;
+      if (!e.relatedTarget || !e.relatedTarget.closest('[data-course-index]')) {
+        clearCourseSlotHighlights();
       }
     }
 
@@ -5440,6 +5605,7 @@
     }
 
     function renderActiveView() {
+      clearCourseSlotHighlights();
       if (activeView === 'matrix') {
         renderMatrixView();
       } else if (activeView === 'agenda') {
@@ -5545,6 +5711,8 @@
               const isSelected = moveSelection && moveSelection.courseIndex === s.courseIndex;
               const displayCode = isClash ? matches.map(m => m.code).join(' / ') : s.code;
               const courseIndices = matches.map(m => m.courseIndex).join(',');
+              const courseCodes = matches.map(m => m.code).join(',');
+              const baseCodes = matches.map(m => getCourseBaseCode(m.code)).join(',');
               const venueDisplay = formatVenue(s.venue);
               const slotMetaText = venueDisplay ? `${venueDisplay} · ${slot}` : slot;
               rowsHtml += `
@@ -5552,6 +5720,8 @@
                   data-slot="${slot}"
                   data-mode="THEORY"
                   data-course-index="${courseIndices}"
+                  data-course-code="${courseCodes}"
+                  data-base-code="${baseCodes}"
                   style="${isClash ? '' : `background: ${cardBg} !important; border: 1.5px solid ${cardBorder} !important;`}"
                   draggable="true"
                   ondragstart="handleDragStart(event, ${s.courseIndex}, '${slot}')"
@@ -5619,6 +5789,8 @@
               const isSelected = moveSelection && moveSelection.courseIndex === s.courseIndex;
               const displayCode = isClash ? matches.map(m => m.code).join(' / ') : s.code;
               const courseIndices = matches.map(m => m.courseIndex).join(',');
+              const courseCodes = matches.map(m => m.code).join(',');
+              const baseCodes = matches.map(m => getCourseBaseCode(m.code)).join(',');
               const venueDisplay = formatVenue(s.venue);
               const slotMetaText = venueDisplay ? `${venueDisplay} · ${slot}` : slot;
               rowsHtml += `
@@ -5626,6 +5798,8 @@
                   data-slot="${slot}"
                   data-mode="LAB"
                   data-course-index="${courseIndices}"
+                  data-course-code="${courseCodes}"
+                  data-base-code="${baseCodes}"
                   style="${isClash ? '' : `background: ${cardBg} !important; border: 1.5px solid ${cardBorder} !important;`}"
                   draggable="true"
                   ondragstart="handleDragStart(event, ${s.courseIndex}, '${slot}')"
@@ -5864,7 +6038,7 @@
           const itemVenue = formatVenue(item.venue);
 
           html += `
-            <div class="schedule-item" style="border-left: 4px solid ${theme.border};">
+            <div class="schedule-item" data-course-index="${item.courseIndex}" data-course-code="${item.code}" data-base-code="${getCourseBaseCode(item.code)}" style="border-left: 4px solid ${theme.border};">
               <div class="time-row">
                 <span class="time-range">${formattedTime}</span>
                 ${itemVenue ? `<span class="venue-badge">📍 ${itemVenue}</span>` : ''}
@@ -5942,7 +6116,7 @@
         const theme = getCourseColorTheme(idx, c.code);
 
         html += `
-          <tr data-course-index="${idx}" draggable="true" ondragstart="handleDragStart(event, ${idx}, '${c.slot}')" ondragend="handleDragEnd(event)">
+          <tr class="courses-table-row" data-course-index="${idx}" data-course-code="${c.code}" data-base-code="${getCourseBaseCode(c.code)}" draggable="true" ondragstart="handleDragStart(event, ${idx}, '${c.slot}')" ondragend="handleDragEnd(event)">
             <td style="white-space: nowrap; text-align: center; width: 68px;">
               <div class="row-num-drag-cell">
                 <span class="drag-handle" title="Drag onto timetable grid to relocate slot">⠿</span>
@@ -7475,6 +7649,10 @@ BMAT101\tCalculus and Linear Algebra\tB1+TB1\tNIL`;
       initTheme();
       loadStateFromStorage();
       updateAllViews();
+
+      // Real-time hover highlight of all slots (theory & lab) of a course
+      document.addEventListener('mouseover', handleCourseHoverEnter);
+      document.addEventListener('mouseout', handleCourseHoverLeave);
 
       let wizardSeen = false;
       try {
