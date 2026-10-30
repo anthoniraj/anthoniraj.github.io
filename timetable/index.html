@@ -3491,7 +3491,7 @@
               <input type="file" id="aiExcelFileInput" accept=".xlsx,.xls,.csv,.tsv,.txt" style="display:none;" onchange="handleExcelFileSelect(event)">
               <div class="dropzone-icon">📊</div>
               <div class="dropzone-title"><strong>Drag & Drop Excel (.xlsx, .xls, .csv) File Here</strong></div>
-              <div class="dropzone-sub">or click to browse from your device • Auto-detects Course Code, Title, Theory & Lab Slots</div>
+              <div class="dropzone-sub">or click to browse from your device • Auto-detects Course Code, Title, Theory & Lab Slots (Optional: Venue, Faculty Name)</div>
               <div id="aiUploadedFileName" style="display:none;"></div>
             </div>
 
@@ -3512,10 +3512,10 @@
             <div id="aiPasteAreaWrapper" style="display: none; margin-top: 10px;">
               <div class="form-group">
                 <label for="aiCourseInput">
-                  <span>Course Allotment Table (TSV / Tab-Separated or Excel Paste):</span>
+                  <span>Course Allotment Table (TSV / Tab-Separated or Excel Paste — Optional: Venue & Faculty):</span>
                   <span id="aiParsedCountBadge" class="badge-pill">0 Courses Detected</span>
                 </label>
-                <textarea id="aiCourseInput" class="form-control" style="width: 100%; min-height: 140px; font-family: 'JetBrains Mono', monospace; font-size: 0.78rem;" placeholder="COURSE CODE&#9;COURSE TITLE&#9;THORY SLOT&#9;LAB SLOT..." oninput="updateAIParsedPreview()"></textarea>
+                <textarea id="aiCourseInput" class="form-control" style="width: 100%; min-height: 140px; font-family: 'JetBrains Mono', monospace; font-size: 0.78rem;" placeholder="COURSE CODE&#9;COURSE TITLE&#9;THEORY SLOT&#9;LAB SLOT&#9;VENUE&#9;FACULTY NAME..." oninput="updateAIParsedPreview()"></textarea>
               </div>
             </div>
 
@@ -6465,62 +6465,62 @@
     // 8. AI TIMETABLE GENERATOR & CSP SOLVER
     // ==========================================
 
-    const DEFAULT_HOD_DATA = `COURSE CODE\tCOURSE TITLE\tTHORY SLOT\tLAB SLOT
-BACHY105\tApplied Chemistry\tC1+TC1\tL43+L44
-BACHY105\tApplied Chemistry\tC2+TC2\tL21+L22
-BACHY105\tApplied Chemistry\tC1+TC1\tL37+L38
-BACHY105\tApplied Chemistry\tC2+TC2\tL27+L28
-BACHY105\tApplied Chemistry\tC1+TC1\tL49+L50
-BACHY105\tApplied Chemistry\tC2+TC2\tL19+L20
-BACHY105\tApplied Chemistry\tC1+TC1\tL31+L32
-BACSE104\tStructured and Object-Oriented Programming\tA1+TA1\tL41+L42+L49+L50
-BACSE104\tStructured and Object-Oriented Programming\tA2+TA2\tL9+L10+L23+L24
-BACSE104\tStructured and Object-Oriented Programming\tA1+TA1\tL41+L42+L49+L50
-BACSE104\tStructured and Object-Oriented Programming\tA2+TA2\tL11+L12+L25+L26
-BACSE104\tStructured and Object-Oriented Programming\tA1+TA1\tL35+L36+L37+L38
-BACSE104\tStructured and Object-Oriented Programming\tA2+TA2\tL1+L2+L27+L28
-BACSE104\tStructured and Object-Oriented Programming\tA1+TA1\tL37+L38+L43+L44
-BAENG101\tTechnical English Communication\tG1/G2\tANY SLOT
-BAENG101\tTechnical English Communication\tG1/G2\tANY SLOT
-BAHUM101\tIndia Studies\tOC\t
-BAHUM101\tIndia Studies\tOC\t
-BAHUM101\tIndia Studies\tOC\t
-BAHUM101\tIndia Studies\tOC\t
-BAHUM101\tIndia Studies\tOC\t
-BAHUM101\tIndia Studies\tOC\t
-BAHUM101\tIndia Studies\tOC\t
-BAITE101\tDigital Logic Design and Computer Organization\tB1+TB1\tL55+L56
-BAITE101\tDigital Logic Design and Computer Organization\tB2+TB2\tL25+L26
-BAITE101\tDigital Logic Design and Computer Organization\tB1+TB1\tL45+L46
-BAITE101\tDigital Logic Design and Computer Organization\tB2+TB2\tL15+L16
-BAITE101\tDigital Logic Design and Computer Organization\tB1+TB1\tL31+L32
-BAITE101\tDigital Logic Design and Computer Organization\tB2+TB2\tL13+L14
-BAITE101\tDigital Logic Design and Computer Organization\tB1+TB1\tL33+L34
-BAITE102\tData Structures and Algorithms\tF1+TF1\tL53+L54
-BAITE102\tData Structures and Algorithms\tF2+TF2\tL19+L20
-BAITE102\tData Structures and Algorithms\tF1+TF1\tL51+L52
-BAITE102\tData Structures and Algorithms\tF2+TF2\tL7+L8
-BAITE102\tData Structures and Algorithms\tF1+TF1\tL39+L40
-BAITE102\tData Structures and Algorithms\tF2+TF2\tL7+L8
-BAITE102\tData Structures and Algorithms\tF1+TF1\tL39+L40
-BAITE103\tPrinciples of Software Engineering\tE1+TE1\tL45+L46
-BAITE103\tPrinciples of Software Engineering\tE2+TE2\tL13+L14
-BAITE103\tPrinciples of Software Engineering\tE1+TE1\tL33+L34
-BAITE103\tPrinciples of Software Engineering\tE2+TE2\tL13+L14
-BAITE103\tPrinciples of Software Engineering\tE1+TE1\tL41+L42
-BAITE103\tPrinciples of Software Engineering\tE2+TE2\tL3+L4
-BAITE103\tPrinciples of Software Engineering\tE1+TE1\tL49+L50
-BAMAT207\tProbability and Statistics\tD1+TD1\tL37+L38
-BAMAT207\tProbability and Statistics\tD2+TD2\tL1+L2
-BAMAT207\tProbability and Statistics\tD1+TD1\tL31+L32
-BAMAT207\tProbability and Statistics\tD2+TD2\tL3+L4
-BAMAT207\tProbability and Statistics\tD1+TD1\tL47+L48
-BAMAT207\tProbability and Statistics\tD2+TD2\tL5+L6
-BAMAT207\tProbability and Statistics\tD1+TD1\tL35+L36`;
+    const DEFAULT_HOD_DATA = `COURSE CODE\tCOURSE TITLE\tTHEORY SLOT\tLAB SLOT\tVENUE\tFACULTY NAME
+BACHY105\tApplied Chemistry\tC1+TC1\tL43+L44\tPRP110\t14381 - RAJAGOPAL D - SAS
+BACHY105\tApplied Chemistry\tC2+TC2\tL21+L22\tPRP110\t14381 - RAJAGOPAL D - SAS
+BACHY105\tApplied Chemistry\tC1+TC1\tL37+L38\tPRP110\t14381 - RAJAGOPAL D - SAS
+BACHY105\tApplied Chemistry\tC2+TC2\tL27+L28\tPRP110\t14381 - RAJAGOPAL D - SAS
+BACHY105\tApplied Chemistry\tC1+TC1\tL49+L50\tPRP110\t14381 - RAJAGOPAL D - SAS
+BACHY105\tApplied Chemistry\tC2+TC2\tL19+L20\tPRP110\t14381 - RAJAGOPAL D - SAS
+BACHY105\tApplied Chemistry\tC1+TC1\tL31+L32\tPRP110\t14381 - RAJAGOPAL D - SAS
+BACSE104\tStructured and Object-Oriented Programming\tA1+TA1\tL41+L42+L49+L50\tPRP117\t10941 - ANTHONIRAJ A - SCOPE
+BACSE104\tStructured and Object-Oriented Programming\tA2+TA2\tL9+L10+L23+L24\tPRP117\t10941 - ANTHONIRAJ A - SCOPE
+BACSE104\tStructured and Object-Oriented Programming\tA1+TA1\tL41+L42+L49+L50\tPRP117\t10941 - ANTHONIRAJ A - SCOPE
+BACSE104\tStructured and Object-Oriented Programming\tA2+TA2\tL11+L12+L25+L26\tPRP117\t10941 - ANTHONIRAJ A - SCOPE
+BACSE104\tStructured and Object-Oriented Programming\tA1+TA1\tL35+L36+L37+L38\tPRP117\t10941 - ANTHONIRAJ A - SCOPE
+BACSE104\tStructured and Object-Oriented Programming\tA2+TA2\tL1+L2+L27+L28\tPRP117\t10941 - ANTHONIRAJ A - SCOPE
+BACSE104\tStructured and Object-Oriented Programming\tA1+TA1\tL37+L38+L43+L44\tPRP117\t10941 - ANTHONIRAJ A - SCOPE
+BAENG101\tTechnical English Communication\tG1/G2\tANY SLOT\tPRP110\t14798 - SUNITHA V - SSL
+BAENG101\tTechnical English Communication\tG1/G2\tANY SLOT\tPRP110\t14798 - SUNITHA V - SSL
+BAHUM101\tIndia Studies\tOC\t\tONLINE\tNIL
+BAHUM101\tIndia Studies\tOC\t\tONLINE\tNIL
+BAHUM101\tIndia Studies\tOC\t\tONLINE\tNIL
+BAHUM101\tIndia Studies\tOC\t\tONLINE\tNIL
+BAHUM101\tIndia Studies\tOC\t\tONLINE\tNIL
+BAHUM101\tIndia Studies\tOC\t\tONLINE\tNIL
+BAHUM101\tIndia Studies\tOC\t\tONLINE\tNIL
+BAITE101\tDigital Logic Design and Computer Organization\tB1+TB1\tL55+L56\tPRP351\t21785 - PRAKASH KUMAR V - SELECT
+BAITE101\tDigital Logic Design and Computer Organization\tB2+TB2\tL25+L26\tPRP351\t21785 - PRAKASH KUMAR V - SELECT
+BAITE101\tDigital Logic Design and Computer Organization\tB1+TB1\tL45+L46\tPRP351\t21785 - PRAKASH KUMAR V - SELECT
+BAITE101\tDigital Logic Design and Computer Organization\tB2+TB2\tL15+L16\tPRP351\t21785 - PRAKASH KUMAR V - SELECT
+BAITE101\tDigital Logic Design and Computer Organization\tB1+TB1\tL31+L32\tPRP351\t21785 - PRAKASH KUMAR V - SELECT
+BAITE101\tDigital Logic Design and Computer Organization\tB2+TB2\tL13+L14\tPRP351\t21785 - PRAKASH KUMAR V - SELECT
+BAITE101\tDigital Logic Design and Computer Organization\tB1+TB1\tL33+L34\tPRP351\t21785 - PRAKASH KUMAR V - SELECT
+BAITE102\tData Structures and Algorithms\tF1+TF1\tL53+L54\tPRP119\t13302 - RAJA DAS - SAS
+BAITE102\tData Structures and Algorithms\tF2+TF2\tL19+L20\tPRP119\t13302 - RAJA DAS - SAS
+BAITE102\tData Structures and Algorithms\tF1+TF1\tL51+L52\tPRP119\t13302 - RAJA DAS - SAS
+BAITE102\tData Structures and Algorithms\tF2+TF2\tL7+L8\tPRP119\t13302 - RAJA DAS - SAS
+BAITE102\tData Structures and Algorithms\tF1+TF1\tL39+L40\tPRP119\t13302 - RAJA DAS - SAS
+BAITE102\tData Structures and Algorithms\tF2+TF2\tL7+L8\tPRP119\t13302 - RAJA DAS - SAS
+BAITE102\tData Structures and Algorithms\tF1+TF1\tL39+L40\tPRP119\t13302 - RAJA DAS - SAS
+BAITE103\tPrinciples of Software Engineering\tE1+TE1\tL45+L46\tPRP110\t14381 - RAJAGOPAL D - SAS
+BAITE103\tPrinciples of Software Engineering\tE2+TE2\tL13+L14\tPRP110\t14381 - RAJAGOPAL D - SAS
+BAITE103\tPrinciples of Software Engineering\tE1+TE1\tL33+L34\tPRP110\t14381 - RAJAGOPAL D - SAS
+BAITE103\tPrinciples of Software Engineering\tE2+TE2\tL13+L14\tPRP110\t14381 - RAJAGOPAL D - SAS
+BAITE103\tPrinciples of Software Engineering\tE1+TE1\tL41+L42\tPRP110\t14381 - RAJAGOPAL D - SAS
+BAITE103\tPrinciples of Software Engineering\tE2+TE2\tL3+L4\tPRP110\t14381 - RAJAGOPAL D - SAS
+BAITE103\tPrinciples of Software Engineering\tE1+TE1\tL49+L50\tPRP110\t14381 - RAJAGOPAL D - SAS
+BAMAT207\tProbability and Statistics\tD1+TD1\tL37+L38\tPRP110\t13302 - RAJA DAS - SAS
+BAMAT207\tProbability and Statistics\tD2+TD2\tL1+L2\tPRP110\t13302 - RAJA DAS - SAS
+BAMAT207\tProbability and Statistics\tD1+TD1\tL31+L32\tPRP110\t13302 - RAJA DAS - SAS
+BAMAT207\tProbability and Statistics\tD2+TD2\tL3+L4\tPRP110\t13302 - RAJA DAS - SAS
+BAMAT207\tProbability and Statistics\tD1+TD1\tL47+L48\tPRP110\t13302 - RAJA DAS - SAS
+BAMAT207\tProbability and Statistics\tD2+TD2\tL5+L6\tPRP110\t13302 - RAJA DAS - SAS
+BAMAT207\tProbability and Statistics\tD1+TD1\tL35+L36\tPRP110\t13302 - RAJA DAS - SAS`;
 
-    const BLANK_HOD_TEMPLATE = `COURSE CODE\tCOURSE TITLE\tTHORY SLOT\tLAB SLOT
-BCSE101\tProblem Solving using Python\tA1+TA1\tL31+L32
-BMAT101\tCalculus and Linear Algebra\tB1+TB1\tNIL`;
+    const BLANK_HOD_TEMPLATE = `COURSE CODE\tCOURSE TITLE\tTHEORY SLOT\tLAB SLOT\tVENUE\tFACULTY NAME
+BCSE101\tProblem Solving using Python\tA1+TA1\tL31+L32\tPRP117\t10941 - ANTHONIRAJ A - SCOPE
+BMAT101\tCalculus and Linear Algebra\tB1+TB1\tNIL\tPRP110\t13302 - RAJA DAS - SAS`;
 
     let aiWizardState = {
       currentStep: 1,
@@ -6740,23 +6740,23 @@ BMAT101\tCalculus and Linear Algebra\tB1+TB1\tNIL`;
       }
       try {
         const rows = [
-          ['COURSE CODE', 'COURSE TITLE', 'THEORY SLOT', 'LAB SLOT', 'CREDITS'],
-          ['BACHY105', 'Applied Chemistry', 'C1+TC1', 'L43+L44', 4.0],
-          ['BACHY105', 'Applied Chemistry', 'C2+TC2', 'L21+L22', 4.0],
-          ['BACHY105', 'Applied Chemistry', 'C1+TC1', 'L37+L38', 4.0],
-          ['BACHY105', 'Applied Chemistry', 'C2+TC2', 'L27+L28', 4.0],
-          ['BACSE104', 'Structured and Object-Oriented Programming', 'A1+TA1', 'L41+L42+L49+L50', 4.0],
-          ['BACSE104', 'Structured and Object-Oriented Programming', 'A2+TA2', 'L9+L10+L23+L24', 4.0],
-          ['BAENG101', 'Technical English Communication', 'G1/G2', 'NIL', 3.0],
-          ['BAHUM101', 'India Studies', 'OC', 'NIL', 2.0],
-          ['BAITE101', 'Digital Logic Design and Computer Organization', 'B1+TB1', 'L55+L56', 4.0],
-          ['BAITE101', 'Digital Logic Design and Computer Organization', 'B2+TB2', 'L25+L26', 4.0],
-          ['BAITE102', 'Data Structures and Algorithms', 'F1+TF1', 'L53+L54', 4.0],
-          ['BAITE102', 'Data Structures and Algorithms', 'F2+TF2', 'L19+L20', 4.0],
-          ['BAITE103', 'Principles of Software Engineering', 'E1+TE1', 'L45+L46', 4.0],
-          ['BAITE103', 'Principles of Software Engineering', 'E2+TE2', 'L13+L14', 4.0],
-          ['BAMAT207', 'Probability and Statistics', 'D1+TD1', 'L37+L38', 4.0],
-          ['BAMAT207', 'Probability and Statistics', 'D2+TD2', 'L1+L2', 4.0]
+          ['COURSE CODE', 'COURSE TITLE', 'THEORY SLOT', 'LAB SLOT', 'CREDITS', 'VENUE', 'FACULTY NAME'],
+          ['BACHY105', 'Applied Chemistry', 'C1+TC1', 'L43+L44', 4.0, 'PRP110', '14381 - RAJAGOPAL D - SAS'],
+          ['BACHY105', 'Applied Chemistry', 'C2+TC2', 'L21+L22', 4.0, 'PRP110', '14381 - RAJAGOPAL D - SAS'],
+          ['BACHY105', 'Applied Chemistry', 'C1+TC1', 'L37+L38', 4.0, 'PRP110', '14381 - RAJAGOPAL D - SAS'],
+          ['BACHY105', 'Applied Chemistry', 'C2+TC2', 'L27+L28', 4.0, 'PRP110', '14381 - RAJAGOPAL D - SAS'],
+          ['BACSE104', 'Structured and Object-Oriented Programming', 'A1+TA1', 'L41+L42+L49+L50', 4.0, 'PRP117', '10941 - ANTHONIRAJ A - SCOPE'],
+          ['BACSE104', 'Structured and Object-Oriented Programming', 'A2+TA2', 'L9+L10+L23+L24', 4.0, 'PRP117', '10941 - ANTHONIRAJ A - SCOPE'],
+          ['BAENG101', 'Technical English Communication', 'G1/G2', 'NIL', 3.0, 'PRP110', '14798 - SUNITHA V - SSL'],
+          ['BAHUM101', 'India Studies', 'OC', 'NIL', 2.0, 'ONLINE', 'NIL'],
+          ['BAITE101', 'Digital Logic Design and Computer Organization', 'B1+TB1', 'L55+L56', 4.0, 'PRP351', '21785 - PRAKASH KUMAR V - SELECT'],
+          ['BAITE101', 'Digital Logic Design and Computer Organization', 'B2+TB2', 'L25+L26', 4.0, 'PRP351', '21785 - PRAKASH KUMAR V - SELECT'],
+          ['BAITE102', 'Data Structures and Algorithms', 'F1+TF1', 'L53+L54', 4.0, 'PRP119', '13302 - RAJA DAS - SAS'],
+          ['BAITE102', 'Data Structures and Algorithms', 'F2+TF2', 'L19+L20', 4.0, 'PRP119', '13302 - RAJA DAS - SAS'],
+          ['BAITE103', 'Principles of Software Engineering', 'E1+TE1', 'L45+L46', 4.0, 'PRP110', '14381 - RAJAGOPAL D - SAS'],
+          ['BAITE103', 'Principles of Software Engineering', 'E2+TE2', 'L13+L14', 4.0, 'PRP110', '14381 - RAJAGOPAL D - SAS'],
+          ['BAMAT207', 'Probability and Statistics', 'D1+TD1', 'L37+L38', 4.0, 'PRP110', '13302 - RAJA DAS - SAS'],
+          ['BAMAT207', 'Probability and Statistics', 'D2+TD2', 'L1+L2', 4.0, 'PRP110', '13302 - RAJA DAS - SAS']
         ];
         const ws = XLSX.utils.aoa_to_sheet(rows);
         const wb = XLSX.utils.book_new();
@@ -6838,8 +6838,12 @@ BMAT101\tCalculus and Linear Algebra\tB1+TB1\tNIL`;
               <div class="course-pref-code">
                 <span>${c.code}</span>
                 <span class="course-pref-badge">${c.offerings.length} combos</span>
+                ${c.venue ? `<span class="badge-pill" style="font-size: 0.64rem; padding: 1px 6px; background: rgba(99,102,241,0.12); color: var(--accent-primary); border: 1px solid rgba(99,102,241,0.25);">📍 ${c.venue}</span>` : ''}
               </div>
-              <div class="course-pref-title" title="${(c.title || '').replace(/"/g, '&quot;')}">${c.title}</div>
+              <div class="course-pref-title" title="${(c.title || '').replace(/"/g, '&quot;')}">
+                ${c.title}
+                ${c.faculty && c.faculty !== 'Faculty Assigned' ? `<span style="font-size: 0.72rem; color: var(--text-muted); display: block; margin-top: 2px;">👨‍🏫 ${cleanFacultyName(c.faculty)}</span>` : ''}
+              </div>
             </div>
             <div class="course-pref-controls-wrapper">
               <div class="course-pref-credits-col">
@@ -7033,19 +7037,21 @@ BMAT101\tCalculus and Linear Algebra\tB1+TB1\tNIL`;
         // Header detection
         const lowerJoined = line.toLowerCase();
         if (lowerJoined.includes('code') && (lowerJoined.includes('slot') || lowerJoined.includes('title'))) {
-          headerIndices = { code: 0, title: 1, theory: 2, lab: 3, credits: -1 };
+          headerIndices = { code: 0, title: 1, theory: 2, lab: 3, credits: -1, venue: -1, faculty: -1 };
           parts.forEach((p, idx) => {
             const pl = p.toLowerCase();
             if (pl.includes('code')) headerIndices.code = idx;
-            else if (pl.includes('title') || pl.includes('name')) headerIndices.title = idx;
+            else if (pl.includes('title') || (pl.includes('name') && !pl.includes('fac') && !pl.includes('prof') && !pl.includes('teacher') && !pl.includes('instructor'))) headerIndices.title = idx;
             else if (pl.includes('theory') || pl.includes('thory') || pl.includes('th slot') || pl === 'th') headerIndices.theory = idx;
             else if (pl.includes('lab') || pl.includes('la slot') || pl === 'la') headerIndices.lab = idx;
             else if (pl.includes('credit') || pl.includes('cr') || pl === 'c') headerIndices.credits = idx;
+            else if (pl.includes('venue') || pl.includes('room') || pl.includes('hall') || pl.includes('location')) headerIndices.venue = idx;
+            else if (pl.includes('fac') || pl.includes('prof') || pl.includes('teacher') || pl.includes('instructor')) headerIndices.faculty = idx;
           });
           continue;
         }
 
-        let code = '', title = '', theorySlot = 'NIL', labSlot = 'NIL', parsedCr = null;
+        let code = '', title = '', theorySlot = 'NIL', labSlot = 'NIL', parsedCr = null, parsedVenue = '', parsedFaculty = '';
 
         if (headerIndices && parts.length >= 3) {
           code = (parts[headerIndices.code] || '').toUpperCase();
@@ -7056,22 +7062,42 @@ BMAT101\tCalculus and Linear Algebra\tB1+TB1\tNIL`;
             const cVal = parseFloat(parts[headerIndices.credits]);
             if (!isNaN(cVal) && cVal > 0) parsedCr = cVal;
           }
+          if (headerIndices.venue !== -1 && parts[headerIndices.venue]) {
+            parsedVenue = formatVenue(parts[headerIndices.venue]);
+          }
+          if (headerIndices.faculty !== -1 && parts[headerIndices.faculty]) {
+            parsedFaculty = parts[headerIndices.faculty].trim();
+          }
         } else if (parts.length >= 3) {
           code = (parts[0] || '').toUpperCase();
           title = parts[1] || code;
           theorySlot = (parts[2] || 'NIL').toUpperCase();
           labSlot = (parts[3] || 'NIL').toUpperCase();
-          if (parts[4]) {
-            const cVal = parseFloat(parts[4]);
-            if (!isNaN(cVal) && cVal > 0) parsedCr = cVal;
+
+          for (let pIdx = 4; pIdx < parts.length; pIdx++) {
+            const val = parts[pIdx];
+            if (!val) continue;
+            const num = parseFloat(val);
+            if (!isNaN(num) && num > 0 && num <= 10 && !/[A-Za-z]/.test(val) && parsedCr === null) {
+              parsedCr = num;
+            } else if (!parsedVenue && (val.match(/^(PRP|SJT|TT|SMV|GDN|MB|ONLINE|[A-Z0-9]{3,8})/i) || (val.length <= 10 && !val.includes(' ')))) {
+              parsedVenue = formatVenue(val);
+            } else if (!parsedFaculty) {
+              parsedFaculty = val.trim();
+            }
           }
         } else {
-          const m = line.match(/^([A-Z0-9]{5,10})\s+(.+?)\s+([A-Z0-9\+\/]+)\s*(.*)$/i);
+          const m = line.match(/^([A-Z0-9]{5,10})\s+(.+?)\s+([A-Z0-9\+\/]+)\s*([A-Z0-9\+\/]*)\s*(.*)$/i);
           if (m) {
             code = m[1].toUpperCase();
             title = m[2].trim();
             theorySlot = m[3].trim().toUpperCase();
             labSlot = (m[4] || 'NIL').trim().toUpperCase();
+            if (m[5]) {
+              const extra = m[5].trim();
+              if (extra.match(/^[A-Z0-9]{3,8}$/i)) parsedVenue = formatVenue(extra);
+              else parsedFaculty = extra;
+            }
           }
         }
 
@@ -7097,16 +7123,26 @@ BMAT101\tCalculus and Linear Algebra\tB1+TB1\tNIL`;
             code,
             title,
             credits: defaultCredits,
+            venue: parsedVenue || '',
+            faculty: parsedFaculty || '',
             selected: true,
             priority: 2, // 1: Low, 2: Normal, 3: High
             offerings: []
           };
+        } else {
+          if (!map[code].venue && parsedVenue) map[code].venue = parsedVenue;
+          if (!map[code].faculty && parsedFaculty) map[code].faculty = parsedFaculty;
         }
 
         thOptions.forEach(th => {
-          const exists = map[code].offerings.some(o => o.theorySlot === th && o.labSlot === labSlot);
+          const exists = map[code].offerings.some(o => o.theorySlot === th && o.labSlot === labSlot && (!parsedVenue || o.venue === parsedVenue));
           if (!exists) {
-            map[code].offerings.push({ theorySlot: th, labSlot });
+            map[code].offerings.push({
+              theorySlot: th,
+              labSlot,
+              venue: parsedVenue || map[code].venue || '',
+              faculty: parsedFaculty || map[code].faculty || ''
+            });
           }
         });
       }
@@ -7128,6 +7164,8 @@ BMAT101\tCalculus and Linear Algebra\tB1+TB1\tNIL`;
             c.selected = prevMap[c.code].selected;
             c.priority = prevMap[c.code].priority;
             if (prevMap[c.code].credits) c.credits = prevMap[c.code].credits;
+            if (!c.venue && prevMap[c.code].venue) c.venue = prevMap[c.code].venue;
+            if (!c.faculty && prevMap[c.code].faculty) c.faculty = prevMap[c.code].faculty;
           }
         });
       }
@@ -7390,15 +7428,35 @@ BMAT101\tCalculus and Linear Algebra\tB1+TB1\tNIL`;
           theoryCr = c.credits;
         }
 
+        let thVenue = off.venue || c.venue || '';
+        let labVenue = off.venue || c.venue || '';
+        if (thVenue.includes('/')) {
+          const vParts = thVenue.split('/').map(v => v.trim());
+          thVenue = vParts[0] || '';
+          labVenue = vParts[1] || vParts[0] || '';
+        } else if (thVenue.includes('+')) {
+          const vParts = thVenue.split('+').map(v => v.trim());
+          thVenue = vParts[0] || '';
+          labVenue = vParts[1] || vParts[0] || '';
+        }
+
+        let thFaculty = off.faculty || c.faculty || 'Faculty Assigned';
+        let labFaculty = off.faculty || c.faculty || 'Faculty Assigned';
+        if (thFaculty.includes('/') && !thFaculty.startsWith('G1/')) {
+          const fParts = thFaculty.split('/').map(f => f.trim());
+          thFaculty = fParts[0] || 'Faculty Assigned';
+          labFaculty = fParts[1] || fParts[0] || 'Faculty Assigned';
+        }
+
         if (hasTheory) {
           courses.push({
             code: c.code,
             name: c.title,
             type: 'Theory',
             slot: off.theorySlot,
-            faculty: 'Faculty Assigned',
+            faculty: thFaculty,
             credits: theoryCr,
-            venue: ''
+            venue: thVenue
           });
         }
 
@@ -7408,9 +7466,9 @@ BMAT101\tCalculus and Linear Algebra\tB1+TB1\tNIL`;
             name: `${c.title} Lab`,
             type: 'LAB',
             slot: off.labSlot,
-            faculty: 'Faculty Assigned',
+            faculty: labFaculty,
             credits: labCr,
-            venue: ''
+            venue: labVenue
           });
         }
 
