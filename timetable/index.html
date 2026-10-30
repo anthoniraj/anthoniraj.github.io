@@ -189,19 +189,71 @@
       display: none;
     }
 
-    .header-plans-section {
-      display: flex;
-      align-items: center;
-      gap: 6px;
-      overflow-x: auto;
-      scrollbar-width: none;
-      flex-shrink: 1;
+    /* Practice Plans Subnav Bar - Located Right Below Header */
+    .plans-subnav-bar {
+      background: var(--bg-surface);
+      border-bottom: 1px solid var(--border-color);
+      padding: 6px 14px;
+      position: sticky;
+      top: 44px;
+      z-index: 90;
+      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.04);
     }
 
-    .header-plan-controls {
+    .plans-subnav-inner {
       display: flex;
       align-items: center;
-      gap: 3px;
+      justify-content: space-between;
+      gap: 12px;
+      width: 100%;
+      max-width: 100%;
+      margin: 0 auto;
+    }
+
+    @media (min-width: 1441px) {
+      .plans-subnav-inner {
+        max-width: 96%;
+      }
+    }
+
+    @media (min-width: 1800px) {
+      .plans-subnav-inner {
+        max-width: 1720px;
+      }
+    }
+
+    .plans-action-controls {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      flex-shrink: 0;
+    }
+
+    .plan-btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 30px;
+      height: 30px;
+      border-radius: var(--radius-sm);
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
+      color: var(--text-main);
+      cursor: pointer;
+      font-size: 0.85rem;
+      transition: all 0.15s ease;
+    }
+
+    .plan-btn:hover {
+      background: var(--bg-card-hover);
+      border-color: var(--accent-primary);
+      transform: translateY(-1px);
+    }
+
+    .plan-btn-danger:hover {
+      border-color: #ef4444;
+      background: rgba(239, 68, 68, 0.15);
+      color: #ef4444;
     }
 
     .header-actions {
@@ -339,12 +391,12 @@
       border-color: rgba(16, 185, 129, 0.3);
     }
 
-    /* Main Container - Full Width on Laptops, Reduced & Centered on Big Screens */
+    /* Main Container - Spacious Full Width Layout */
     main {
       width: 100%;
       max-width: 100%;
       margin: 0 auto;
-      padding: 4px 10px;
+      padding: 4px 12px;
       flex: 1;
       display: flex;
       flex-direction: column;
@@ -352,26 +404,25 @@
       box-sizing: border-box;
     }
 
-    /* Big screens (desktop monitors > 1400px): reduce content width and center */
+    /* Big screens (desktop monitors): generous comfortable width */
     @media (min-width: 1441px) {
-      header {
-        padding-left: max(16px, calc((100% - 1380px) / 2 + 16px));
-        padding-right: max(16px, calc((100% - 1380px) / 2 + 16px));
-      }
       main {
-        max-width: 1380px;
-        padding: 8px 16px;
+        max-width: 96%;
+        padding: 6px 16px;
       }
     }
 
-    @media (min-width: 1700px) {
-      header {
-        padding-left: max(20px, calc((100% - 1460px) / 2 + 20px));
-        padding-right: max(20px, calc((100% - 1460px) / 2 + 20px));
-      }
+    @media (min-width: 1800px) {
       main {
-        max-width: 1460px;
-        padding: 10px 20px;
+        max-width: 1720px;
+        padding: 8px 20px;
+      }
+    }
+
+    @media (min-width: 2200px) {
+      main {
+        max-width: 1920px;
+        padding: 10px 24px;
       }
     }
 
@@ -557,6 +608,25 @@
       grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
       gap: 16px;
       align-items: end;
+    }
+
+    .course-form-compact-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px 14px;
+    }
+
+    .course-form-compact-grid .full-col {
+      grid-column: span 2;
+    }
+
+    @media (max-width: 600px) {
+      .course-form-compact-grid {
+        grid-template-columns: 1fr;
+      }
+      .course-form-compact-grid .full-col {
+        grid-column: span 1;
+      }
     }
 
     .form-group {
@@ -822,26 +892,34 @@
     }
 
     .ai-wizard-dialog {
-      max-width: 860px;
+      max-width: 820px;
+      max-height: 90vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .ai-wizard-dialog .course-modal-body {
+      padding: 10px 16px;
+      overflow-y: auto;
     }
 
     .ai-step-indicator {
       display: flex;
       align-items: center;
       justify-content: space-between;
-      padding: 12px 22px;
+      padding: 6px 14px;
       background: rgba(0, 0, 0, 0.15);
       border-bottom: 1px solid var(--border-color);
       overflow-x: auto;
-      gap: 8px;
+      gap: 6px;
     }
 
     .ai-step-pill {
-      font-size: 0.78rem;
+      font-size: 0.70rem;
       font-weight: 600;
       color: var(--text-muted);
-      padding: 6px 14px;
-      border-radius: 20px;
+      padding: 3px 10px;
+      border-radius: 16px;
       background: var(--bg-primary);
       border: 1px solid var(--border-color);
       white-space: nowrap;
@@ -852,7 +930,7 @@
       color: #fff;
       background: var(--accent-primary);
       border-color: var(--accent-primary);
-      box-shadow: 0 0 12px rgba(99, 102, 241, 0.45);
+      box-shadow: 0 0 10px rgba(99, 102, 241, 0.4);
     }
 
     .ai-step-pill.completed {
@@ -863,7 +941,7 @@
 
     .ai-step-arrow {
       color: var(--text-muted);
-      font-size: 0.8rem;
+      font-size: 0.72rem;
     }
 
     .ai-wizard-step-panel {
@@ -883,34 +961,34 @@
     .ai-step-title {
       display: flex;
       align-items: flex-start;
-      gap: 12px;
-      margin-bottom: 16px;
+      gap: 8px;
+      margin-bottom: 10px;
     }
 
     .step-num-badge {
       display: inline-flex;
       align-items: center;
       justify-content: center;
-      width: 28px;
-      height: 28px;
+      width: 24px;
+      height: 24px;
       border-radius: 50%;
       background: var(--accent-primary);
       color: #fff;
       font-weight: 800;
-      font-size: 0.88rem;
+      font-size: 0.78rem;
       flex-shrink: 0;
     }
 
     .ai-template-actions {
       display: flex;
-      gap: 10px;
+      gap: 8px;
       flex-wrap: wrap;
-      margin-bottom: 12px;
+      margin-bottom: 8px;
     }
 
     .badge-pill {
-      font-size: 0.72rem;
-      padding: 2px 8px;
+      font-size: 0.70rem;
+      padding: 2px 7px;
       border-radius: 12px;
       background: rgba(16, 185, 129, 0.15);
       color: #10b981;
@@ -922,7 +1000,7 @@
       border: 2px dashed var(--accent-primary);
       border-radius: var(--radius-md);
       background: rgba(99, 102, 241, 0.05);
-      padding: 22px 16px;
+      padding: 12px 14px;
       text-align: center;
       cursor: pointer;
       transition: all 0.2s ease;
@@ -930,45 +1008,46 @@
       flex-direction: column;
       align-items: center;
       justify-content: center;
-      gap: 6px;
-      margin-bottom: 10px;
+      gap: 4px;
+      margin-bottom: 8px;
     }
 
     .excel-dropzone:hover,
     .excel-dropzone.drag-active {
       background: rgba(99, 102, 241, 0.14);
       border-color: #a855f7;
-      transform: scale(1.008);
-      box-shadow: 0 4px 18px rgba(99, 102, 241, 0.25);
+      transform: scale(1.005);
+      box-shadow: 0 4px 14px rgba(99, 102, 241, 0.2);
     }
 
     .dropzone-icon {
-      font-size: 2.2rem;
+      font-size: 1.6rem;
       line-height: 1;
     }
 
     .dropzone-title {
-      font-size: 0.94rem;
+      font-size: 0.86rem;
+      font-weight: 600;
       color: var(--text-main);
     }
 
     .dropzone-sub {
-      font-size: 0.76rem;
+      font-size: 0.70rem;
       color: var(--text-muted);
     }
 
     .uploaded-file-banner {
       display: inline-flex;
       align-items: center;
-      gap: 8px;
+      gap: 6px;
       background: rgba(16, 185, 129, 0.15);
       border: 1px solid #10b981;
       color: #10b981;
-      padding: 4px 12px;
-      border-radius: 20px;
-      font-size: 0.78rem;
+      padding: 3px 10px;
+      border-radius: 16px;
+      font-size: 0.74rem;
       font-weight: 600;
-      margin-top: 6px;
+      margin-top: 4px;
     }
 
     /* Course Preference & Priority Section */
@@ -976,8 +1055,8 @@
       background: var(--bg-card);
       border: 1px solid var(--border-color);
       border-radius: var(--radius-md);
-      padding: 12px 14px;
-      margin-top: 12px;
+      padding: 8px 12px;
+      margin-top: 8px;
     }
 
     .course-preference-header {
@@ -985,23 +1064,23 @@
       justify-content: space-between;
       align-items: center;
       flex-wrap: wrap;
-      gap: 10px;
-      margin-bottom: 10px;
-      padding-bottom: 8px;
+      gap: 8px;
+      margin-bottom: 6px;
+      padding-bottom: 6px;
       border-bottom: 1px solid var(--border-color);
     }
 
     .course-pref-quick-actions {
       display: flex;
       align-items: center;
-      gap: 8px;
+      gap: 6px;
       flex-wrap: wrap;
     }
 
     .btn-xs {
-      padding: 3px 8px;
-      font-size: 0.72rem;
-      border-radius: 6px;
+      padding: 2px 7px;
+      font-size: 0.70rem;
+      border-radius: 5px;
       font-weight: 600;
       cursor: pointer;
       background: var(--bg-surface);
@@ -1019,18 +1098,18 @@
     .course-preference-list {
       display: flex;
       flex-direction: column;
-      gap: 8px;
-      max-height: 260px;
+      gap: 6px;
+      max-height: 160px;
       overflow-y: auto;
       padding-right: 4px;
     }
 
     .course-pref-card {
       display: grid;
-      grid-template-columns: 32px 1fr 90px 170px;
+      grid-template-columns: 28px 1fr 80px 150px;
       align-items: center;
-      gap: 10px;
-      padding: 8px 12px;
+      gap: 8px;
+      padding: 5px 10px;
       background: var(--bg-surface);
       border: 1px solid var(--border-color);
       border-radius: var(--radius-sm);
@@ -2248,8 +2327,8 @@
       vertical-align: middle !important;
     }
 
-    .pdf-table tr:nth-child(even) td {
-      background: #f8fafc !important;
+    .pdf-table-striped tbody tr:nth-child(even) td {
+      background: #f8fafc;
     }
 
     /* Print media */
@@ -2358,19 +2437,6 @@
       </div>
     </div>
 
-    <!-- Practice Plans Tabs + Plan Control Icons -->
-    <div class="header-plans-section">
-      <div class="options-tabs" id="optionsTabsContainer">
-        <!-- Rendered via JS -->
-      </div>
-      <div class="header-plan-controls">
-        <button type="button" class="header-icon-btn" onclick="addNewOption()" title="➕ Add New Option Plan">➕</button>
-        <button type="button" class="header-icon-btn" onclick="duplicateCurrentOption()" title="📑 Clone Active Plan">📑</button>
-        <button type="button" class="header-icon-btn" onclick="renameCurrentOption()" title="✏️ Rename Active Plan">✏️</button>
-        <button type="button" class="header-icon-btn btn-danger-icon" onclick="deleteCurrentOption()" id="deleteOptionBtn" title="🗑️ Delete Active Plan">🗑️</button>
-      </div>
-    </div>
-
     <!-- All Action Buttons as Sleek Header Icon Buttons -->
     <div class="header-actions">
       <button type="button" class="header-icon-btn btn-ai-pulse" onclick="openAIWizard()" title="🤖 AI Timetable Generator & Auto-Solve">
@@ -2415,11 +2481,26 @@
     </div>
   </header>
 
+  <!-- Practice Plans Dedicated Subnav Bar (Positioned Right Below Header) -->
+  <div class="plans-subnav-bar no-print">
+    <div class="plans-subnav-inner">
+      <div class="options-tabs" id="optionsTabsContainer">
+        <!-- Rendered via JS -->
+      </div>
+      <div class="plans-action-controls">
+        <button type="button" class="plan-btn" onclick="addNewOption()" title="➕ Add New Option Plan">➕</button>
+        <button type="button" class="plan-btn" onclick="duplicateCurrentOption()" title="📑 Clone Active Plan">📑</button>
+        <button type="button" class="plan-btn" onclick="renameCurrentOption()" title="✏️ Rename Active Plan">✏️</button>
+        <button type="button" class="plan-btn plan-btn-danger" onclick="deleteCurrentOption()" id="deleteOptionBtn" title="🗑️ Delete Active Plan">🗑️</button>
+      </div>
+    </div>
+  </div>
+
   <!-- Main Workspace -->
   <main>
 
-    <!-- LIVE CLASH NOTIFICATION BANNER -->
-    <div id="clashBanner" class="clash-banner no-print">
+    <!-- LIVE CLASH NOTIFICATION BANNER (Hidden when 0 clashes) -->
+    <div id="clashBanner" class="clash-banner no-print" style="display: none;">
       <!-- Rendered via JS -->
     </div>
 
@@ -2428,10 +2509,10 @@
       <div class="course-modal-dialog ai-wizard-dialog" role="dialog" aria-modal="true" aria-labelledby="aiWizardTitle">
         <div class="course-modal-header ai-wizard-header">
           <div class="course-modal-title">
-            <span style="font-size: 1.4rem;">🤖</span>
+            <span style="font-size: 1.2rem;">🤖</span>
             <div>
-              <div id="aiWizardTitle" style="font-size: 1.12rem; font-weight: 800;">AI Timetable Generator & Schedule Synthesizer</div>
-              <div style="font-size: 0.74rem; color: var(--text-muted); font-weight: normal;">Answer 4 quick questions to automatically synthesize clash-free Option 1 & Option 2 schedules</div>
+              <div id="aiWizardTitle" style="font-size: 0.95rem; font-weight: 800; line-height: 1.2;">AI Timetable Generator & Schedule Synthesizer</div>
+              <div style="font-size: 0.68rem; color: var(--text-muted); font-weight: normal;">Synthesize clash-free Option 1 & Option 2 schedules automatically</div>
             </div>
           </div>
           <button type="button" class="course-modal-close" onclick="closeAIWizard()" title="Close (Esc)">✕</button>
@@ -2728,34 +2809,27 @@
 
     <!-- COURSE REGISTRATION & EDITING POPUP MODAL -->
     <div id="courseModal" class="course-modal-backdrop no-print" onclick="handleModalBackdropClick(event)">
-      <div class="course-modal-dialog" role="dialog" aria-modal="true" aria-labelledby="formTitle">
-        <div class="course-modal-header">
+      <div class="course-modal-dialog" role="dialog" aria-modal="true" aria-labelledby="formTitle" style="max-width: 580px;">
+        <div class="course-modal-header" style="padding: 10px 18px;">
           <div class="course-modal-title">
-            <span style="font-size: 1.3rem;">📝</span>
-            <span id="formTitle">Register Course into Active Plan</span>
+            <span style="font-size: 1.2rem;">📝</span>
+            <span id="formTitle" style="font-size: 1.02rem; font-weight: 700;">Register Course into Active Plan</span>
           </div>
           <button type="button" class="course-modal-close" onclick="closeCourseModal()" title="Close (Esc)">✕</button>
         </div>
-        <div class="course-modal-body">
+        <div class="course-modal-body" style="padding: 12px 18px;">
           <form id="courseForm" onsubmit="handleCourseFormSubmit(event)">
             <input type="hidden" id="editingCourseIndex" value="-1">
 
-            <div class="registration-form-grid">
+            <div class="course-form-compact-grid">
               <!-- 1. Course CODE -->
               <div class="form-group">
                 <label for="courseCode">Course CODE <span class="req">*</span></label>
-                <input type="text" id="courseCode" class="form-control" placeholder="e.g. BCSE101 or BAMAT101" required
+                <input type="text" id="courseCode" class="form-control" placeholder="e.g. BCSE101" required
                   autocomplete="off" style="text-transform: uppercase;">
               </div>
 
-              <!-- 2. Course Name -->
-              <div class="form-group">
-                <label for="courseName">Course Name <span class="req">*</span></label>
-                <input type="text" id="courseName" class="form-control" placeholder="e.g. Problem Solving using Python" required
-                  autocomplete="off">
-              </div>
-
-              <!-- 3. Course Type (Theory and LAB) -->
+              <!-- 2. Course Type (Theory and LAB) -->
               <div class="form-group">
                 <label for="courseType">Course Type <span class="req">*</span></label>
                 <select id="courseType" class="form-control" required onchange="handleCourseTypeChange()">
@@ -2764,17 +2838,24 @@
                 </select>
               </div>
 
-              <!-- 4. Slot -->
-              <div class="form-group">
+              <!-- 3. Course Name (Spans 2 columns) -->
+              <div class="form-group full-col">
+                <label for="courseName">Course Title / Name <span class="req">*</span></label>
+                <input type="text" id="courseName" class="form-control" placeholder="e.g. Problem Solving using Python" required
+                  autocomplete="off">
+              </div>
+
+              <!-- 4. Slot (Spans 2 columns) -->
+              <div class="form-group full-col">
                 <label for="courseSlot">
                   <span>Slot <span class="req">*</span></span>
-                  <span style="font-size: 0.72rem; font-weight: 400; opacity: 0.8;">(or click grid cells)</span>
+                  <span style="font-size: 0.70rem; font-weight: 400; opacity: 0.8;">(or click grid cells)</span>
                 </label>
                 <div class="slot-input-wrap">
                   <input type="text" id="courseSlot" class="form-control" placeholder="e.g. A1+TA1, B2+TB2, L1+L2" required
                     autocomplete="off" style="text-transform: uppercase;">
                 </div>
-                <div class="quick-slots" id="quickSlotsRow">
+                <div class="quick-slots" id="quickSlotsRow" style="margin-top: 4px; gap: 4px;">
                   <span class="quick-slot-pill" onclick="appendSlot('A1+TA1')">A1+TA1</span>
                   <span class="quick-slot-pill" onclick="appendSlot('B2+TB2')">B2+TB2</span>
                   <span class="quick-slot-pill" onclick="appendSlot('E2+TE2')">E2+TE2</span>
@@ -2789,38 +2870,40 @@
               <!-- 5. Faculty Name -->
               <div class="form-group">
                 <label for="facultyName">Faculty Name <span class="req">*</span></label>
-                <input type="text" id="facultyName" class="form-control" placeholder="e.g. Dr. Anthoniraj A - SCOPE" required
+                <input type="text" id="facultyName" class="form-control" placeholder="e.g. Dr. Anthoniraj A" required
                   autocomplete="off">
               </div>
 
-              <!-- 6. Total Credits -->
+              <!-- 6. Venue -->
               <div class="form-group">
-                <label for="courseCredits">
-                  <span>Total Credits <span class="req">*</span></span>
-                  <span id="creditHint" style="font-size: 0.72rem; font-weight: 400; opacity: 0.8;">(e.g. 3.0, 4.0, 1.0)</span>
-                </label>
-                <input type="number" id="courseCredits" class="form-control" value="3.0" step="0.5" min="0" max="24" required placeholder="Course Credits">
-                <div class="quick-slots" id="quickCreditsRow">
-                  <span class="quick-slot-pill" onclick="setCredits(1.0)">1.0</span>
-                  <span class="quick-slot-pill" onclick="setCredits(1.5)">1.5</span>
-                  <span class="quick-slot-pill" onclick="setCredits(2.0)">2.0</span>
-                  <span class="quick-slot-pill" onclick="setCredits(3.0)">3.0</span>
-                  <span class="quick-slot-pill" onclick="setCredits(4.0)">4.0</span>
-                </div>
+                <label for="courseVenue">Venue / Classroom</label>
+                <input type="text" id="courseVenue" class="form-control" placeholder="e.g. PRP110" style="text-transform: uppercase;">
               </div>
 
-              <!-- 7. Venue (Room - Optional) -->
-              <div class="form-group" style="max-width: 150px;">
-                <label for="courseVenue">Venue (Room)</label>
-                <input type="text" id="courseVenue" class="form-control" placeholder="e.g. PRP110" style="text-transform: uppercase;">
+              <!-- 7. Total Credits (Spans 2 columns) -->
+              <div class="form-group full-col">
+                <label for="courseCredits">
+                  <span>Total Credits <span class="req">*</span></span>
+                  <span id="creditHint" style="font-size: 0.70rem; font-weight: 400; opacity: 0.8;">(preset or manual)</span>
+                </label>
+                <div style="display: flex; gap: 8px; align-items: center;">
+                  <input type="number" id="courseCredits" class="form-control" value="3.0" step="0.5" min="0" max="24" required placeholder="Credits" style="width: 100px;">
+                  <div class="quick-slots" id="quickCreditsRow" style="margin: 0; gap: 4px;">
+                    <span class="quick-slot-pill" onclick="setCredits(1.0)">1.0</span>
+                    <span class="quick-slot-pill" onclick="setCredits(1.5)">1.5</span>
+                    <span class="quick-slot-pill" onclick="setCredits(2.0)">2.0</span>
+                    <span class="quick-slot-pill" onclick="setCredits(3.0)">3.0</span>
+                    <span class="quick-slot-pill" onclick="setCredits(4.0)">4.0</span>
+                  </div>
+                </div>
               </div>
             </div>
 
-            <div class="form-actions-row" style="margin-top: 20px; padding-top: 16px; border-top: 1px solid var(--border-color); display: flex; justify-content: flex-end; gap: 10px;">
-              <button type="button" id="cancelEditBtn" class="btn btn-outline" onclick="closeCourseModal()">
+            <div class="form-actions-row" style="margin-top: 14px; padding-top: 10px; border-top: 1px solid var(--border-color); display: flex; justify-content: flex-end; gap: 8px;">
+              <button type="button" id="cancelEditBtn" class="btn btn-outline btn-sm" onclick="closeCourseModal()">
                 Cancel
               </button>
-              <button type="submit" id="submitCourseBtn" class="btn btn-primary" style="padding: 9px 22px;">
+              <button type="submit" id="submitCourseBtn" class="btn btn-primary btn-sm" style="padding: 7px 18px;">
                 ➕ Add Course to Active Plan
               </button>
             </div>
@@ -2863,7 +2946,6 @@
       <div class="stats-pills">
         <div class="pill" id="totalCoursesPill">0 Courses</div>
         <div class="pill pill-highlight" id="totalCreditsPill">0.0 Credits</div>
-        <div class="pill pill-success" id="clashStatusPill">✅ 0 Clashes</div>
       </div>
     </div>
 
@@ -3258,6 +3340,7 @@
 
     function renderOptionTabs() {
       const container = document.getElementById('optionsTabsContainer');
+      if (!container) return;
       let html = '';
 
       state.options.forEach((opt, idx) => {
@@ -3266,9 +3349,20 @@
         const clashes = detectClashes(opt.courses || []);
         const clashCount = clashes.length;
 
+        let cleanName = opt.name;
+        if (cleanName.includes('Morning Theory')) {
+          cleanName = `Option ${idx + 1}: Morning Theory`;
+        } else if (cleanName.includes('Afternoon Theory')) {
+          cleanName = `Option ${idx + 1}: Afternoon Theory`;
+        } else if (cleanName.includes('Primary Plan')) {
+          cleanName = `Option 1: Primary Plan`;
+        } else if (cleanName.includes('Backup Plan')) {
+          cleanName = `Option 2: Backup Plan`;
+        }
+
         html += `
           <button class="option-tab ${isActive ? 'active' : ''}" onclick="selectOption('${opt.id}')">
-            <span>${opt.name}</span>
+            <span>${cleanName}</span>
             <span class="opt-tag">${(opt.courses || []).length} courses</span>
             <span class="opt-tag">${totalCredits.toFixed(1)} Credits</span>
             ${clashCount > 0 ? `<span class="opt-tag" style="background:#ef4444; color:#fff;">⚠️ ${clashCount}</span>` : ''}
@@ -3549,38 +3643,41 @@
       const clashPill = document.getElementById('clashStatusPill');
 
       if (!clashes || clashes.length === 0) {
-        banner.className = 'clash-banner no-clashes no-print';
-        banner.innerHTML = `
-          <span>✅</span>
-          <div>
-            <strong>No Slot Clashes Detected!</strong>
-            <span style="opacity: 0.85; margin-left: 6px;">All registered courses have mutually compatible slots for this plan.</span>
-          </div>
-        `;
-        clashPill.className = 'pill pill-success';
-        clashPill.innerText = '✅ 0 Clashes';
+        if (banner) {
+          banner.style.display = 'none';
+          banner.innerHTML = '';
+        }
+        if (clashPill) {
+          clashPill.style.display = 'none';
+        }
         return;
       }
 
       // Clashes found
-      banner.className = 'clash-banner has-clashes no-print';
-      let html = `
-        <div class="clash-header">
-          <span>⚠️</span>
-          <span>Registration Conflict Warning: ${clashes.length} slot collision${clashes.length > 1 ? 's' : ''} detected!</span>
-        </div>
-        <ul class="clash-list">
-      `;
+      if (banner) {
+        banner.style.display = 'flex';
+        banner.className = 'clash-banner has-clashes no-print';
+        let html = `
+          <div class="clash-header">
+            <span>⚠️</span>
+            <span>Registration Conflict Warning: ${clashes.length} slot collision${clashes.length > 1 ? 's' : ''} detected!</span>
+          </div>
+          <ul class="clash-list">
+        `;
 
-      clashes.forEach(cl => {
-        html += `<li>• ${cl.message}</li>`;
-      });
+        clashes.forEach(cl => {
+          html += `<li>• ${cl.message}</li>`;
+        });
 
-      html += `</ul>`;
-      banner.innerHTML = html;
+        html += `</ul>`;
+        banner.innerHTML = html;
+      }
 
-      clashPill.className = 'pill pill-danger';
-      clashPill.innerText = `⚠️ ${clashes.length} Clashes`;
+      if (clashPill) {
+        clashPill.style.display = 'inline-block';
+        clashPill.className = 'pill pill-danger';
+        clashPill.innerText = `⚠️ ${clashes.length} Clashes`;
+      }
     }
 
     // ==========================================
@@ -4214,6 +4311,29 @@
 
       const current = getActiveOption();
       const courseObj = { code, name, type, slot, faculty, credits, venue };
+
+      // Strict Clash Prevention: Block any course registration that causes a slot clash
+      const simulatedCourses = current.courses.slice();
+      if (editIdx >= 0 && editIdx < simulatedCourses.length) {
+        simulatedCourses[editIdx] = courseObj;
+      } else {
+        simulatedCourses.push(courseObj);
+      }
+      const potentialClashes = detectClashes(simulatedCourses);
+      if (potentialClashes && potentialClashes.length > 0) {
+        playClashSound();
+        const clashMsgs = potentialClashes.map(c => `• ${c.message}`).join('<br>');
+        Swal.fire({
+          icon: 'error',
+          title: 'Slot Clash Not Permitted',
+          html: `<div style="text-align: left; font-size: 0.88rem; line-height: 1.5;">
+                  <p style="margin-bottom: 8px; color: #ef4444; font-weight: 700;">Registration blocked: Slot <code>${slot}</code> collides with an existing course in this plan.</p>
+                  <div style="background: rgba(0,0,0,0.06); padding: 8px 10px; border-radius: 6px; font-size: 0.80rem; max-height: 140px; overflow-y: auto;">${clashMsgs}</div>
+                 </div>`,
+          confirmButtonColor: '#4f46e5'
+        });
+        return;
+      }
 
       if (editIdx >= 0 && editIdx < current.courses.length) {
         // Update
@@ -4853,7 +4973,7 @@
 
           <!-- Section 1: Registered Courses Table -->
           <div class="pdf-section-title">1. Registered Course Catalogue</div>
-          <table class="pdf-table">
+          <table class="pdf-table pdf-table-striped">
             <thead>
               <tr>
                 <th style="width: 4%;">#</th>
@@ -4968,7 +5088,7 @@
             const theme = getCourseColorTheme(s.courseIndex, s.code);
             const displayCode = isClash ? matches.map(m => m.code).join(' / ') : s.code;
             html += `
-              <td style="background: ${isClash ? '#fee2e2' : theme.pdfBg}; font-weight: 700; color: ${isClash ? '#991b1b' : theme.pdfText}; border: 1px solid ${isClash ? '#f87171' : (theme.lightBorder || theme.border)}; padding: 2px;">
+              <td style="background: ${isClash ? '#fee2e2' : theme.pdfBg} !important; font-weight: 700; color: ${isClash ? '#991b1b' : theme.pdfText} !important; border: 1px solid ${isClash ? '#f87171' : (theme.lightBorder || theme.border)} !important; padding: 2px;">
                 ${displayCode}<br><span style="font-size: 0.48rem; display: block; white-space: nowrap; overflow: hidden; max-width: 55px;" title="${(s.name || '').replace(/"/g, '&quot;')}">${(s.name || '').split(' ').slice(0, 2).join(' ')}</span><span style="font-size: 0.50rem; font-weight: normal;">${s.venue || 'TBA'} · ${slot}</span>
               </td>
             `;
@@ -5001,7 +5121,7 @@
             const theme = getCourseColorTheme(s.courseIndex, s.code);
             const displayCode = isClash ? matches.map(m => m.code).join(' / ') : s.code;
             html += `
-              <td style="background: ${isClash ? '#fee2e2' : theme.pdfBg}; font-weight: 700; color: ${isClash ? '#991b1b' : theme.pdfText}; border: 1px solid ${isClash ? '#f87171' : (theme.lightBorder || theme.border)}; padding: 2px;">
+              <td style="background: ${isClash ? '#fee2e2' : theme.pdfBg} !important; font-weight: 700; color: ${isClash ? '#991b1b' : theme.pdfText} !important; border: 1px solid ${isClash ? '#f87171' : (theme.lightBorder || theme.border)} !important; padding: 2px;">
                 ${displayCode}<br><span style="font-size: 0.48rem; display: block; white-space: nowrap; overflow: hidden; max-width: 55px;" title="${(s.name || '').replace(/"/g, '&quot;')}">${(s.name || '').split(' ').slice(0, 2).join(' ')}</span><span style="font-size: 0.50rem; font-weight: normal;">${s.venue || 'TBA'} · ${slot}</span>
               </td>
             `;
@@ -5019,7 +5139,7 @@
         <!-- PAGE 3: Daily Agenda Table on its own page -->
         <div style="page-break-before: always; break-before: page; padding-top: 6px;">
           <div class="pdf-section-title">3. Day-wise Schedule Agenda</div>
-          <table class="pdf-table">
+          <table class="pdf-table pdf-table-striped">
             <thead>
               <tr>
                 <th style="width: 8%;">Day</th>
@@ -6140,18 +6260,18 @@ BMAT101\tCalculus and Linear Algebra\tB1+TB1\tNIL`;
 
             state.options[0] = {
               id: 'opt_1',
-              name: 'Option 1 (Morning Theory & Afternoon Lab)',
+              name: 'Option 1: Morning Theory',
               courses: opt1Courses
             };
 
             if (!state.options[1]) {
               state.options.push({
                 id: 'opt_2',
-                name: 'Option 2 (Afternoon Theory & Morning Lab)',
+                name: 'Option 2: Afternoon Theory',
                 courses: opt2Courses
               });
             } else {
-              state.options[1].name = 'Option 2 (Afternoon Theory & Morning Lab)';
+              state.options[1].name = 'Option 2: Afternoon Theory';
               state.options[1].courses = opt2Courses;
             }
 
