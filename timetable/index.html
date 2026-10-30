@@ -339,17 +339,40 @@
       border-color: rgba(16, 185, 129, 0.3);
     }
 
-    /* Main Container - Full Width Layout */
+    /* Main Container - Full Width on Laptops, Reduced & Centered on Big Screens */
     main {
-      max-width: 100%;
       width: 100%;
-      margin: 0;
+      max-width: 100%;
+      margin: 0 auto;
       padding: 4px 10px;
       flex: 1;
       display: flex;
       flex-direction: column;
       gap: 4px;
       box-sizing: border-box;
+    }
+
+    /* Big screens (desktop monitors > 1400px): reduce content width and center */
+    @media (min-width: 1441px) {
+      header {
+        padding-left: max(16px, calc((100% - 1380px) / 2 + 16px));
+        padding-right: max(16px, calc((100% - 1380px) / 2 + 16px));
+      }
+      main {
+        max-width: 1380px;
+        padding: 8px 16px;
+      }
+    }
+
+    @media (min-width: 1700px) {
+      header {
+        padding-left: max(20px, calc((100% - 1460px) / 2 + 20px));
+        padding-right: max(20px, calc((100% - 1460px) / 2 + 20px));
+      }
+      main {
+        max-width: 1460px;
+        padding: 10px 20px;
+      }
     }
 
     /* OPTIONS NAVIGATION BAR */
@@ -1595,6 +1618,22 @@
     [data-theme="light"] .matrix-table th.type-th-col,
     [data-theme="light"] .matrix-table td.type-cell {
       background: #ffffff;
+    }
+
+    [data-theme="light"] .matrix-table td.empty-slot {
+      background: #f8fafc;
+      color: #94a3b8;
+    }
+
+    [data-theme="light"] .matrix-table td.empty-slot:hover {
+      background: #e0e7ff;
+      border-color: #6366f1;
+      color: #3730a3;
+    }
+
+    [data-theme="light"] .matrix-table td.dash-slot {
+      background: #f1f5f9;
+      color: #cbd5e1;
     }
 
     .matrix-table td.lunch-cell {
@@ -2970,18 +3009,18 @@
     // DISTINCT COURSE COLOR THEME PALETTE
     // ==========================================
     const COURSE_PALETTE = [
-      { name: 'Indigo',  bg: '#2d3555', border: '#6366f1', text: '#e0e7ff', subText: '#a5b4fc', lightBg: '#eef2ff', lightText: '#3730a3', pdfBg: '#e0e7ff', pdfText: '#3730a3' },
-      { name: 'Emerald', bg: '#1e3a34', border: '#10b981', text: '#d1fae5', subText: '#6ee7b7', lightBg: '#ecfdf5', lightText: '#065f46', pdfBg: '#d1fae5', pdfText: '#065f46' },
-      { name: 'Amber',   bg: '#3b3524', border: '#f59e0b', text: '#fef3c7', subText: '#fcd34d', lightBg: '#fffbeb', lightText: '#92400e', pdfBg: '#fef3c7', pdfText: '#92400e' },
-      { name: 'Rose',    bg: '#3d2533', border: '#f43f5e', text: '#ffe4e6', subText: '#fda4af', lightBg: '#fff1f2', lightText: '#9f1239', pdfBg: '#ffe4e6', pdfText: '#9f1239' },
-      { name: 'Cyan',    bg: '#1a3640', border: '#06b6d4', text: '#cffafe', subText: '#67e8f9', lightBg: '#ecfeff', lightText: '#155e75', pdfBg: '#cffafe', pdfText: '#155e75' },
-      { name: 'Purple',  bg: '#322548', border: '#a855f7', text: '#f3e8ff', subText: '#c084fc', lightBg: '#faf5ff', lightText: '#6b21a8', pdfBg: '#f3e8ff', pdfText: '#6b21a8' },
-      { name: 'Orange',  bg: '#3b2e22', border: '#f97316', text: '#ffedd5', subText: '#fdba74', lightBg: '#fff7ed', lightText: '#9a3412', pdfBg: '#ffedd5', pdfText: '#9a3412' },
-      { name: 'Teal',    bg: '#1c3836', border: '#14b8a6', text: '#ccfbf1', subText: '#5eead4', lightBg: '#f0fdfa', lightText: '#115e59', pdfBg: '#ccfbf1', pdfText: '#115e59' },
-      { name: 'Fuchsia', bg: '#382240', border: '#d946ef', text: '#fae8ff', subText: '#e879f9', lightBg: '#fdf4ff', lightText: '#86198f', pdfBg: '#fae8ff', pdfText: '#86198f' },
-      { name: 'Blue',    bg: '#1e2f4d', border: '#3b82f6', text: '#dbeafe', subText: '#93c5fd', lightBg: '#eff6ff', lightText: '#1e40af', pdfBg: '#dbeafe', pdfText: '#1e40af' },
-      { name: 'Lime',    bg: '#2c3522', border: '#84cc16', text: '#ecfccb', subText: '#bef264', lightBg: '#f7fee7', lightText: '#3f6212', pdfBg: '#ecfccb', pdfText: '#3f6212' },
-      { name: 'Pink',    bg: '#3a2238', border: '#ec4899', text: '#fce7f3', subText: '#f9a8d4', lightBg: '#fdf2f8', lightText: '#9d174d', pdfBg: '#fce7f3', pdfText: '#9d174d' }
+      { name: 'Indigo',  bg: '#2d3555', border: '#6366f1', text: '#e0e7ff', subText: '#a5b4fc', lightBg: '#e0e7ff', lightBorder: '#818cf8', lightText: '#1e1b4b', lightSub: '#4338ca', pdfBg: '#e0e7ff', pdfText: '#1e1b4b' },
+      { name: 'Emerald', bg: '#1e3a34', border: '#10b981', text: '#d1fae5', subText: '#6ee7b7', lightBg: '#d1fae5', lightBorder: '#34d399', lightText: '#022c22', lightSub: '#047857', pdfBg: '#d1fae5', pdfText: '#022c22' },
+      { name: 'Amber',   bg: '#3b3524', border: '#f59e0b', text: '#fef3c7', subText: '#fcd34d', lightBg: '#fef3c7', lightBorder: '#f59e0b', lightText: '#451a03', lightSub: '#b45309', pdfBg: '#fef3c7', pdfText: '#451a03' },
+      { name: 'Rose',    bg: '#3d2533', border: '#f43f5e', text: '#ffe4e6', subText: '#fda4af', lightBg: '#ffe4e6', lightBorder: '#fb7185', lightText: '#4c0519', lightSub: '#be123c', pdfBg: '#ffe4e6', pdfText: '#4c0519' },
+      { name: 'Cyan',    bg: '#1a3640', border: '#06b6d4', text: '#cffafe', subText: '#67e8f9', lightBg: '#cffafe', lightBorder: '#22d3ee', lightText: '#083344', lightSub: '#0e7490', pdfBg: '#cffafe', pdfText: '#083344' },
+      { name: 'Purple',  bg: '#322548', border: '#a855f7', text: '#f3e8ff', subText: '#c084fc', lightBg: '#f3e8ff', lightBorder: '#c084fc', lightText: '#3b0764', lightSub: '#7e22ce', pdfBg: '#f3e8ff', pdfText: '#3b0764' },
+      { name: 'Orange',  bg: '#3b2e22', border: '#f97316', text: '#ffedd5', subText: '#fdba74', lightBg: '#ffedd5', lightBorder: '#fb923c', lightText: '#431407', lightSub: '#c2410c', pdfBg: '#ffedd5', pdfText: '#431407' },
+      { name: 'Teal',    bg: '#1c3836', border: '#14b8a6', text: '#ccfbf1', subText: '#5eead4', lightBg: '#ccfbf1', lightBorder: '#2dd4bf', lightText: '#042f2e', lightSub: '#0f766e', pdfBg: '#ccfbf1', pdfText: '#042f2e' },
+      { name: 'Fuchsia', bg: '#382240', border: '#d946ef', text: '#fae8ff', subText: '#e879f9', lightBg: '#fae8ff', lightBorder: '#e879f9', lightText: '#4a044e', lightSub: '#a21caf', pdfBg: '#fae8ff', pdfText: '#4a044e' },
+      { name: 'Blue',    bg: '#1e2f4d', border: '#3b82f6', text: '#dbeafe', subText: '#93c5fd', lightBg: '#dbeafe', lightBorder: '#60a5fa', lightText: '#172554', lightSub: '#1d4ed8', pdfBg: '#dbeafe', pdfText: '#172554' },
+      { name: 'Lime',    bg: '#2c3522', border: '#84cc16', text: '#ecfccb', subText: '#bef264', lightBg: '#ecfccb', lightBorder: '#a3e635', lightText: '#1a2e05', lightSub: '#4d7c0f', pdfBg: '#ecfccb', pdfText: '#1a2e05' },
+      { name: 'Pink',    bg: '#3a2238', border: '#ec4899', text: '#fce7f3', subText: '#f9a8d4', lightBg: '#fce7f3', lightBorder: '#f472b6', lightText: '#500724', lightSub: '#be185d', pdfBg: '#fce7f3', pdfText: '#500724' }
     ];
 
     function getCourseColorTheme(courseIndex, courseCode) {
@@ -4490,6 +4529,8 @@
             const isLight = document.documentElement.getAttribute('data-theme') === 'light';
             const cardBg = isLight ? theme.lightBg : theme.bg;
             const cardText = isLight ? theme.lightText : theme.text;
+            const cardBorder = isLight ? (theme.lightBorder || theme.border) : theme.border;
+            const cardMeta = isLight ? (theme.lightSub || '#475569') : theme.subText;
             const isSelected = moveSelection && moveSelection.courseIndex === s.courseIndex;
             const displayCode = isClash ? matches.map(m => m.code).join(' / ') : s.code;
             const courseIndices = matches.map(m => m.courseIndex).join(',');
@@ -4498,7 +4539,7 @@
                 data-slot="${slot}"
                 data-mode="THEORY"
                 data-course-index="${courseIndices}"
-                style="${isClash ? '' : `background: ${cardBg} !important; border: 1.5px solid ${theme.border} !important;`}"
+                style="${isClash ? '' : `background: ${cardBg} !important; border: 1.5px solid ${cardBorder} !important;`}"
                 draggable="true"
                 ondragstart="handleDragStart(event, ${s.courseIndex}, '${slot}')"
                 ondragend="handleDragEnd(event)"
@@ -4510,7 +4551,7 @@
                 <div class="slot-card-content">
                   <div class="slot-card-code" style="color: ${isClash ? '#ef4444' : cardText}; font-weight:800;">${displayCode}</div>
                   <div class="slot-card-name" style="color: ${isClash ? '#ef4444' : (isLight ? theme.lightText : theme.subText)};" title="${(s.name || '').replace(/"/g, '&quot;')}">${((s.name || '').split(' ').slice(0, 2).join(' '))}</div>
-                  <div class="slot-card-meta" style="color: ${isLight ? '#475569' : theme.subText};">
+                  <div class="slot-card-meta" style="color: ${cardMeta};">
                     ${s.venue || 'TBA'} · ${slot} ${isClash ? `<span class="slot-card-clash-tag">⚠️ CLASH (${matches.length})</span>` : ''}
                   </div>
                 </div>
@@ -4559,6 +4600,8 @@
             const isLight = document.documentElement.getAttribute('data-theme') === 'light';
             const cardBg = isLight ? theme.lightBg : theme.bg;
             const cardText = isLight ? theme.lightText : theme.text;
+            const cardBorder = isLight ? (theme.lightBorder || theme.border) : theme.border;
+            const cardMeta = isLight ? (theme.lightSub || '#475569') : theme.subText;
             const isSelected = moveSelection && moveSelection.courseIndex === s.courseIndex;
             const displayCode = isClash ? matches.map(m => m.code).join(' / ') : s.code;
             const courseIndices = matches.map(m => m.courseIndex).join(',');
@@ -4567,7 +4610,7 @@
                 data-slot="${slot}"
                 data-mode="LAB"
                 data-course-index="${courseIndices}"
-                style="${isClash ? '' : `background: ${cardBg} !important; border: 1.5px solid ${theme.border} !important;`}"
+                style="${isClash ? '' : `background: ${cardBg} !important; border: 1.5px solid ${cardBorder} !important;`}"
                 draggable="true"
                 ondragstart="handleDragStart(event, ${s.courseIndex}, '${slot}')"
                 ondragend="handleDragEnd(event)"
@@ -4579,7 +4622,7 @@
                 <div class="slot-card-content">
                   <div class="slot-card-code" style="color: ${isClash ? '#ef4444' : cardText}; font-weight:800;">${displayCode}</div>
                   <div class="slot-card-name" style="color: ${isClash ? '#ef4444' : (isLight ? theme.lightText : theme.subText)};" title="${(s.name || '').replace(/"/g, '&quot;')}">${((s.name || '').split(' ').slice(0, 2).join(' '))}</div>
-                  <div class="slot-card-meta" style="color: ${isLight ? '#475569' : theme.subText};">
+                  <div class="slot-card-meta" style="color: ${cardMeta};">
                     ${s.venue || 'TBA'} · ${slot} ${isClash ? `<span class="slot-card-clash-tag">⚠️ CLASH (${matches.length})</span>` : ''}
                   </div>
                 </div>
@@ -4925,7 +4968,7 @@
             const theme = getCourseColorTheme(s.courseIndex, s.code);
             const displayCode = isClash ? matches.map(m => m.code).join(' / ') : s.code;
             html += `
-              <td style="background: ${isClash ? '#fee2e2' : theme.pdfBg}; font-weight: 700; color: ${isClash ? '#991b1b' : theme.pdfText}; border: 1px solid ${isClash ? '#f87171' : theme.border}; padding: 2px;">
+              <td style="background: ${isClash ? '#fee2e2' : theme.pdfBg}; font-weight: 700; color: ${isClash ? '#991b1b' : theme.pdfText}; border: 1px solid ${isClash ? '#f87171' : (theme.lightBorder || theme.border)}; padding: 2px;">
                 ${displayCode}<br><span style="font-size: 0.48rem; display: block; white-space: nowrap; overflow: hidden; max-width: 55px;" title="${(s.name || '').replace(/"/g, '&quot;')}">${(s.name || '').split(' ').slice(0, 2).join(' ')}</span><span style="font-size: 0.50rem; font-weight: normal;">${s.venue || 'TBA'} · ${slot}</span>
               </td>
             `;
@@ -4958,7 +5001,7 @@
             const theme = getCourseColorTheme(s.courseIndex, s.code);
             const displayCode = isClash ? matches.map(m => m.code).join(' / ') : s.code;
             html += `
-              <td style="background: ${isClash ? '#fee2e2' : theme.pdfBg}; font-weight: 700; color: ${isClash ? '#991b1b' : theme.pdfText}; border: 1px solid ${isClash ? '#f87171' : theme.border}; padding: 2px;">
+              <td style="background: ${isClash ? '#fee2e2' : theme.pdfBg}; font-weight: 700; color: ${isClash ? '#991b1b' : theme.pdfText}; border: 1px solid ${isClash ? '#f87171' : (theme.lightBorder || theme.border)}; padding: 2px;">
                 ${displayCode}<br><span style="font-size: 0.48rem; display: block; white-space: nowrap; overflow: hidden; max-width: 55px;" title="${(s.name || '').replace(/"/g, '&quot;')}">${(s.name || '').split(' ').slice(0, 2).join(' ')}</span><span style="font-size: 0.50rem; font-weight: normal;">${s.venue || 'TBA'} · ${slot}</span>
               </td>
             `;
