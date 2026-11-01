@@ -5824,47 +5824,187 @@
     }
 
     function loadSamplePortalText() {
-      const sample = `BCSE202L - Data Structures and Algorithms
-(Theory Only)
-3 0 0 0 3.0
-B1+TB1
-SJT311
-12345 - Dr. Anthoniraj A
-
-BCSE202P - Data Structures and Algorithms Lab
-(Lab Only)
-0 0 2 0 1.0
-L31+L32
-PRPG07
-12345 - Dr. Anthoniraj A
-
-BMAT102L - Differential Equations and Transforms
-(Theory Only)
-3 0 0 0 3.0
-C1+TC1
-PRP110
-13302 - Dr. Alan Turing
-
-BEEE102L - Basic Electrical and Electronics Engineering
-(Theory Only)
-2 0 0 0 2.0
-D1+TD1
-TT214
-14205 - Prof. Grace Hopper
-
-BEEE102P - Basic Electrical and Electronics Engineering Lab
-(Lab Only)
-0 0 2 0 1.0
+      const sample = `Course Details
+Credit
+Course Category
+Course
+Option
+Class Detail
+Slot
+Faculty
+Status
+Modify
+Delete
+BACHY105 -Applied
+Chemistry - Embedded Theory
+3.0
+University Core
+Courses
+Regular
+VL2026270502835 - 10546 -
+PRP425
+C2+TC2
+SUMATHI S -
+10546
+Registered
+Delete
+BACHY105 -Applied
+Chemistry - Embedded Lab
+1.0
+University Core
+Courses
+Regular
+VL2026270504793 - 10546 -
+PRP408A
+L21+L22
+SUMATHI S -
+10546
+Registered
+Delete
+BACSE104 -Structured and
+Object-Oriented Programming -
+Embedded Theory
+2.0
+Programme Core
+Courses
+Regular
+VL2026270503639 - 23831 -
+SJT803
+A2
+JENIFA G - 23831
+Registered
+Delete
+BACSE104 -Structured and
+Object-Oriented Programming -
+Embedded Lab
+2.0
+Programme Core
+Courses
+Regular
+VL2026270503641 - 23831 -
+SJT122
+L1+L2+L27+L28
+JENIFA G - 23831
+Registered
+Delete
+BAHUM101 -India Studies -
+Online Course
+1.0
+University Core
+Courses
+Regular
+VL2026270505771 - 13573 -
+NIL
+NIL
+SUDHEER C V -
+13573
+Registered
+Modify
+-NA-
+BAITE101 -Digital Logic
+Design and Computer
+Organization - Embedded
+Theory
+3.0
+Programme Core
+Courses
+Regular
+VL2026270504917 - 17021 -
+SJT324
+B2+TB2
+KONGUVEL E -
+17021
+Registered
+Delete
+BAITE101 -Digital Logic
+Design and Computer
+Organization - Embedded Lab
+1.0
+Programme Core
+Courses
+Regular
+VL2026270504919 - 17021 -
+SJT212
+L25+L26
+KONGUVEL E -
+17021
+Registered
+Delete
+BAITE102 -Data Structures and
+Algorithms - Embedded Theory
+3.0
+Programme Core
+Courses
+Regular
+VL2026270503530 - 10939 -
+SJT825
+F2+TF2
+VIJAYAN E - 10939
+Registered
+Delete
+BAITE102 -Data Structures and
+Algorithms - Embedded Lab
+1.0
+Programme Core
+Courses
+Regular
+VL2026270503532 - 10939 -
+SJTG17
 L19+L20
-MB-EEELAB
-14205 - Prof. Grace Hopper
-
-BACHY105 - Applied Chemistry
-(Theory Only)
-3 0 0 0 3.0
-A1+TA1
-SMV218
-15112 - Dr. Marie Curie`;
+VIJAYAN E - 10939
+Registered
+Delete
+BAITE103 -Principles of
+Software Engineering -
+Embedded Theory
+3.0
+Programme Core
+Courses
+Regular
+VL2026270503554 - 10953 -
+SJTG24
+E2+TE2
+KARTHIKEYAN P
+- 10953
+Registered
+Delete
+BAITE103 -Principles of
+Software Engineering -
+Embedded Lab
+1.0
+Programme Core
+Courses
+Regular
+VL2026270503556 - 10953 -
+SJTG17
+L13+L14
+KARTHIKEYAN P
+- 10953
+Registered
+Delete
+BAMAT207 -Probability and
+Statistics - Embedded Theory
+3.0
+Programme Core
+Courses
+Regular
+VL2026270503057 - 19609 -
+PRP329
+D2+TD2
+PADMA R - 19609
+Registered
+Delete
+BAMAT207 -Probability and
+Statistics - Embedded Lab
+1.0
+Programme Core
+Courses
+Regular
+VL2026270505215 - 19609 -
+PRP445
+L11+L12
+PADMA R - 19609
+Registered`;
 
       const input = document.getElementById('rawPortalInput');
       if (input) {
@@ -5919,9 +6059,11 @@ SMV218
 
     function parseRegistrationCourses(rawText) {
       const courses = [];
-      const lines = rawText.split('\n').map(l => l.trim()).filter(l => l);
+      if (!rawText) return courses;
+      const lines = rawText.split('\n').map(l => l.trim()).filter(Boolean);
 
-      for (let i = 0; i < lines.length; i++) {
+      let i = 0;
+      while (i < lines.length) {
         const line = lines[i];
 
         // Format A: Tab-delimited row (from VTOP Table / Excel)
@@ -5944,7 +6086,7 @@ SMV218
                 type = val.toUpperCase().includes('LAB') ? 'LAB' : 'Theory';
               } else if (val.match(/^([A-Z]\d.*|L\d.*)$/) && slot === "NIL" && !val.includes('-')) {
                 slot = val.toUpperCase();
-              } else if (val.match(/^(PRP|SJT|TT|SMV|GDN|MB|ONLINE|[A-Z0-9]{3,8})/i) && !venue && !val.includes(' ')) {
+              } else if (val.match(/^(PRP|SJT|TT|SMV|GDN|MB|ONLINE|[A-Z0-9]{3,8})/i) && !venue && !val.includes(' ') && !val.match(/^\d+$/)) {
                 venue = formatVenue(val);
               } else if (val.match(/^\d{4,6}\s*-\s*.+$/) || (val.length > 5 && val.includes(' ') && faculty === "-")) {
                 faculty = val;
@@ -5958,45 +6100,159 @@ SMV218
 
             if (slot.startsWith('L') && (type === 'Regular' || type === 'Theory')) type = 'LAB';
             courses.push({ code, name, type, slot, venue, faculty, credits });
+            i++;
             continue;
           }
         }
 
-        // Format B: Vertical text block (VTOP Course Registration page)
-        const cMatch = line.match(/^([A-Z]{3,5}\d{3,4}[A-Z]?)\s*-\s*(.+)$/i);
-        if (cMatch) {
-          const code = cMatch[1].toUpperCase();
-          const name = cMatch[2].trim();
+        // Format B: VTOP Vertical format (Registration Portal or Timetable View)
+        const startMatch = line.match(/^([A-Z]{3,5}\d{3,4}[A-Z]?)\s*-\s*(.*)$/i);
+        if (startMatch) {
+          const code = startMatch[1].toUpperCase();
+          let rawTitleParts = [startMatch[2].trim()];
+          i++;
 
-          let type = "Regular";
           let credits = 3.0;
-          let slot = "NIL";
-          let venue = "";
-          let faculty = "-";
 
-          for (let j = i + 1; j < Math.min(i + 15, lines.length); j++) {
-            const l = lines[j];
-            if (l.match(/^([A-Z]{3,5}\d{3,4}[A-Z]?)\s*-\s*(.+)$/i)) {
-              // Next course reached
+          // Check if this block is VTOP registration portal format (contains VL...)
+          let isPortalTable = false;
+          for (let peek = i; peek < Math.min(i + 15, lines.length); peek++) {
+            if (lines[peek].match(/^VL\d+/i)) {
+              isPortalTable = true;
               break;
             }
-            if (l.startsWith('(') && l.endsWith(')')) {
-              type = l.replace(/[\(\)]/g, '').trim();
-            } else if (l.match(/^\d\s+\d\s+\d\s+\d\s+[\d.]+$/)) {
-              const parts = l.split(/\s+/);
-              credits = parseFloat(parts[4]) || 0;
-            } else if (l.match(/^([A-Z]\d.*|L\d.*)$/) && slot === "NIL" && !l.includes('-') && !l.includes('Registered')) {
-              slot = l.toUpperCase();
-            } else if (l.match(/^(PRP[A-Z0-9]+|SJT[A-Z0-9]+|TT[A-Z0-9]+|ONLINE|[A-Z0-9]{3,8})$/i) && !venue && l.toUpperCase() !== "NIL") {
-              venue = formatVenue(l);
-            } else if (l.match(/^\d{4,6}\s*-\s*.+$/)) {
-              faculty = l;
+            if (lines[peek].match(/^([A-Z]{3,5}\d{3,4}[A-Z]?)\s*-\s*/i)) {
+              break;
             }
           }
 
-          if (slot.startsWith('L') && (type === 'Regular' || type.includes('Lab') || type === 'Theory')) type = 'LAB';
-          courses.push({ code, name, type, slot, venue, faculty, credits });
+          if (isPortalTable) {
+            // Collect title / type lines until credits line (e.g. 3.0, 1.0, 2.0)
+            while (i < lines.length) {
+              const cur = lines[i];
+              if (cur.match(/^\d+(\.\d+)?$/)) {
+                credits = parseFloat(cur);
+                i++; // skip credits line
+                break;
+              }
+              if (cur.match(/^([A-Z]{3,5}\d{3,4}[A-Z]?)\s*-\s*/i)) {
+                break;
+              }
+              rawTitleParts.push(cur);
+              i++;
+            }
+
+            const fullTitleStr = rawTitleParts.join(' ').replace(/\s+/g, ' ').trim();
+            let name = fullTitleStr;
+            let type = "Theory";
+
+            const typeMatch = fullTitleStr.match(/(.+?)\s*-\s*(Embedded Theory|Embedded Lab|Theory Only|Lab Only|Online Course|Project)$/i);
+            if (typeMatch) {
+              name = typeMatch[1].trim();
+              const detectedType = typeMatch[2].trim();
+              type = detectedType.toUpperCase().includes('LAB') ? 'LAB' : 'Theory';
+            } else if (fullTitleStr.toUpperCase().includes('LAB')) {
+              type = 'LAB';
+            }
+
+            let venue = "";
+            let slot = "";
+            let faculty = "-";
+            const facultyLines = [];
+
+            while (i < lines.length) {
+              const l = lines[i];
+              if (l.match(/^([A-Z]{3,5}\d{3,4}[A-Z]?)\s*-\s*/i)) break;
+
+              if (l === 'Registered' || l === 'Delete' || l === '-NA-' || l === 'Modify') {
+                i++;
+                break;
+              }
+
+              // VL class detail line
+              if (l.match(/^VL\d+/i)) {
+                const vParts = l.split('-').map(s => s.trim());
+                if (vParts.length >= 3 && vParts[2] && vParts[2] !== 'NIL') {
+                  venue = formatVenue(vParts[2]);
+                } else if (i + 1 < lines.length) {
+                  const nextL = lines[i + 1];
+                  if (nextL !== 'NIL' && !nextL.match(/^\d+$/)) {
+                    venue = formatVenue(nextL);
+                  }
+                  i++;
+                }
+
+                // Next line after venue is slot
+                if (i + 1 < lines.length) {
+                  const slotL = lines[i + 1];
+                  if (slotL === 'NIL' || slotL.match(/^([A-Z]\d.*|L\d.*)$/)) {
+                    slot = slotL.toUpperCase();
+                    i++;
+                  }
+                }
+
+                // Remaining lines up to Registered/Delete/Modify are faculty
+                i++;
+                while (i < lines.length) {
+                  const facL = lines[i];
+                  if (facL === 'Registered' || facL === 'Delete' || facL === '-NA-' || facL === 'Modify') break;
+                  if (facL.match(/^([A-Z]{3,5}\d{3,4}[A-Z]?)\s*-\s*/i)) break;
+                  facultyLines.push(facL);
+                  i++;
+                }
+                break;
+              }
+              i++;
+            }
+
+            if (facultyLines.length > 0) {
+              faculty = facultyLines.join(' ').replace(/\s*-\s*/g, ' - ').replace(/\s+/g, ' ').trim();
+            }
+
+            if (!slot) slot = "NIL";
+            if (slot.startsWith('L')) {
+              type = 'LAB';
+              if (!name.toUpperCase().includes('LAB')) name = `${name} Lab`;
+            }
+
+            courses.push({ code, name, type, slot, venue, faculty, credits });
+            continue;
+          } else {
+            // Legacy / Alternative vertical timetable format
+            let name = rawTitleParts[0];
+            let type = "Regular";
+            let slot = "NIL";
+            let venue = "";
+            let faculty = "-";
+
+            while (i < lines.length) {
+              const l = lines[i];
+              if (l.match(/^([A-Z]{3,5}\d{3,4}[A-Z]?)\s*-\s*/i)) break;
+
+              if (l.startsWith('(') && l.endsWith(')')) {
+                type = l.replace(/[\(\)]/g, '').trim();
+              } else if (l.match(/^\d\s+\d\s+\d\s+\d\s+[\d.]+$/)) {
+                const parts = l.split(/\s+/);
+                credits = parseFloat(parts[4]) || 0;
+              } else if (l.match(/^\d+(\.\d+)?$/)) {
+                credits = parseFloat(l);
+              } else if (l.match(/^([A-Z]\d.*|L\d.*)$/) && slot === "NIL" && !l.includes('-') && !l.includes('Registered')) {
+                slot = l.toUpperCase();
+              } else if (l.match(/^(PRP[A-Z0-9]+|SJT[A-Z0-9]+|TT[A-Z0-9]+|ONLINE|[A-Z0-9]{3,8})$/i) && !venue && l.toUpperCase() !== "NIL" && !l.match(/^\d+$/)) {
+                venue = formatVenue(l);
+              } else if (l.match(/^\d{4,6}\s*-\s*.+$/)) {
+                faculty = l;
+              }
+              i++;
+            }
+
+            if (slot.startsWith('L') && (type === 'Regular' || type.includes('Lab') || type === 'Theory')) type = 'LAB';
+            courses.push({ code, name, type, slot, venue, faculty, credits });
+            continue;
+          }
         }
+
+        i++;
       }
 
       return courses;
