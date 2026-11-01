@@ -3580,6 +3580,29 @@
     .drag-demo-target-badge.visible {
       opacity: 1;
     }
+
+    @media (max-width: 640px) {
+      .drag-demo-card {
+        padding: 14px 16px;
+        border-radius: 12px;
+      }
+      .drag-demo-title {
+        font-size: 0.92rem;
+      }
+      .drag-demo-feature-item {
+        font-size: 0.78rem;
+        gap: 8px;
+        line-height: 1.38;
+      }
+      .drag-demo-feature-icon {
+        font-size: 1rem;
+      }
+      .drag-demo-actions {
+        margin-top: 10px;
+        padding-top: 8px;
+        gap: 8px;
+      }
+    }
   </style>
 </head>
 
@@ -4049,7 +4072,10 @@
               </div>
             </div>
 
-            <div class="form-actions-row" style="margin-top: 14px; padding-top: 10px; border-top: 1px solid var(--border-color); display: flex; justify-content: flex-end; gap: 8px;">
+            <div class="form-actions-row" style="margin-top: 14px; padding-top: 10px; border-top: 1px solid var(--border-color); display: flex; justify-content: flex-end; align-items: center; gap: 8px; flex-wrap: wrap;">
+              <button type="button" id="fillSampleDemoBtn" class="btn btn-secondary btn-sm" onclick="fillSampleCourseForDemo()" style="margin-right: auto; display: inline-flex; align-items: center; gap: 4px; font-weight: 600;" title="Pre-fill realistic sample course details for demo">
+                ⚡ Fill Sample Value for Demo
+              </button>
               <button type="button" id="cancelEditBtn" class="btn btn-outline btn-sm" onclick="closeCourseModal()">
                 Cancel
               </button>
@@ -4096,8 +4122,8 @@
       <div class="stats-pills">
         <div class="pill" id="totalCoursesPill">0 Courses</div>
         <div class="pill pill-highlight" id="totalCreditsPill">0.0 Credits</div>
-        <button type="button" class="pill" onclick="showDragDropDemo(true)" style="background: rgba(99,102,241,0.15); border: 1px solid rgba(99,102,241,0.35); color: var(--accent-primary, #818cf8); cursor: pointer; font-weight: 600; display: inline-flex; align-items: center; gap: 4px;" title="💡 Watch Drag & Drop Help Demo">
-          <span>💡</span> <span>Drag Guide</span>
+        <button type="button" class="pill" onclick="showDragDropDemo(true)" style="background: rgba(99,102,241,0.15); border: 1px solid rgba(99,102,241,0.35); color: var(--accent-primary, #818cf8); cursor: pointer; font-weight: 600; display: inline-flex; align-items: center; gap: 4px;" title="💡 Interactive Guide: Focus, Drag & Drop, Double-Click Add">
+          <span>💡</span> <span>Quick Guide</span>
         </button>
       </div>
     </div>
@@ -4998,6 +5024,8 @@
       renderActiveView();
     }
 
+    let cellClickTimer = null;
+
     function handleCellClick(slot, mode, courseIndex) {
       if (moveSelection) {
         if (courseIndex === moveSelection.courseIndex) {
@@ -5017,8 +5045,21 @@
       if (courseIndex >= 0) {
         setMoveSelection(courseIndex, slot, mode);
       } else {
-        openCourseModalWithSlot(slot, mode);
+        if (cellClickTimer) clearTimeout(cellClickTimer);
+        cellClickTimer = setTimeout(() => {
+          openCourseModalWithSlot(slot, mode, false);
+          cellClickTimer = null;
+        }, 220);
       }
+    }
+
+    function handleCellDblClick(slot, mode, courseIndex) {
+      if (cellClickTimer) {
+        clearTimeout(cellClickTimer);
+        cellClickTimer = null;
+      }
+      if (!slot || slot === '-' || slot === 'Lunch') return;
+      openCourseModalWithSlot(slot, mode, true /* fillDemoSample */);
     }
 
     function executeMoveCourse(sourceIdx, targetSlot, targetMode, draggedSlot) {
@@ -5502,6 +5543,42 @@
       }
     }
 
+    // Demo Sample Courses Pool for Double-Click Quick Add
+    const SAMPLE_DEMO_COURSES = [
+      { code: 'BCSE202L', name: 'Data Structures and Algorithms', type: 'Theory', faculty: 'Dr. Anthoniraj A', venue: 'PRP110', credits: 3.0 },
+      { code: 'BCSE202P', name: 'Data Structures and Algorithms Lab', type: 'LAB', faculty: 'Dr. Anthoniraj A', venue: 'PRPG07', credits: 1.5 },
+      { code: 'BMAT102L', name: 'Differential Equations and Transforms', type: 'Theory', faculty: 'Dr. Alan Turing', venue: 'SJT311', credits: 3.0 },
+      { code: 'BEEE102L', name: 'Basic Electrical and Electronics Engineering', type: 'Theory', faculty: 'Prof. Grace Hopper', venue: 'TT214', credits: 2.0 },
+      { code: 'BEEE102P', name: 'Basic Electrical and Electronics Engineering Lab', type: 'LAB', faculty: 'Prof. Grace Hopper', venue: 'MB-EEELAB', credits: 1.0 },
+      { code: 'BACHY105', name: 'Applied Chemistry', type: 'Theory', faculty: 'Dr. Marie Curie', venue: 'SMV218', credits: 3.0 },
+      { code: 'BACSE104', name: 'Object-Oriented Programming using Java', type: 'Theory', faculty: 'Prof. James Gosling', venue: 'SJT412', credits: 3.0 },
+      { code: 'BAITE101', name: 'Digital Logic and Microprocessors', type: 'Theory', faculty: 'Dr. Claude Shannon', venue: 'PRP215', credits: 3.0 }
+    ];
+
+    let demoCourseRotationIdx = 0;
+
+    function fillSampleCourseForDemo() {
+      const curType = document.getElementById('courseType').value || 'Theory';
+      const isLab = curType === 'LAB';
+
+      const candidates = SAMPLE_DEMO_COURSES.filter(c => isLab ? c.type === 'LAB' : c.type === 'Theory');
+      const sample = candidates[demoCourseRotationIdx % candidates.length] || SAMPLE_DEMO_COURSES[0];
+      demoCourseRotationIdx++;
+
+      document.getElementById('courseCode').value = sample.code;
+      document.getElementById('courseName').value = sample.name;
+      document.getElementById('facultyName').value = sample.faculty;
+      document.getElementById('courseVenue').value = sample.venue;
+      document.getElementById('courseCredits').value = String(sample.credits);
+
+      const slotInput = document.getElementById('courseSlot');
+      if (!slotInput.value || slotInput.value.trim() === '') {
+        slotInput.value = isLab ? 'L31+L32' : 'A1+TA1';
+      }
+
+      showToast(`⚡ Demo Sample: ${sample.code} (${sample.name})`);
+    }
+
     // Course Modal Dialog & Action Handlers
     function openCourseModal() {
       const modal = document.getElementById('courseModal');
@@ -5522,7 +5599,7 @@
       }, 60);
     }
 
-    function openCourseModalWithSlot(slot, mode) {
+    function openCourseModalWithSlot(slot, mode, fillSample) {
       const modal = document.getElementById('courseModal');
       if (!modal) return;
       document.getElementById('courseForm').reset();
@@ -5542,6 +5619,11 @@
       document.getElementById('courseSlot').value = resolvedSlot;
       document.getElementById('formTitle').innerText = `Register Course for ${resolvedSlot} (${isLab ? 'LAB' : 'Theory'})`;
       document.getElementById('submitCourseBtn').innerText = '➕ Add Course to Active Plan';
+
+      if (fillSample) {
+        fillSampleCourseForDemo();
+        document.getElementById('courseSlot').value = resolvedSlot;
+      }
 
       modal.classList.add('is-open');
       setTimeout(() => {
@@ -5932,10 +6014,11 @@
                   data-slot="${slot}"
                   data-mode="THEORY"
                   onclick="handleCellClick('${slot}', 'THEORY', -1)"
+                  ondblclick="handleCellDblClick('${slot}', 'THEORY', -1)"
                   ondragover="handleDragOver(event, '${slot}', 'THEORY', -1)"
                   ondragleave="handleDragLeave(event)"
                   ondrop="handleDrop(event, '${slot}', 'THEORY', -1)"
-                  title="${moveSelection ? 'Tap to place ' + moveSelection.code + ' on ' + slot : 'Click to choose slot ' + slot + ' or drop course here'}">
+                  title="${moveSelection ? 'Tap to place ' + moveSelection.code + ' on ' + slot : 'Click to add course, or Double-Click to fill sample demo course'}">
                   ${slot}
                 </td>
               `;
@@ -5970,7 +6053,8 @@
                   ondragleave="handleDragLeave(event)"
                   ondrop="handleDrop(event, '${slot}', 'THEORY', ${s.courseIndex})"
                   onclick="handleCellClick('${slot}', 'THEORY', ${s.courseIndex})"
-                  title="Tap to select/swap or drag | ${s.code} - ${s.name} (${slot})${venueDisplay ? ' | Venue: ' + venueDisplay : ''} | Faculty: ${cleanFacultyName(s.faculty)}">
+                  ondblclick="handleCellDblClick('${slot}', 'THEORY', ${s.courseIndex})"
+                  title="Tap to select/swap, drag to move, or Double-Click to quick-register demo course | ${s.code} - ${s.name} (${slot})${venueDisplay ? ' | Venue: ' + venueDisplay : ''} | Faculty: ${cleanFacultyName(s.faculty)}">
                   <div class="slot-card-content">
                     <div class="slot-card-code" style="color: ${isClash ? '#ef4444' : cardText}; font-weight:800;">${displayCode}</div>
                     <div class="slot-card-name" style="color: ${isClash ? '#ef4444' : (isLight ? theme.lightText : theme.subText)};" title="${(s.name || '').replace(/"/g, '&quot;')}">${((s.name || '').split(' ').slice(0, 2).join(' '))}</div>
@@ -6010,10 +6094,11 @@
                   data-slot="${slot}"
                   data-mode="LAB"
                   onclick="handleCellClick('${slot}', 'LAB', -1)"
+                  ondblclick="handleCellDblClick('${slot}', 'LAB', -1)"
                   ondragover="handleDragOver(event, '${slot}', 'LAB', -1)"
                   ondragleave="handleDragLeave(event)"
                   ondrop="handleDrop(event, '${slot}', 'LAB', -1)"
-                  title="${moveSelection ? 'Tap to place ' + moveSelection.code + ' on ' + slot : 'Click to choose slot ' + slot + ' or drop course here'}">
+                  title="${moveSelection ? 'Tap to place ' + moveSelection.code + ' on ' + slot : 'Click to add course, or Double-Click to fill sample demo course'}">
                   ${slot}
                 </td>
               `;
@@ -6048,7 +6133,8 @@
                   ondragleave="handleDragLeave(event)"
                   ondrop="handleDrop(event, '${slot}', 'LAB', ${s.courseIndex})"
                   onclick="handleCellClick('${slot}', 'LAB', ${s.courseIndex})"
-                  title="Tap to select/swap or drag | ${s.code} - ${s.name} (${slot})${venueDisplay ? ' | Venue: ' + venueDisplay : ''} | Faculty: ${cleanFacultyName(s.faculty)}">
+                  ondblclick="handleCellDblClick('${slot}', 'LAB', ${s.courseIndex})"
+                  title="Tap to select/swap, drag to move, or Double-Click to quick-register demo course | ${s.code} - ${s.name} (${slot})${venueDisplay ? ' | Venue: ' + venueDisplay : ''} | Faculty: ${cleanFacultyName(s.faculty)}">
                   <div class="slot-card-content">
                     <div class="slot-card-code" style="color: ${isClash ? '#ef4444' : cardText}; font-weight:800;">${displayCode}</div>
                     <div class="slot-card-name" style="color: ${isClash ? '#ef4444' : (isLight ? theme.lightText : theme.subText)};" title="${(s.name || '').replace(/"/g, '&quot;')}">${((s.name || '').split(' ').slice(0, 2).join(' '))}</div>
@@ -7998,23 +8084,27 @@ BMAT101\tCalculus and Linear Algebra\tB1+TB1\tNIL\tPRP110\t13302 - RAJA DAS - SA
             <div class="drag-demo-header">
               <div class="drag-demo-title">
                 <span>💡</span>
-                <span>Drag & Drop Schedule Customizer</span>
+                <span>Timetable Interactive Help & Guide</span>
               </div>
               <button type="button" class="drag-demo-close-btn" onclick="closeDragDropDemo()" title="Close guide (Esc)">✕</button>
             </div>
             
             <ul class="drag-demo-features">
               <li class="drag-demo-feature-item">
-                <span class="drag-demo-feature-icon">🖱️</span>
-                <div><strong>Desktop Drag & Drop:</strong> Click and drag any course card directly to an empty slot or drop onto another course to swap.</div>
+                <span class="drag-demo-feature-icon">🎯</span>
+                <div><strong>Course Focus & Highlighting:</strong> Hover over any course block to focus and illuminate all its Theory & Lab slots across the week while dimming unrelated slots.</div>
               </li>
               <li class="drag-demo-feature-item">
-                <span class="drag-demo-feature-icon">📱</span>
-                <div><strong>Mobile Tap-to-Move:</strong> Tap any course card to select it, then tap an empty slot to place it or tap another course to swap!</div>
+                <span class="drag-demo-feature-icon">🖱️</span>
+                <div><strong>Drag & Drop / Tap to Move:</strong> Drag any course card directly to an empty slot to move it, or drop onto another course to swap slots. (On mobile, tap to select and tap another slot).</div>
+              </li>
+              <li class="drag-demo-feature-item">
+                <span class="drag-demo-feature-icon">⚡</span>
+                <div><strong>Double-Click Quick Add:</strong> Double-click any timetable cell to register a course with a 1-click <strong>"Fill Sample Value for Demo"</strong> button!</div>
               </li>
               <li class="drag-demo-feature-item">
                 <span class="drag-demo-feature-icon">🛡️</span>
-                <div><strong>Clash Prevention:</strong> Valid slots glow green, while clashes alert you instantly with collision protection.</div>
+                <div><strong>Clash Prevention:</strong> Valid open slots glow green, while conflicts trigger immediate red collision alerts and audio warnings.</div>
               </li>
             </ul>
 
@@ -8039,7 +8129,7 @@ BMAT101\tCalculus and Linear Algebra\tB1+TB1\tNIL\tPRP110\t13302 - RAJA DAS - SA
             card.style.left = '16px';
             card.style.right = '16px';
             card.style.width = 'auto';
-            card.style.maxHeight = '48vh';
+            card.style.maxHeight = '52vh';
             card.style.overflowY = 'auto';
           } else {
             // Anchor safely on desktop
@@ -8099,19 +8189,28 @@ BMAT101\tCalculus and Linear Algebra\tB1+TB1\tNIL\tPRP110\t13302 - RAJA DAS - SA
         ghost.style.left = `${sX}px`;
         ghost.style.top = `${sY}px`;
         if (tSpot) tSpot.classList.remove('drag-over');
-        if (targetBadge) targetBadge.classList.remove('visible');
+        if (targetBadge) {
+          targetBadge.classList.remove('visible');
+          targetBadge.innerText = '✓ Free Slot (Clash-Free)';
+        }
 
-        // Step 1: Mouse down at 500ms
+        // Phase 1 (0ms): Focus & Slot Highlighting
+        highlightCourseSlots(sourceCell);
+        ghost.innerHTML = `<span>🎯 Hover Focus: All Theory & Lab slots illuminated!</span>`;
+        ghost.classList.add('visible');
+
+        // Phase 2 (1200ms): Grab Course for Drag & Drop
         demoStepTimeouts.push(setTimeout(() => {
           if (!cursor) return;
+          clearCourseSlotHighlights();
           cursor.style.transition = 'transform 0.2s ease';
           cursor.style.transform = 'translate(-30%, -20%) scale(0.85)';
-          ghost.classList.add('visible');
+          ghost.innerHTML = `<span>📚 ${courseCode}</span> <span style="font-size:0.65rem; opacity:0.85;">(${slot})</span>`;
 
-          // Step 2: Drag begins at 900ms
+          // Phase 3 (1600ms): Slide cursor to target slot
           demoStepTimeouts.push(setTimeout(() => {
             if (!cursor) return;
-            const dragDur = 1400;
+            const dragDur = 1300;
             cursor.style.transition = `left ${dragDur}ms cubic-bezier(0.25, 1, 0.5, 1), top ${dragDur}ms cubic-bezier(0.25, 1, 0.5, 1)`;
             ghost.style.transition = `left ${dragDur}ms cubic-bezier(0.25, 1, 0.5, 1), top ${dragDur}ms cubic-bezier(0.25, 1, 0.5, 1)`;
 
@@ -8120,30 +8219,55 @@ BMAT101\tCalculus and Linear Algebra\tB1+TB1\tNIL\tPRP110\t13302 - RAJA DAS - SA
             ghost.style.left = `${tX}px`;
             ghost.style.top = `${tY}px`;
 
-            // Step 3: Target highlight midway (at 700ms into drag)
+            // Midway into drag (at 650ms): Target slot turns green
             demoStepTimeouts.push(setTimeout(() => {
               if (tSpot) tSpot.classList.add('drag-over');
-            }, 700));
+            }, 650));
 
-            // Step 4: Drop at target (at end of drag)
+            // Drop course at target slot (at end of drag)
             demoStepTimeouts.push(setTimeout(() => {
               if (!cursor) return;
               cursor.style.transform = 'translate(-30%, -20%) scale(1)';
-              if (targetBadge) targetBadge.classList.add('visible');
+              if (targetBadge) {
+                targetBadge.innerText = '✓ Free Slot (Clash-Free)';
+                targetBadge.classList.add('visible');
+              }
 
-              // Step 5: Fade ghost
+              // Phase 4 (800ms after drop): Demonstrate Double-Click to Add Course
               demoStepTimeouts.push(setTimeout(() => {
+                if (!cursor) return;
                 ghost.classList.remove('visible');
-              }, 400));
+                if (targetBadge) {
+                  targetBadge.innerText = '⚡ Double-click to Add Course (Fill Demo Sample)!';
+                }
+                // Simulate quick double-tap on target cell
+                cursor.style.transform = 'translate(-30%, -20%) scale(0.82)';
+                demoStepTimeouts.push(setTimeout(() => {
+                  cursor.style.transform = 'translate(-30%, -20%) scale(1)';
+                  demoStepTimeouts.push(setTimeout(() => {
+                    cursor.style.transform = 'translate(-30%, -20%) scale(0.82)';
+                    demoStepTimeouts.push(setTimeout(() => {
+                      cursor.style.transform = 'translate(-30%, -20%) scale(1)';
+                    }, 140));
+                  }, 120));
+                }, 140));
+
+                // Fade badge before next loop
+                demoStepTimeouts.push(setTimeout(() => {
+                  if (targetBadge) targetBadge.classList.remove('visible');
+                }, 1400));
+
+              }, 800));
+
             }, dragDur + 50));
 
           }, 400));
 
-        }, 500));
+        }, 1200));
       }
 
       triggerCycle();
-      demoCycleTimer = setInterval(triggerCycle, 4200);
+      demoCycleTimer = setInterval(triggerCycle, 5600);
     }
 
     function replayDragDemoAnimation() {
@@ -8170,6 +8294,7 @@ BMAT101\tCalculus and Linear Algebra\tB1+TB1\tNIL\tPRP110\t13302 - RAJA DAS - SA
       } catch (e) {}
 
       clearDemoTimeouts();
+      clearCourseSlotHighlights();
 
       const container = document.getElementById('dragDemoContainer');
       if (container) {
