@@ -3633,6 +3633,11 @@
         <span class="btn-label-inline">Add</span>
       </button>
 
+      <button type="button" class="header-icon-btn" onclick="openImportModal()" title="📋 Paste VTOP Timetable & Visualize Courses">
+        <span>📋</span>
+        <span class="btn-label-inline">VTOP Import</span>
+      </button>
+
       <button type="button" class="header-icon-btn" onclick="generatePDF()" title="📄 Download Landscape PDF Report with Timetable">
         <span>📄</span>
         <span class="btn-label-inline">PDF</span>
@@ -4094,18 +4099,21 @@
         <div class="course-modal-header">
           <div class="course-modal-title">
             <span style="font-size: 1.3rem;">📋</span>
-            <span>Paste Portal Copied Text / Bulk Import</span>
+            <span>Paste VTOP Timetable & Courses</span>
           </div>
           <button type="button" class="course-modal-close" onclick="closeImportModal()" title="Close (Esc)">✕</button>
         </div>
         <div class="course-modal-body">
-          <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 12px;">
-            Paste raw VTOP course registration and timetable text below to quickly populate this plan:
+          <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 12px; line-height: 1.45;">
+            Paste copied text directly from your <strong>VTOP Timetable</strong> or <strong>Course Registration</strong> page to immediately visualize your weekly timetable grid and courses list:
           </p>
-          <textarea id="rawPortalInput" class="form-control" style="width: 100%; min-height: 180px; font-family: monospace; font-size: 0.82rem;" placeholder="Paste your registration info / slot schedule here..."></textarea>
-          <div style="display: flex; gap: 10px; justify-content: flex-end; margin-top: 16px;">
-            <button type="button" class="btn btn-outline btn-sm" onclick="closeImportModal()">Cancel</button>
-            <button type="button" class="btn btn-primary btn-sm" onclick="processPortalTextImport()">Parse & Import Courses</button>
+          <textarea id="rawPortalInput" class="form-control" style="width: 100%; min-height: 190px; font-family: monospace; font-size: 0.82rem;" placeholder="Paste VTOP copied text here...&#10;&#10;Supported formats:&#10;1) VTOP Registration Text:&#10;BCSE202L - Data Structures and Algorithms&#10;(Theory Only)&#10;3 0 0 0 3.0&#10;B1+TB1&#10;SJT311&#10;12345 - Dr. Faculty Name&#10;&#10;2) VTOP Timetable Grid / Excel Rows:&#10;BCSE202L&#9;Data Structures&#9;Theory&#9;B1+TB1&#9;SJT311&#9;Dr. Faculty Name"></textarea>
+          <div style="display: flex; gap: 10px; justify-content: space-between; align-items: center; margin-top: 16px; flex-wrap: wrap;">
+            <button type="button" class="btn btn-secondary btn-sm" onclick="loadSamplePortalText()">⚡ Load Sample VTOP Text</button>
+            <div style="display: flex; gap: 8px;">
+              <button type="button" class="btn btn-outline btn-sm" onclick="closeImportModal()">Cancel</button>
+              <button type="button" class="btn btn-primary btn-sm" onclick="processPortalTextImport()">📊 Visualize Timetable & Courses</button>
+            </div>
           </div>
         </div>
       </div>
@@ -5815,6 +5823,56 @@
       openImportModal();
     }
 
+    function loadSamplePortalText() {
+      const sample = `BCSE202L - Data Structures and Algorithms
+(Theory Only)
+3 0 0 0 3.0
+B1+TB1
+SJT311
+12345 - Dr. Anthoniraj A
+
+BCSE202P - Data Structures and Algorithms Lab
+(Lab Only)
+0 0 2 0 1.0
+L31+L32
+PRPG07
+12345 - Dr. Anthoniraj A
+
+BMAT102L - Differential Equations and Transforms
+(Theory Only)
+3 0 0 0 3.0
+C1+TC1
+PRP110
+13302 - Dr. Alan Turing
+
+BEEE102L - Basic Electrical and Electronics Engineering
+(Theory Only)
+2 0 0 0 2.0
+D1+TD1
+TT214
+14205 - Prof. Grace Hopper
+
+BEEE102P - Basic Electrical and Electronics Engineering Lab
+(Lab Only)
+0 0 2 0 1.0
+L19+L20
+MB-EEELAB
+14205 - Prof. Grace Hopper
+
+BACHY105 - Applied Chemistry
+(Theory Only)
+3 0 0 0 3.0
+A1+TA1
+SMV218
+15112 - Dr. Marie Curie`;
+
+      const input = document.getElementById('rawPortalInput');
+      if (input) {
+        input.value = sample;
+        showToast('Sample VTOP timetable text loaded!');
+      }
+    }
+
     function processPortalTextImport() {
       const text = document.getElementById('rawPortalInput').value;
       if (!text || !text.trim()) {
@@ -5824,14 +5882,18 @@
 
       const parsedCourses = parseRegistrationCourses(text);
       if (parsedCourses.length === 0) {
-        showToast('No course registration lines identified. Check format.');
+        Swal.fire({
+          icon: 'warning',
+          title: 'No Courses Detected',
+          text: 'Could not identify course codes and slots. Please ensure you copied text from VTOP Course Registration or Timetable.'
+        });
         return;
       }
 
       const current = getActiveOption();
       current.courses.push(...parsedCourses);
 
-      // Deduplicate by code + type
+      // Deduplicate by code + type + slot
       const seen = new Set();
       current.courses = current.courses.filter(c => {
         const k = `${c.code}_${c.type}_${c.slot}`;
@@ -5843,8 +5905,16 @@
       saveStateToStorage();
       document.getElementById('rawPortalInput').value = '';
       closeImportModal();
+      switchView('matrix');
       updateAllViews();
-      showToast(`Imported ${parsedCourses.length} courses!`);
+
+      Swal.fire({
+        icon: 'success',
+        title: 'Timetable Visualized! 🎉',
+        html: `Successfully imported and visualized <b>${parsedCourses.length}</b> courses in <b>${current.name}</b>.`,
+        timer: 1800,
+        showConfirmButton: false
+      });
     }
 
     function parseRegistrationCourses(rawText) {
@@ -5853,10 +5923,49 @@
 
       for (let i = 0; i < lines.length; i++) {
         const line = lines[i];
-        const cMatch = line.match(/^([A-Z]{4,5}\d{3,4})\s*-\s*(.+)$/);
 
+        // Format A: Tab-delimited row (from VTOP Table / Excel)
+        if (line.includes('\t')) {
+          const parts = line.split('\t').map(p => p.trim());
+          let codeIdx = parts.findIndex(p => p.match(/^[A-Z]{3,5}\d{3,4}[A-Z]?$/i));
+          if (codeIdx !== -1) {
+            const code = parts[codeIdx].toUpperCase();
+            let name = parts[codeIdx + 1] || code;
+            let type = "Regular";
+            let slot = "NIL";
+            let venue = "";
+            let faculty = "-";
+            let credits = 3.0;
+
+            for (let c = codeIdx + 1; c < parts.length; c++) {
+              const val = parts[c];
+              if (!val) continue;
+              if (val.match(/^(Theory|LAB|Embedded|Project|Regular)/i)) {
+                type = val.toUpperCase().includes('LAB') ? 'LAB' : 'Theory';
+              } else if (val.match(/^([A-Z]\d.*|L\d.*)$/) && slot === "NIL" && !val.includes('-')) {
+                slot = val.toUpperCase();
+              } else if (val.match(/^(PRP|SJT|TT|SMV|GDN|MB|ONLINE|[A-Z0-9]{3,8})/i) && !venue && !val.includes(' ')) {
+                venue = formatVenue(val);
+              } else if (val.match(/^\d{4,6}\s*-\s*.+$/) || (val.length > 5 && val.includes(' ') && faculty === "-")) {
+                faculty = val;
+              } else {
+                const num = parseFloat(val);
+                if (!isNaN(num) && num > 0 && num <= 10 && !/[A-Za-z]/.test(val)) {
+                  credits = num;
+                }
+              }
+            }
+
+            if (slot.startsWith('L') && (type === 'Regular' || type === 'Theory')) type = 'LAB';
+            courses.push({ code, name, type, slot, venue, faculty, credits });
+            continue;
+          }
+        }
+
+        // Format B: Vertical text block (VTOP Course Registration page)
+        const cMatch = line.match(/^([A-Z]{3,5}\d{3,4}[A-Z]?)\s*-\s*(.+)$/i);
         if (cMatch) {
-          const code = cMatch[1];
+          const code = cMatch[1].toUpperCase();
           const name = cMatch[2].trim();
 
           let type = "Regular";
@@ -5867,20 +5976,25 @@
 
           for (let j = i + 1; j < Math.min(i + 15, lines.length); j++) {
             const l = lines[j];
+            if (l.match(/^([A-Z]{3,5}\d{3,4}[A-Z]?)\s*-\s*(.+)$/i)) {
+              // Next course reached
+              break;
+            }
             if (l.startsWith('(') && l.endsWith(')')) {
               type = l.replace(/[\(\)]/g, '').trim();
             } else if (l.match(/^\d\s+\d\s+\d\s+\d\s+[\d.]+$/)) {
               const parts = l.split(/\s+/);
               credits = parseFloat(parts[4]) || 0;
             } else if (l.match(/^([A-Z]\d.*|L\d.*)$/) && slot === "NIL" && !l.includes('-') && !l.includes('Registered')) {
-              slot = l;
-            } else if (l.match(/^(PRP[A-Z0-9]+|SJT[A-Z0-9]+|TT[A-Z0-9]+|NIL)$/) && !venue && l !== "NIL") {
-              venue = l;
+              slot = l.toUpperCase();
+            } else if (l.match(/^(PRP[A-Z0-9]+|SJT[A-Z0-9]+|TT[A-Z0-9]+|ONLINE|[A-Z0-9]{3,8})$/i) && !venue && l.toUpperCase() !== "NIL") {
+              venue = formatVenue(l);
             } else if (l.match(/^\d{4,6}\s*-\s*.+$/)) {
               faculty = l;
             }
           }
 
+          if (slot.startsWith('L') && (type === 'Regular' || type.includes('Lab') || type === 'Theory')) type = 'LAB';
           courses.push({ code, name, type, slot, venue, faculty, credits });
         }
       }
