@@ -6241,17 +6241,40 @@ Registered`;
           }
 
           if (isPortalTable) {
-            // Collect title / type lines until credits line (e.g. 3.0, 1.0, 2.0)
+            let detectedTypeInParens = '';
+
+            // Collect title / type lines until credits line:
+            // Format 1 has: ( Embedded Theory ) then 3 0 0 0 3.0
+            // Format 2 has: Chemistry - Embedded Theory then 3.0
             while (i < lines.length) {
               const cur = lines[i];
+
+              // Check for Format 1 paren type: e.g. "( Embedded Theory )"
+              if (cur.startsWith('(') && cur.endsWith(')')) {
+                detectedTypeInParens = cur.replace(/[\(\)]/g, '').trim();
+                i++;
+                continue;
+              }
+
+              // Check for Format 1 LTPJC credits line: "3 0 0 0 3.0"
+              const ltpjcMatch = cur.match(/^\d\s+\d\s+\d\s+\d\s+([\d.]+)$/);
+              if (ltpjcMatch) {
+                credits = parseFloat(ltpjcMatch[1]) || 3.0;
+                i++;
+                break;
+              }
+
+              // Check for Format 2 single credit line: "3.0"
               if (cur.match(/^\d+(\.\d+)?$/)) {
                 credits = parseFloat(cur);
                 i++; // skip credits line
                 break;
               }
+
               if (cur.match(/^([A-Z]{3,5}\d{3,4}[A-Z]?)\s*-\s*/i)) {
                 break;
               }
+
               rawTitleParts.push(cur);
               i++;
             }
@@ -6260,13 +6283,18 @@ Registered`;
             let name = fullTitleStr;
             let type = "Theory";
 
-            const typeMatch = fullTitleStr.match(/(.+?)\s*-\s*(Embedded Theory|Embedded Lab|Theory Only|Lab Only|Online Course|Project)$/i);
-            if (typeMatch) {
-              name = typeMatch[1].trim();
-              const detectedType = typeMatch[2].trim();
-              type = detectedType.toUpperCase().includes('LAB') ? 'LAB' : 'Theory';
-            } else if (fullTitleStr.toUpperCase().includes('LAB')) {
-              type = 'LAB';
+            if (detectedTypeInParens) {
+              type = detectedTypeInParens.toUpperCase().includes('LAB') ? 'LAB' : 'Theory';
+              if (detectedTypeInParens.toUpperCase().includes('ONLINE')) type = 'Online Course';
+            } else {
+              const typeMatch = fullTitleStr.match(/(.+?)\s*-\s*(Embedded Theory|Embedded Lab|Theory Only|Lab Only|Online Course|Project)$/i);
+              if (typeMatch) {
+                name = typeMatch[1].trim();
+                const detectedType = typeMatch[2].trim();
+                type = detectedType.toUpperCase().includes('LAB') ? 'LAB' : 'Theory';
+              } else if (fullTitleStr.toUpperCase().includes('LAB')) {
+                type = 'LAB';
+              }
             }
 
             let venue = "";
@@ -6285,42 +6313,77 @@ Registered`;
 
               // VL class detail line
               if (l.match(/^VL\d+/i)) {
-                const vParts = l.split('-').map(s => s.trim());
-                if (vParts.length >= 3 && vParts[2] && vParts[2] !== 'NIL') {
-                  venue = formatVenue(vParts[2]);
-                } else if (i + 1 < lines.length) {
-                  const nextL = lines[i + 1];
-                  if (nextL !== 'NIL' && !nextL.match(/^\d+$/)) {
-                    venue = formatVenue(nextL);
-                  }
-                  i++;
-                }
+                // Check if this is Format 1: "VL2026270502835" alone, where NEXT line is slot ("C2+TC2") and NEXT is venue ("PRP425")
+                const isFormat1 = l.match(/^VL\d+$/i);
 
-                // Next line after venue is slot
-                if (i + 1 < lines.length) {
-                  const slotL = lines[i + 1];
-                  if (slotL === 'NIL' || slotL.match(/^([A-Z]\d.*|L\d.*)$/)) {
-                    slot = slotL.toUpperCase();
+                if (isFormat1) {
+                  // Format 1 sequence:
+                  // i: VL...
+                  // i+1: Slot (e.g. C2+TC2, L21+L22, NIL)
+                  // i+2: Venue (e.g. PRP425, SJT803, NIL)
+                  // i+3: Faculty (e.g. 10546 - SUMATHI S - SAS)
+                  if (i + 1 < lines.length) {
+                    const sL = lines[i + 1];
+                    if (sL === 'NIL' || sL.match(/^([A-Z]\d.*|L\d.*)$/)) {
+                      slot = sL.toUpperCase();
+                      i++;
+                    }
+                  }
+
+                  if (i + 1 < lines.length) {
+                    const vL = lines[i + 1];
+                    if (vL !== 'NIL' && !vL.match(/^\d+$/)) {
+                      venue = formatVenue(vL);
+                    }
                     i++;
                   }
-                }
 
-                // Remaining lines up to Registered/Delete/Modify are faculty
-                i++;
-                while (i < lines.length) {
-                  const facL = lines[i];
-                  if (facL === 'Registered' || facL === 'Delete' || facL === '-NA-' || facL === 'Modify') break;
-                  if (facL.match(/^([A-Z]{3,5}\d{3,4}[A-Z]?)\s*-\s*/i)) break;
-                  facultyLines.push(facL);
+                  if (i + 1 < lines.length) {
+                    const fL = lines[i + 1];
+                    if (!fL.match(/^\d{2}-[A-Za-z]{3}-\d{4}/)) { // not a date
+                      faculty = fL.trim();
+                      i++;
+                    }
+                  }
+                } else {
+                  // Format 2: "VL... - 10546 -" or "VL... - 10546 - PRP425"
+                  const vParts = l.split('-').map(s => s.trim());
+                  if (vParts.length >= 3 && vParts[2] && vParts[2] !== 'NIL') {
+                    venue = formatVenue(vParts[2]);
+                  } else if (i + 1 < lines.length) {
+                    const nextL = lines[i + 1];
+                    if (nextL !== 'NIL' && !nextL.match(/^\d+$/)) {
+                      venue = formatVenue(nextL);
+                    }
+                    i++;
+                  }
+
+                  // Next line after venue is slot
+                  if (i + 1 < lines.length) {
+                    const slotL = lines[i + 1];
+                    if (slotL === 'NIL' || slotL.match(/^([A-Z]\d.*|L\d.*)$/)) {
+                      slot = slotL.toUpperCase();
+                      i++;
+                    }
+                  }
+
+                  // Remaining lines up to Registered/Delete/Modify are faculty
                   i++;
+                  while (i < lines.length) {
+                    const facL = lines[i];
+                    if (facL === 'Registered' || facL === 'Delete' || facL === '-NA-' || facL === 'Modify') break;
+                    if (facL.match(/^([A-Z]{3,5}\d{3,4}[A-Z]?)\s*-\s*/i)) break;
+                    facultyLines.push(facL);
+                    i++;
+                  }
+
+                  if (facultyLines.length > 0) {
+                    faculty = facultyLines.join(' ').replace(/\s*-\s*/g, ' - ').replace(/\s+/g, ' ').trim();
+                  }
                 }
                 break;
               }
               i++;
-            }
-
-            if (facultyLines.length > 0) {
-              faculty = facultyLines.join(' ').replace(/\s*-\s*/g, ' - ').replace(/\s+/g, ' ').trim();
             }
 
             if (!slot) slot = "NIL";
@@ -6364,6 +6427,27 @@ Registered`;
             courses.push({ code, name, type, slot, venue, faculty, credits });
             continue;
           }
+        }
+
+        // Format C: Timetable Grid Token (e.g. A2-BACSE104-ETH-SJT803-ALL)
+        const gridMatch = line.match(/^([A-Z0-9\+]+)-([A-Z]{3,5}\d{3,4}[A-Z]?)-(ETH|ELA|TH|LO|SS|SSK)-([A-Z0-9]+)-/i);
+        if (gridMatch) {
+          const slot = gridMatch[1].toUpperCase();
+          const code = gridMatch[2].toUpperCase();
+          const compType = gridMatch[3].toUpperCase();
+          const venue = formatVenue(gridMatch[4]);
+          const type = (compType === 'ELA' || compType === 'LO' || slot.startsWith('L')) ? 'LAB' : 'Theory';
+          courses.push({
+            code,
+            name: code,
+            type,
+            slot,
+            venue,
+            faculty: 'Faculty Assigned',
+            credits: type === 'LAB' ? 1.0 : 3.0
+          });
+          i++;
+          continue;
         }
 
         i++;
@@ -7832,8 +7916,8 @@ BMAT101\tCalculus and Linear Algebra\tB1+TB1\tNIL\tPRP110\t13302 - RAJA DAS - SA
       const map = {};
       if (!rawText) return map;
 
-      // Direct VTOP Registration Portal Table Support
-      if (rawText.includes('Course Details') || rawText.includes('VL20') || rawText.includes('Embedded Theory') || rawText.includes('Embedded Lab')) {
+      // Direct VTOP Registration Portal & Student Registration Details Support
+      if (rawText.includes('Course Details') || rawText.includes('VL20') || rawText.includes('Embedded Theory') || rawText.includes('Embedded Lab') || rawText.includes('Registration Information') || rawText.includes('Student Registration Details')) {
         const regCourses = parseRegistrationCourses(rawText);
         if (regCourses && regCourses.length > 0) {
           regCourses.forEach(c => {
