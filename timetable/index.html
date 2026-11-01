@@ -2374,6 +2374,12 @@
       border: 1px solid rgba(245, 158, 11, 0.3);
     }
 
+    .type-embedded {
+      background: rgba(168, 85, 247, 0.15);
+      color: #c084fc;
+      border: 1px solid rgba(168, 85, 247, 0.35);
+    }
+
     .type-project {
       background: rgba(236, 72, 153, 0.15);
       color: #f472b6;
@@ -4013,6 +4019,8 @@
                 <select id="courseType" class="form-control" required onchange="handleCourseTypeChange()">
                   <option value="Theory">Theory</option>
                   <option value="LAB">LAB</option>
+                  <option value="Embedded">Embedded (Theory + Lab)</option>
+                  <option value="Online Course">Online Course</option>
                 </select>
               </div>
 
@@ -4794,13 +4802,21 @@
       tokens.forEach(tok => {
         const matches = SLOT_LOOKUP[tok] || [];
         matches.forEach(m => {
+          let sessionVenue = course.venue;
+          if (m.mode === 'THEORY' && course.theoryVenue) sessionVenue = course.theoryVenue;
+          else if (m.mode === 'LAB' && course.labVenue) sessionVenue = course.labVenue;
+
+          let sessionFaculty = course.faculty;
+          if (m.mode === 'THEORY' && course.theoryFaculty) sessionFaculty = course.theoryFaculty;
+          else if (m.mode === 'LAB' && course.labFaculty) sessionFaculty = course.labFaculty;
+
           sessions.push({
             courseIndex,
             code: course.code,
             name: course.name,
-            faculty: course.faculty,
-            venue: course.venue,
-            type: course.type,
+            faculty: sessionFaculty,
+            venue: sessionVenue,
+            type: m.mode === 'LAB' ? 'LAB' : (course.type === 'LAB' ? 'LAB' : 'Theory'),
             slot: tok,
             day: m.day,
             dayFull: m.dayFull,
@@ -4913,48 +4929,70 @@
     let dragSource = null;
     let moveSelection = null; // { courseIndex, slot, mode, code, name }
 
+    function isCourseEmbedded(course) {
+      if (!course) return false;
+      const type = (course.type || '').trim().toUpperCase();
+      if (type === 'EMBEDDED' || type.includes('EMBEDDED')) return true;
+      const tokens = parseSlotTokens(course.slot);
+      return tokens.some(s => !s.startsWith('L')) && tokens.some(s => s.startsWith('L'));
+    }
+
     function isCourseLab(course) {
       if (!course) return false;
+      if (isCourseEmbedded(course)) return false;
       const type = (course.type || '').trim().toUpperCase();
       if (type === 'LAB' || type.includes('LAB') || type.includes('PRACTICAL')) return true;
       const tokens = parseSlotTokens(course.slot);
-      return tokens.some(s => s.startsWith('L'));
+      return tokens.length > 0 && tokens.every(s => s.startsWith('L'));
     }
 
     function computeNewSlotForCourse(course, targetSlot, targetMode, draggedSlotToken) {
       if (!course || !targetSlot) return null;
-      const isLab = isCourseLab(course);
+      const embedded = isCourseEmbedded(course);
+      const pureLab = isCourseLab(course);
+      const pureTheory = !embedded && !pureLab;
 
-      if (isLab && targetMode === 'THEORY') return null;
-      if (!isLab && targetMode === 'LAB') return null;
+      if (pureLab && targetMode === 'THEORY') return null;
+      if (pureTheory && targetMode === 'LAB') return null;
+
+      const curTokens = parseSlotTokens(course.slot);
+      const curTheoryTokens = curTokens.filter(t => !t.startsWith('L'));
+      const curLabTokens = curTokens.filter(t => t.startsWith('L'));
 
       if (targetMode === 'THEORY') {
         const curCredits = parseFloat(course.credits) || 0;
-        const curTokens = parseSlotTokens(course.slot);
+        let newThSlot = targetSlot;
         if (THEORY_COMBINATIONS[targetSlot]) {
-          if (curCredits >= 3.0 || curTokens.length > 1) {
-            return THEORY_COMBINATIONS[targetSlot];
+          if (curCredits >= 3.0 || curTheoryTokens.length > 1) {
+            newThSlot = THEORY_COMBINATIONS[targetSlot];
           }
         }
-        return targetSlot;
+        if (embedded && curLabTokens.length > 0) {
+          return `${newThSlot}+${curLabTokens.join('+')}`;
+        }
+        return newThSlot;
       }
 
       if (targetMode === 'LAB') {
-        const curTokens = parseSlotTokens(course.slot);
         const targetPair = LAB_PAIRS[targetSlot] || targetSlot;
-        if (curTokens.length >= 4) {
+        let newLabSlot = targetPair;
+        if (curLabTokens.length >= 4) {
           const targetTokens = targetPair.split('+');
-          const idxInCur = draggedSlotToken ? curTokens.indexOf(draggedSlotToken) : 0;
+          const idxInCur = draggedSlotToken ? curLabTokens.indexOf(draggedSlotToken) : 0;
           if (idxInCur >= 2) {
-            return `${curTokens[0]}+${curTokens[1]}+${targetTokens[0]}+${targetTokens[1] || targetTokens[0]}`;
+            newLabSlot = `${curLabTokens[0]}+${curLabTokens[1]}+${targetTokens[0]}+${targetTokens[1] || targetTokens[0]}`;
           } else {
-            return `${targetTokens[0]}+${targetTokens[1] || targetTokens[0]}+${curTokens[2]}+${curTokens[3]}`;
+            newLabSlot = `${targetTokens[0]}+${targetTokens[1] || targetTokens[0]}+${curLabTokens[2]}+${curLabTokens[3]}`;
           }
+        } else if (curLabTokens.length >= 2 || (parseFloat(course.credits) || 0) >= 1.0) {
+          newLabSlot = targetPair;
+        } else {
+          newLabSlot = targetSlot;
         }
-        if (curTokens.length >= 2 || (parseFloat(course.credits) || 0) >= 1.0) {
-          return targetPair;
+        if (embedded && curTheoryTokens.length > 0) {
+          return `${curTheoryTokens.join('+')}+${newLabSlot}`;
         }
-        return targetSlot;
+        return newLabSlot;
       }
 
       return targetSlot;
@@ -6033,10 +6071,10 @@ Registered`;
       const current = getActiveOption();
       current.courses.push(...parsedCourses);
 
-      // Deduplicate by code + type + slot
+      // Deduplicate by course code (each course code represents 1 course with theory + lab)
       const seen = new Set();
       current.courses = current.courses.filter(c => {
-        const k = `${c.code}_${c.type}_${c.slot}`;
+        const k = c.code.toUpperCase();
         if (seen.has(k)) return false;
         seen.add(k);
         return true;
@@ -6051,10 +6089,86 @@ Registered`;
       Swal.fire({
         icon: 'success',
         title: 'Timetable Visualized! 🎉',
-        html: `Successfully imported and visualized <b>${parsedCourses.length}</b> courses in <b>${current.name}</b>.`,
+        html: `Successfully imported and visualized <b>${parsedCourses.length}</b> courses (${current.courses.length} total) in <b>${current.name}</b>.`,
         timer: 1800,
         showConfirmButton: false
       });
+    }
+
+    function mergeCourseComponents(rawComponents) {
+      const mergedMap = new Map();
+
+      rawComponents.forEach(comp => {
+        const code = comp.code.toUpperCase();
+        if (!mergedMap.has(code)) {
+          const isLab = comp.type === 'LAB' || (comp.slot && comp.slot.startsWith('L'));
+          mergedMap.set(code, {
+            code,
+            name: comp.name.replace(/\s+Lab$/i, '').trim(),
+            type: comp.type || (isLab ? 'LAB' : 'Theory'),
+            slot: comp.slot || 'NIL',
+            theorySlot: !isLab ? comp.slot : 'NIL',
+            labSlot: isLab ? comp.slot : 'NIL',
+            theoryVenue: !isLab ? comp.venue : '',
+            labVenue: isLab ? comp.venue : '',
+            venue: comp.venue || '',
+            theoryFaculty: !isLab ? comp.faculty : '',
+            labFaculty: isLab ? comp.faculty : '',
+            faculty: comp.faculty || '-',
+            credits: parseFloat(comp.credits) || 0
+          });
+        } else {
+          const existing = mergedMap.get(code);
+          const isLab = comp.type === 'LAB' || (comp.slot && comp.slot.startsWith('L'));
+
+          // Accumulate total credits
+          existing.credits = +(existing.credits + (parseFloat(comp.credits) || 0)).toFixed(1);
+
+          // Type becomes Embedded if both theory and lab exist
+          existing.type = 'Embedded';
+
+          if (isLab) {
+            existing.labSlot = comp.slot;
+            existing.labVenue = comp.venue;
+            existing.labFaculty = comp.faculty;
+            if (!existing.slot || existing.slot === 'NIL') {
+              existing.slot = comp.slot;
+            } else if (comp.slot && comp.slot !== 'NIL') {
+              existing.slot = `${existing.slot}+${comp.slot}`;
+            }
+          } else {
+            existing.theorySlot = comp.slot;
+            existing.theoryVenue = comp.venue;
+            existing.theoryFaculty = comp.faculty;
+            if (!existing.slot || existing.slot === 'NIL') {
+              existing.slot = comp.slot;
+            } else if (comp.slot && comp.slot !== 'NIL') {
+              existing.slot = `${comp.slot}+${existing.slot}`;
+            }
+            if (comp.name) existing.name = comp.name.replace(/\s+Lab$/i, '').trim();
+          }
+
+          // Combine venues cleanly
+          const thV = formatVenue(existing.theoryVenue);
+          const laV = formatVenue(existing.labVenue);
+          if (thV && laV) {
+            existing.venue = thV === laV ? thV : `${thV} (Th) / ${laV} (Lab)`;
+          } else {
+            existing.venue = thV || laV || '';
+          }
+
+          // Faculty
+          const thF = existing.theoryFaculty && existing.theoryFaculty !== '-' ? existing.theoryFaculty : '';
+          const laF = existing.labFaculty && existing.labFaculty !== '-' ? existing.labFaculty : '';
+          if (thF && laF) {
+            existing.faculty = thF === laF ? thF : `${thF} / ${laF}`;
+          } else {
+            existing.faculty = thF || laF || existing.faculty || '-';
+          }
+        }
+      });
+
+      return Array.from(mergedMap.values());
     }
 
     function parseRegistrationCourses(rawText) {
@@ -6255,7 +6369,7 @@ Registered`;
         i++;
       }
 
-      return courses;
+      return mergeCourseComponents(courses);
     }
 
     // ==========================================
@@ -6807,8 +6921,10 @@ Registered`;
       `;
 
       courses.forEach((c, idx) => {
+        const isEmbedded = isCourseEmbedded(c);
         const isLab = isCourseLab(c);
-        const typeClass = isLab ? 'type-lab' : 'type-theory';
+        const typeClass = isEmbedded ? 'type-embedded' : (isLab ? 'type-lab' : (c.type === 'Online Course' ? 'type-online' : 'type-theory'));
+        const typeLabel = isEmbedded ? 'Embedded' : (isLab ? 'LAB' : (c.type === 'Online Course' ? 'Online' : 'Theory'));
         const theme = getCourseColorTheme(idx, c.code);
 
         html += `
@@ -6826,14 +6942,14 @@ Registered`;
               </strong>
             </td>
             <td>${c.name}</td>
-            <td><span class="type-tag ${typeClass}">${isLab ? 'LAB' : 'Theory'}</span></td>
+            <td><span class="type-tag ${typeClass}">${typeLabel}</span></td>
             <td><span class="slot-pill" style="border-left: 3px solid ${theme.border};">${c.slot}</span></td>
             <td>${cleanFacultyName(c.faculty)}</td>
             <td>${formatVenue(c.venue) ? `<span class="venue-badge">${formatVenue(c.venue)}</span>` : '<span style="color:var(--text-muted);">-</span>'}</td>
             <td><strong>${(parseFloat(c.credits) || 0).toFixed(1)}</strong></td>
             <td style="text-align: right;">
               <div class="action-btn-group" style="justify-content: flex-end;">
-                <button class="btn btn-outline btn-sm" onclick="setMoveSelection(${idx}, '${c.slot}', '${isLab ? 'LAB' : 'THEORY'}')" title="Select to place or swap on timetable grid">📍 Move on Grid</button>
+                <button class="btn btn-outline btn-sm" onclick="setMoveSelection(${idx}, '${isEmbedded ? (c.theorySlot || c.slot) : c.slot}', '${isLab ? 'LAB' : 'THEORY'}')" title="Select to place or swap on timetable grid">📍 Move on Grid</button>
                 <button class="btn btn-secondary btn-sm" onclick="editCourse(${idx})" title="Edit course">✏️ Edit</button>
                 <button class="btn btn-danger btn-sm" onclick="deleteCourse(${idx})" title="Delete course">🗑️</button>
               </div>
@@ -6900,7 +7016,7 @@ Registered`;
             <td style="text-align: center;">${idx + 1}</td>
             <td><strong style="color: ${theme.pdfText};">${c.code}</strong></td>
             <td>${c.name}</td>
-            <td>${isCourseLab(c) ? 'LAB' : 'Theory'}</td>
+            <td>${isCourseEmbedded(c) ? 'Embedded' : (isCourseLab(c) ? 'LAB' : (c.type === 'Online Course' ? 'Online' : 'Theory'))}</td>
             <td style="font-family: monospace; font-weight: 600;">${c.slot}</td>
             <td>${cleanFacultyName(c.faculty)}</td>
             <td style="text-align: center;">${formatVenue(c.venue) || '-'}</td>
@@ -7714,6 +7830,35 @@ BMAT101\tCalculus and Linear Algebra\tB1+TB1\tNIL\tPRP110\t13302 - RAJA DAS - SA
 
     function parseHODOfferingsRobust(rawText) {
       const map = {};
+      if (!rawText) return map;
+
+      // Direct VTOP Registration Portal Table Support
+      if (rawText.includes('Course Details') || rawText.includes('VL20') || rawText.includes('Embedded Theory') || rawText.includes('Embedded Lab')) {
+        const regCourses = parseRegistrationCourses(rawText);
+        if (regCourses && regCourses.length > 0) {
+          regCourses.forEach(c => {
+            const thSlot = c.theorySlot || (c.type !== 'LAB' ? c.slot : 'NIL');
+            const laSlot = c.labSlot || (c.type === 'LAB' ? c.slot : 'NIL');
+            map[c.code] = {
+              code: c.code,
+              title: c.name,
+              credits: c.credits || 4.0,
+              venue: c.venue || '',
+              faculty: c.faculty || '',
+              selected: true,
+              priority: 2,
+              offerings: [{
+                theorySlot: thSlot,
+                labSlot: laSlot,
+                venue: c.venue || '',
+                faculty: c.faculty || ''
+              }]
+            };
+          });
+          return map;
+        }
+      }
+
       const lines = rawText.split(/\r?\n/).map(l => l.trim()).filter(l => l);
 
       let headerIndices = null;
@@ -8144,27 +8289,53 @@ BMAT101\tCalculus and Linear Algebra\tB1+TB1\tNIL\tPRP110\t13302 - RAJA DAS - SA
           labFaculty = fParts[1] || fParts[0] || 'Faculty Assigned';
         }
 
-        if (hasTheory) {
+        if (hasTheory && hasLab) {
+          courses.push({
+            code: c.code,
+            name: c.title,
+            type: 'Embedded',
+            slot: `${off.theorySlot}+${off.labSlot}`,
+            theorySlot: off.theorySlot,
+            labSlot: off.labSlot,
+            theoryVenue: thVenue,
+            labVenue: labVenue,
+            venue: thVenue && labVenue ? (thVenue === labVenue ? thVenue : `${thVenue} (Th) / ${labVenue} (Lab)`) : (thVenue || labVenue || ''),
+            theoryFaculty: thFaculty,
+            labFaculty: labFaculty,
+            faculty: thFaculty && labFaculty ? (thFaculty === labFaculty ? thFaculty : `${thFaculty} / ${labFaculty}`) : (thFaculty || labFaculty || 'Faculty Assigned'),
+            credits: +(theoryCr + labCr).toFixed(1)
+          });
+        } else if (hasTheory) {
           courses.push({
             code: c.code,
             name: c.title,
             type: 'Theory',
             slot: off.theorySlot,
+            theorySlot: off.theorySlot,
+            labSlot: 'NIL',
+            theoryVenue: thVenue,
+            labVenue: '',
+            venue: thVenue,
+            theoryFaculty: thFaculty,
+            labFaculty: '',
             faculty: thFaculty,
-            credits: theoryCr,
-            venue: thVenue
+            credits: theoryCr
           });
-        }
-
-        if (hasLab) {
+        } else if (hasLab) {
           courses.push({
             code: c.code,
             name: `${c.title} Lab`,
             type: 'LAB',
             slot: off.labSlot,
+            theorySlot: 'NIL',
+            labSlot: off.labSlot,
+            theoryVenue: '',
+            labVenue: labVenue,
+            venue: labVenue,
+            theoryFaculty: '',
+            labFaculty: labFaculty,
             faculty: labFaculty,
-            credits: labCr,
-            venue: labVenue
+            credits: labCr
           });
         }
 
@@ -8293,11 +8464,11 @@ BMAT101\tCalculus and Linear Algebra\tB1+TB1\tNIL\tPRP110\t13302 - RAJA DAS - SA
                     <p style="margin-bottom: 10px;">The AI constraint satisfaction engine has synthesized <strong>Option 1</strong> and <strong>Option 2</strong> with <strong>0 Clashes</strong>:</p>
                     <div style="padding: 10px 14px; background: rgba(34,197,94,0.1); border: 1px solid rgba(34,197,94,0.25); border-radius: 8px; margin-bottom: 8px;">
                       <strong>Option 1:</strong> Morning Theory & Afternoon Lab<br>
-                      <span>📊 ${opt1Courses.length} course components | <strong>${opt1Cr.toFixed(1)} Credits</strong> | 0 Clashes</span>
+                      <span>📊 ${opt1Courses.length} courses | <strong>${opt1Cr.toFixed(1)} Credits</strong> | 0 Clashes</span>
                     </div>
                     <div style="padding: 10px 14px; background: rgba(14,165,233,0.1); border: 1px solid rgba(14,165,233,0.25); border-radius: 8px;">
                       <strong>Option 2:</strong> Afternoon Theory & Morning Lab<br>
-                      <span>📊 ${opt2Courses.length} course components | <strong>${opt2Cr.toFixed(1)} Credits</strong> | 0 Clashes</span>
+                      <span>📊 ${opt2Courses.length} courses | <strong>${opt2Cr.toFixed(1)} Credits</strong> | 0 Clashes</span>
                     </div>
                   </div>
                 `,
